@@ -1,0 +1,336 @@
+// ============================================================
+// POD Platform — ERD v1.1  (dbdiagram.io / DBML)
+// Source: Mermaid ERD embedded in doc/ERD POD 1.1.drawio
+// ============================================================
+//
+// Changelog vs v1.0 (see accompanying PRD/SRS v1.1 for rationale):
+//   1. + PRODUCT_VARIANTS (size/color/material per template, price_delta)
+//   2. + DESIGN_PRODUCT_MAPPINGS.fallback_product_template_id
+//   3. CUSTOMIZATION_REQUESTS.status gains `resolved_as_is`
+//   4. + CUSTOM_ORDER_VARIANTS.status / expires_at
+//   5. PAYMENTS: one-to-many from ORDERS, + deleted_at,
+//      + status gains `rejected`, removed proof_media_id (now via polymorphic MEDIA)
+//   6. + CART_ITEMS (persistent cart)
+//   7. ORDERS: + shipping address snapshot fields
+//   8. SUB_ORDERS.status clarified as high-level; FULFILLMENT_RECORDS owns granular progress
+//   9. + unique constraints on DESIGN_PRODUCT_MAPPINGS and SUB_ORDERS
+//  10. ACTIVITY_LOG.causer_id made explicitly nullable
+// ============================================================
+
+// ===== AUTH / ROLES (spatie/laravel-permission style) =====
+Table users {
+  id bigint [pk, increment, note: 'PK']
+  name varchar
+  email varchar
+  password varchar
+  phone varchar
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+  Note: 'spatie/laravel-permission style auth'
+}
+
+Table roles {
+  id bigint [pk, increment]
+  name varchar [note: 'customer, designer, printer_provider, admin']
+}
+
+Table permissions {
+  id bigint [pk, increment]
+  name varchar
+}
+
+Table model_has_roles {
+  role_id bigint [ref: > roles.id, note: 'FK -> roles.id']
+  model_id bigint [note: 'polymorphic, users for now']
+  model_type varchar
+  Note: 'spatie/laravel-permission junction'
+
+  Indexes {
+    (role_id, model_id, model_type) [unique, name: 'model_has_roles_index']
+  }
+}
+
+Table model_has_permissions {
+  permission_id bigint [ref: > permissions.id, note: 'FK -> permissions.id']
+  model_id bigint [note: 'polymorphic, users for now']
+  model_type varchar
+  Note: 'spatie/laravel-permission junction'
+
+  Indexes {
+    (permission_id, model_id, model_type) [unique, name: 'model_has_permissions_index']
+  }
+}
+
+// ===== PROFILES =====
+// NOTE: a user may only hold ONE of {designer, printer_provider} profile rows.
+// Not enforceable via FK cardinality alone — enforced at application layer
+// (see SRS FR-AUTH-02 / NFR-SEC-03). Eloquent doesn't natively express XOR.
+Table designer_profiles {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, note: 'FK -> users.id']
+  bio text
+}
+
+Table printer_provider_profiles {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, note: 'FK -> users.id']
+  company_name varchar
+}
+
+Table addresses {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, note: 'FK -> users.id']
+  line1 varchar
+  city varchar
+  country varchar
+  phone varchar
+}
+
+// ===== CATALOG / DESIGN =====
+Table categories {
+  id bigint [pk, increment]
+  name varchar
+  parent_id bigint [ref: > categories.id, note: 'nullable, self-reference']
+
+  Indexes {
+    parent_id [name: 'idx_categories_parent']
+  }
+}
+
+Table tags {
+  id bigint [pk, increment]
+  name varchar
+}
+
+Table design_tag {
+  design_id bigint [ref: > designs.id, note: 'FK -> designs.id']
+  tag_id bigint [ref: > tags.id, note: 'FK -> tags.id']
+  Note: 'composite-key junction'
+
+  Indexes {
+    (design_id, tag_id) [unique, name: 'design_tag_pk']
+  }
+}
+
+Table product_templates {
+  id bigint [pk, increment]
+  printer_provider_id bigint [ref: > printer_provider_profiles.id, note: 'FK']
+  name varchar
+  type varchar
+  base_cost decimal
+  specs json
+}
+
+Table product_variants {
+  id bigint [pk, increment]
+  product_template_id bigint [ref: > product_templates.id, note: 'FK']
+  attributes json [note: 'e.g. size, color, material']
+  price_delta decimal [note: 'added on top of design final_price']
+  sku varchar [note: 'nullable']
+  is_active boolean
+}
+
+Table designs {
+  id bigint [pk, increment]
+  designer_id bigint [ref: > designer_profiles.id, note: 'FK']
+  category_id bigint [ref: > categories.id, note: 'FK']
+  title varchar
+  status varchar
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table design_product_mappings {
+  id bigint [pk, increment]
+  design_id bigint [ref: > designs.id, note: 'FK']
+  product_template_id bigint [ref: > product_templates.id, note: 'FK — preferred printer\'s template']
+  preferred_printer_id bigint [ref: > printer_provider_profiles.id, note: 'FK']
+  fallback_printer_id bigint [ref: > printer_provider_profiles.id, note: 'FK — nullable']
+  fallback_product_template_id bigint [ref: > product_templates.id, note: 'FK — nullable, fallback printer\'s equivalent template']
+  final_price decimal
+  created_at timestamp
+  updated_at timestamp
+  Note: 'UNIQUE (design_id, product_template_id) — prevents duplicate mappings'
+
+  Indexes {
+    (design_id, product_template_id) [unique, name: 'dpm_design_template_unique']
+  }
+}
+
+// ===== CART (persistent) =====
+Table cart_items {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, note: 'FK']
+  design_product_mapping_id bigint [ref: > design_product_mappings.id, note: 'FK — nullable, standard item']
+  custom_order_variant_id bigint [ref: > custom_order_variants.id, note: 'FK — nullable, custom item']
+  product_variant_id bigint [ref: > product_variants.id, note: 'FK — nullable, size/color/material choice']
+  quantity int
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ===== CUSTOMIZATION / NEGOTIATION =====
+Table customization_requests {
+  id bigint [pk, increment]
+  customer_id bigint [ref: > users.id, note: 'FK']
+  designer_id bigint [ref: > designer_profiles.id, note: 'FK']
+  design_id bigint [ref: > designs.id, note: 'FK — nullable']
+  status varchar [note: 'open, declined, resolved_as_is, accepted']
+  created_at timestamp
+}
+
+Table messages {
+  id bigint [pk, increment]
+  thread_id bigint [ref: > customization_requests.id, note: 'FK — references customization_requests.id']
+  sender_id bigint [ref: > users.id, note: 'FK']
+  body text
+  created_at timestamp
+}
+
+Table custom_order_variants {
+  id bigint [pk, increment]
+  customization_request_id bigint [ref: > customization_requests.id, note: 'FK']
+  original_design_id bigint [ref: > designs.id, note: 'FK']
+  customer_id bigint [ref: > users.id, note: 'FK']
+  designer_id bigint [ref: > designer_profiles.id, note: 'FK']
+  agreed_price decimal
+  status varchar [note: 'open, purchased, cancelled, expired']
+  expires_at timestamp [note: 'nullable']
+  created_at timestamp
+}
+
+// ===== ORDERS / FULFILLMENT =====
+Table orders {
+  id bigint [pk, increment]
+  customer_id bigint [ref: > users.id, note: 'FK']
+  shipping_address_id bigint [ref: > addresses.id, note: 'FK — reference only, not source of truth post-checkout']
+  shipping_line1 varchar [note: 'snapshot at checkout time']
+  shipping_city varchar [note: 'snapshot at checkout time']
+  shipping_country varchar [note: 'snapshot at checkout time']
+  shipping_phone varchar [note: 'snapshot at checkout time']
+  status varchar
+  total_amount decimal
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+}
+
+Table order_items {
+  id bigint [pk, increment]
+  order_id bigint [ref: > orders.id, note: 'FK']
+  design_product_mapping_id bigint [ref: > design_product_mappings.id, note: 'FK']
+  product_variant_id bigint [ref: > product_variants.id, note: 'FK — nullable']
+  sub_order_id bigint [ref: > sub_orders.id, note: 'FK — nullable, set once split']
+  quantity int
+  unit_price decimal
+  created_at timestamp
+}
+
+Table custom_order_items {
+  id bigint [pk, increment]
+  order_id bigint [ref: > orders.id, note: 'FK']
+  custom_order_variant_id bigint [ref: > custom_order_variants.id, note: 'FK']
+  product_variant_id bigint [ref: > product_variants.id, note: 'FK — nullable']
+  sub_order_id bigint [ref: > sub_orders.id, note: 'FK — nullable, set once split']
+  quantity int
+  unit_price decimal
+  created_at timestamp
+}
+
+Table sub_orders {
+  id bigint [pk, increment]
+  order_id bigint [ref: > orders.id, note: 'FK']
+  printer_provider_id bigint [ref: > printer_provider_profiles.id, note: 'FK']
+  status varchar [note: 'active, on_hold, released, cancelled — high-level only; see FULFILLMENT_RECORDS for print progress']
+  created_at timestamp
+  Note: 'UNIQUE (order_id, printer_provider_id) — one sub-order per printer per order'
+
+  Indexes {
+    (order_id, printer_provider_id) [unique, name: 'sub_orders_order_printer_unique']
+  }
+}
+
+Table fulfillment_records {
+  id bigint [pk, increment]
+  sub_order_id bigint [ref: > sub_orders.id, note: 'FK']
+  status varchar [note: 'received, printing, printed, handed_off']
+  updated_at timestamp
+}
+
+Table delivery_companies {
+  id bigint [pk, increment]
+  name varchar
+  coverage_zones json
+  tracking_url_pattern varchar
+}
+
+Table shipments {
+  id bigint [pk, increment]
+  sub_order_id bigint [ref: > sub_orders.id, note: 'FK']
+  delivery_company_id bigint [ref: > delivery_companies.id, note: 'FK']
+  tracking_number varchar
+  status varchar
+  shipped_at timestamp
+  delivered_at timestamp
+}
+
+Table payments {
+  id bigint [pk, increment]
+  order_id bigint [ref: > orders.id, note: 'FK']
+  method varchar
+  status varchar [note: 'pending, confirmed, rejected']
+  confirmed_by_admin_id bigint [ref: > users.id, note: 'FK — nullable']
+  confirmed_at timestamp
+  created_at timestamp
+  deleted_at timestamp
+  Note: 'proof-of-payment image lives in MEDIA (model_type=Payment, collection_name=payment_proof) — dropped the old direct proof_media_id FK to avoid two competing patterns'
+}
+
+// ===== SHARED INFRASTRUCTURE =====
+Table media {
+  id bigint [pk, increment]
+  model_type varchar [note: 'polymorphic owner']
+  model_id bigint
+  collection_name varchar [note: 'mockup, print_file, payment_proof, attachment']
+  file_path varchar
+}
+
+Table notifications {
+  id bigint [pk, increment]
+  notifiable_type varchar
+  notifiable_id bigint
+  type varchar
+  data json
+  read_at timestamp
+}
+
+Table activity_log {
+  id bigint [pk, increment]
+  causer_id bigint [ref: > users.id, note: 'FK — nullable (system-caused actions have no causer)']
+  subject_type varchar
+  subject_id bigint
+  description varchar
+  properties json
+}
+
+Table saved_filters {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, note: 'FK']
+  context varchar
+  filter_json json
+}
+
+Table user_table_preferences {
+  id bigint [pk, increment]
+  user_id bigint [ref: > users.id, note: 'FK']
+  table_name varchar
+  visible_columns json
+}
+
+Table settings {
+  id bigint [pk, increment]
+  key varchar
+  value text
+}
