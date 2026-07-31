@@ -22,13 +22,24 @@
 // Each item's status updates independently. Fine for v1 as long as you
 // don't need one atomic "this whole batch moved to printing" update.
 //
-// Result: 19 tables (v1.2) -> 17 tables, and — more importantly — no
-// confusing merges. Every table maps to one real-world thing.
+// Result: 20 platform tables, and — more importantly — no confusing merges.
+// Every table maps to one real-world thing.
+//
+// v1.3 enhancements layered on top of the v1.2 shape:
+//   - Soft-delete added to product_templates, product_variants,
+//     design_product_mappings, order_items (joining users/designs/orders/payments)
+//   - UUID columns (Pattern B) added to the 7 public-facing tables:
+//     users, designs, design_product_mappings, product_templates,
+//     product_variants, orders, payments. Integer id stays as PK + FK type.
+//   - cart_items.variant_key STORED generated column replaces NULL-distinct
+//     issue in the unique constraint
+//   - Explicit indexes on FK columns and query-hot status/deleted_at fields
 // ============================================================
 
 // ===== AUTH =====
 Table users {
   id bigint [pk, increment]
+  uuid varchar [unique, note: 'public-facing UUID (Pattern B); used in URLs and external responses. Internal joins use id.']
   name varchar
   email varchar
   password varchar
@@ -37,6 +48,10 @@ Table users {
   created_at timestamp
   updated_at timestamp
   deleted_at timestamp
+
+  Indexes {
+    uuid [unique, name: 'users_uuid_unique']
+  }
 }
 
 // ===== PROFILES (separate again — clearer than a merged type-flag table) =====
@@ -88,44 +103,77 @@ Table design_tag {
 
 Table product_templates {
   id bigint [pk, increment]
+  uuid varchar [unique, note: 'public-facing UUID (Pattern B); used in URLs']
   printer_provider_id bigint [ref: > printer_provider_profiles.id, note: 'FK']
   name varchar
   type varchar [note: 'free text / printer-managed, not a fixed enum']
   base_cost decimal
   specs json
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [note: 'soft-delete']
+
+  Indexes {
+    uuid [unique, name: 'product_templates_uuid_unique']
+    printer_provider_id [name: 'product_templates_printer_provider_id_index']
+  }
 }
 
 Table product_variants {
   id bigint [pk, increment]
+  uuid varchar [unique, note: 'public-facing UUID (Pattern B); used in URLs']
   product_template_id bigint [ref: > product_templates.id, note: 'FK']
   attributes json [note: 'e.g. size, color, material']
   price_delta decimal
   sku varchar [note: 'nullable']
   is_active boolean
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [note: 'soft-delete']
+
+  Indexes {
+    uuid [unique, name: 'product_variants_uuid_unique']
+    product_template_id [name: 'product_variants_product_template_id_index']
+  }
 }
 
 Table designs {
   id bigint [pk, increment]
+  uuid varchar [unique, note: 'public-facing UUID (Pattern B); used in URLs']
   designer_id bigint [ref: > designer_profiles.id, note: 'FK']
   category_id bigint [ref: > categories.id, note: 'FK']
   title varchar
   status varchar [note: 'ENUM: draft, published, archived — fixed, closed set']
   created_at timestamp
   updated_at timestamp
-  deleted_at timestamp
+  deleted_at timestamp [note: 'soft-delete']
+
+  Indexes {
+    uuid [unique, name: 'designs_uuid_unique']
+    designer_id [name: 'designs_designer_id_index']
+    category_id [name: 'designs_category_id_index']
+    status [name: 'designs_status_index']
+    deleted_at [name: 'designs_deleted_at_index']
+  }
 }
 
 Table design_product_mappings {
   id bigint [pk, increment]
+  uuid varchar [unique, note: 'public-facing UUID (Pattern B); used in URLs']
   design_id bigint [ref: > designs.id, note: 'FK']
   product_template_id bigint [ref: > product_templates.id, note: 'FK']
   preferred_printer_id bigint [ref: > printer_provider_profiles.id, note: 'FK']
   final_price decimal
   created_at timestamp
   updated_at timestamp
+  deleted_at timestamp [note: 'soft-delete']
 
   Indexes {
+    uuid [unique, name: 'design_product_mappings_uuid_unique']
     (design_id, product_template_id) [unique, name: 'dpm_design_template_unique']
+    design_id [name: 'design_product_mappings_design_id_index']
+    product_template_id [name: 'design_product_mappings_product_template_id_index']
+    preferred_printer_id [name: 'design_product_mappings_preferred_printer_id_index']
   }
 }
 
@@ -135,14 +183,21 @@ Table cart_items {
   user_id bigint [ref: > users.id, note: 'FK']
   design_product_mapping_id bigint [ref: > design_product_mappings.id, note: 'FK']
   product_variant_id bigint [ref: > product_variants.id, note: 'FK — nullable, size/color/material choice']
+  variant_key bigint [note: 'STORED generated: COALESCE(product_variant_id, 0). Coalesces NULL variant to 0 so the unique constraint catches duplicates when no variant is selected (SQLite/MySQL treat NULL as distinct in unique indexes).']
   quantity int
   created_at timestamp
   updated_at timestamp
+
+  Indexes {
+    (user_id, design_product_mapping_id, variant_key) [unique, name: 'cart_items_unique_line']
+    user_id [name: 'cart_items_user_id_index']
+  }
 }
 
 // ===== ORDERS / FULFILLMENT =====
 Table orders {
   id bigint [pk, increment]
+  uuid varchar [unique, note: 'public-facing UUID (Pattern B); used in order-tracking URLs']
   customer_id bigint [ref: > users.id, note: 'FK']
   shipping_address_id bigint [ref: > addresses.id, note: 'FK — reference only, not source of truth post-checkout']
   shipping_line1 varchar [note: 'snapshot at checkout time']
@@ -153,7 +208,14 @@ Table orders {
   total_amount decimal
   created_at timestamp
   updated_at timestamp
-  deleted_at timestamp
+  deleted_at timestamp [note: 'soft-delete']
+
+  Indexes {
+    uuid [unique, name: 'orders_uuid_unique']
+    customer_id [name: 'orders_customer_id_index']
+    status [name: 'orders_status_index']
+    created_at [name: 'orders_created_at_index']
+  }
 }
 
 Table order_items {
@@ -167,6 +229,12 @@ Table order_items {
   unit_price decimal
   created_at timestamp
   updated_at timestamp
+  deleted_at timestamp [note: 'soft-delete — parallels orders.softDeletes so order restoration brings items back.']
+
+  Indexes {
+    printer_provider_id [name: 'order_items_printer_provider_id_index']
+    status [name: 'order_items_status_index']
+  }
 }
 
 Table delivery_companies {
@@ -185,18 +253,32 @@ Table shipments {
   status varchar [note: 'ENUM: pending, shipped, delivered, returned — fixed, closed set']
   shipped_at timestamp
   delivered_at timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    printer_provider_id [name: 'shipments_printer_provider_id_index']
+    delivery_company_id [name: 'shipments_delivery_company_id_index']
+  }
 }
 
 Table payments {
   id bigint [pk, increment]
+  uuid varchar [unique, note: 'public-facing UUID (Pattern B); used in transaction references']
   order_id bigint [ref: > orders.id, note: 'FK']
   method varchar [note: 'ENUM: cash_on_delivery, bank_transfer, card — fixed for now']
   status varchar [note: 'ENUM: pending, confirmed, rejected — fixed, closed set']
   confirmed_by_admin_id bigint [ref: > users.id, note: 'FK — nullable']
   confirmed_at timestamp
   created_at timestamp
-  deleted_at timestamp
+  deleted_at timestamp [note: 'soft-delete']
   Note: 'proof-of-payment image lives in MEDIA (model_type=Payment, collection_name=payment_proof)'
+
+  Indexes {
+    uuid [unique, name: 'payments_uuid_unique']
+    method [name: 'payments_method_index']
+    status [name: 'payments_status_index']
+  }
 }
 
 // ===== SHARED INFRASTRUCTURE =====

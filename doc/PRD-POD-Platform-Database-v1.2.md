@@ -3,7 +3,7 @@
 **Version:** 1.2
 **Scope of this document:** the data layer underpinning the platform (schema-driving decisions), not UI/UX.
 **Companion to:** `SRS-POD-Platform-Database-v1.2.md`
-**Reference schema:** `doc/database.dbdiagram.txt` (DBML) and `doc/POD 1.2.sql` — 17 tables.
+**Reference schema:** `doc/database.dbdiagram.txt` (DBML) and `doc/POD 1.2.sql` — 20 platform tables (plus Laravel auth/cache/queue defaults).
 
 ---
 
@@ -31,7 +31,7 @@ The platform takes a fee on each order. The v1.2 schema records a single `unit_p
 These explicitly shape the v1.2 schema. Decisions 1–15 from v1.1 are either kept, evolved, or removed; the change is noted where relevant.
 
 1. **Auth is simple role-based, not full RBAC.** A single `users` table carries a `role` enum (`customer`, `designer`, `printer_provider`, `admin`). Designer and Printer Provider profiles are 1:1 to a `users` row via separate profile tables; there is no `customer` profile table — a customer is just a `users` row with `role='customer'`. The v1.1 `role` / `permission` / `role_permission` / `user_role` tables are gone.
-2. **Designers upload designs** with a category (self-referencing tree via `categories.parent_id`) and zero-or-more `tags` (via `design_tag`). Designs carry a lifecycle status (`draft`, `published`, `archived`) and support soft-delete.
+2. **Designers upload designs** with a category (self-referencing tree via `categories.parent_id`) and zero-or-more `tags` (via `design_tag`). Designs carry a lifecycle status (`draft`, `published`, `archived`) and support soft-delete — see Decision 21 for the full soft-delete policy.
 3. **Product Templates are owned by Printers, not Designers.** Each `product_template` belongs to one `printer_provider_profile` and represents a printable item with `type` (free-form text, printer-managed), `base_cost`, and arbitrary `specs` (JSON). There is no shared "materials" catalog in v1.2.
 4. **Product Variants** describe the choices within a template (size, color, material, etc.) as JSON `attributes` plus a `price_delta`, with an `is_active` flag and optional `sku`.
 5. **Designs are mapped to Product Templates** via `design_product_mappings`. Each mapping carries a `final_price` (the customer-facing price for that design-on-that-template) and a `preferred_printer_id` (informational hint — typically the printer that owns the referenced template). Uniqueness is enforced on `(design_id, product_template_id)`. This replaces the v1.1 `design_material` concept.
@@ -50,6 +50,10 @@ These explicitly shape the v1.2 schema. Decisions 1–15 from v1.1 are either ke
 18. **No saved filters / column preferences / activity log.** The v1.1 admin-list-view tables are gone — not a v1.2 concern.
 19. **Settings is a generic key/value** table for application-level configuration (feature flags, default commission rates, etc.).
 20. **Historical price integrity** — `unit_price` is snapshotted onto `order_items` at order time. Subsequent edits to `design_product_mappings.final_price` never rewrite historical orders.
+21. **Soft-delete is applied to lifecycle-bearing business entities.** Tables with `deleted_at`: `users`, `designs`, `product_templates`, `product_variants`, `design_product_mappings`, `orders`, `order_items`, `payments`. Ephemeral/derived/immutable tables (`cart_items`, `shipments`, `addresses`, `designer_profiles`, `printer_provider_profiles`, `tags`, `categories`, `delivery_companies`, junction tables, polymorphic tables) do NOT soft-delete — they cascade from a parent, hard-delete, or are immutable history.
+22. **Public-facing entities expose UUIDs alongside integer IDs (Pattern B).** Sequential `bigint` IDs leak enumeration vectors and business intelligence. The 7 public-facing tables — `users`, `designs`, `design_product_mappings`, `product_templates`, `product_variants`, `orders`, `payments` — each carry a `uuid` CHAR(36) column with a unique index. Joins stay on integer `id`; URLs, exports, and API responses use the UUID. Internal tables (carts, shipments, profile rows, address book, catalog reference data, polymorphic tables, settings) do not expose UUIDs.
+23. **`cart_items` uses a STORED generated column to enforce unique lines.** SQLite and MySQL treat `NULL` as distinct in unique indexes, which silently allows duplicate `(user, mapping, NULL variant)` rows. A STORED generated column `variant_key = COALESCE(product_variant_id, 0)` provides the dedup invariant at the DB level. Application layer upserts/merges quantities on conflict rather than relying on insert-fail.
+24. **Explicit indexes on FK and query-hot columns are required for cross-DB performance.** SQLite does not auto-index FK columns (MySQL InnoDB does). For consistent performance, every FK column that drives a list query gets an explicit `$table->index('column')` declaration after the FK. Status enums and `deleted_at` columns are indexed for admin/dashboard filtering.
 
 ---
 
@@ -77,6 +81,8 @@ These explicitly shape the v1.2 schema. Decisions 1–15 from v1.1 are either ke
 - An order containing items from multiple printers splits into independent shipments — one per printer — each with its own tracking. A failure or delay at one printer does not block the others.
 - `unit_price` on historical `order_items` remains stable even after designers change their listed prices.
 - Proof-of-payment images attach to payments through the polymorphic `media` table; tracking URLs render from `delivery_companies.tracking_url_pattern`.
+- Public-facing resources (users, designs, product templates, variants, mappings, orders, payments) are addressable by UUID in URLs and external API responses; sequential integer `id` values are never exposed externally.
+- A customer adding the same design-to-product mapping (with or without a chosen variant) twice does not create duplicate cart rows — the generated `variant_key` column enforces one-line-per-mapping+variant.
 
 ---
 
@@ -87,3 +93,5 @@ These explicitly shape the v1.2 schema. Decisions 1–15 from v1.1 are either ke
 - Platform fee and designer payout are derived from the snapshotted `unit_price` by the application layer; the v1.2 schema does not decompose a unit_price into sub-amounts.
 - `preferred_printer_id` on `design_product_mappings` is informational in v1.2 (it MAY equal the printer that owns the template, or be NULL); the platform does not enforce "preferred printer must own the template."
 - A `design_product_mapping` may reference a `product_template` owned by any printer — the application layer is responsible for ensuring the mapping's `preferred_printer_id` is consistent with the template's owning printer if/when that rule is introduced.
+- Soft-deleting a parent business entity (e.g. a designer) cascades to soft-deletable children (`designs`, `design_product_mappings`, `product_templates`, `product_variants`) where FKs are declared `cascadeOnDelete`. Tables with `restrictOnDelete` (notably `order_items.design_product_mapping_id`) block the cascade, preserving historical order references — a designer with placed orders cannot be soft-deleted.
+- The application layer populates the `uuid` column on create via Laravel's `HasUuids` trait; the DB unique index on `uuid` will reject collisions.
