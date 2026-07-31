@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\DesignFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -40,8 +41,8 @@ class Design extends Model
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, 'design_tag')
-            ->withTimestamps();
+        // design_tag is a pure junction table — no created_at/updated_at columns.
+        return $this->belongsToMany(Tag::class, 'design_tag');
     }
 
     public function mappings(): HasMany
@@ -76,32 +77,32 @@ class Design extends Model
     // Scopes
     // ------------------------------------------------------------------
 
-    public function scopePublished($query)
+    public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'published');
     }
 
-    public function scopeDraft($query)
+    public function scopeDraft(Builder $query): Builder
     {
         return $query->where('status', 'draft');
     }
 
-    public function scopeArchived($query)
+    public function scopeArchived(Builder $query): Builder
     {
         return $query->where('status', 'archived');
     }
 
-    public function scopeForDesigner($query, DesignerProfile $designer)
+    public function scopeForDesigner(Builder $query, DesignerProfile $designer): Builder
     {
         return $query->where('designer_id', $designer->id);
     }
 
-    public function scopeInCategory($query, Category $category)
+    public function scopeInCategory(Builder $query, Category $category): Builder
     {
         return $query->where('category_id', $category->id);
     }
 
-    public function scopeWithTag($query, Tag $tag)
+    public function scopeWithTag(Builder $query, Tag $tag): Builder
     {
         return $query->whereHas('tags', fn ($q) => $q->where('tags.id', $tag->id));
     }
