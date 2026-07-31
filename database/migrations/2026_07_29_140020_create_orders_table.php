@@ -9,9 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('customer_id')
+            $table->uuid('id')->primary(); // public-facing PK (Pattern A): order-tracking URLs use the UUID
+            $table->uuid('customer_id')
                 ->constrained('users')->restrictOnDelete();
             $table->foreignId('shipping_address_id')->nullable()
                 ->constrained('addresses')->nullOnDelete();

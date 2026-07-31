@@ -9,9 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('order_id')
+            $table->uuid('id')->primary(); // public-facing PK (Pattern A)
+            $table->uuid('order_id')
                 ->constrained('orders')->cascadeOnDelete();
             $table->enum('method', ['cash_on_delivery', 'bank_transfer', 'card'])
                 ->index();

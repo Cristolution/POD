@@ -9,8 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('product_templates', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
+            $table->uuid('id')->primary(); // public-facing PK (Pattern A)
             $table->foreignId('printer_provider_id')
                 ->constrained('printer_provider_profiles')->cascadeOnDelete();
             $table->string('name');

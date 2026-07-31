@@ -9,9 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('designs', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('designer_id')
+            $table->uuid('id')->primary(); // public-facing PK (Pattern A)
+            $table->uuid('designer_id')
                 ->constrained('designer_profiles')->cascadeOnDelete();
             $table->foreignId('category_id')
                 ->constrained('categories')->restrictOnDelete();

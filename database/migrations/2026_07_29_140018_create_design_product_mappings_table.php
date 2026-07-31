@@ -9,13 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('design_product_mappings', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
-            $table->foreignId('design_id')
+            $table->uuid('id')->primary(); // public-facing PK (Pattern A)
+            $table->uuid('design_id')
                 ->constrained('designs')->cascadeOnDelete();
-            $table->foreignId('product_template_id')
+            $table->uuid('product_template_id')
                 ->constrained('product_templates')->cascadeOnDelete();
-            $table->foreignId('preferred_printer_id')
+            $table->uuid('preferred_printer_id')
                 ->constrained('printer_provider_profiles')->cascadeOnDelete();
             $table->decimal('final_price', 10, 2);
             $table->timestamps();

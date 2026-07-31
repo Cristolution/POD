@@ -22,7 +22,7 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - **Design–Product Mapping** — a designer's offer of one design on one product template, with a customer-facing price.
 - **Persistent Cart** — long-lived cart rows in `cart_items`, not a session-only construct.
 - **Shipping Snapshot** — the copy of the shipping address captured on the `orders` row at checkout time.
-- **Public UUID** — the `uuid` CHAR(36) column on the 7 public-facing tables, used in URLs and external API responses. The integer `id` is the internal join key.
+- **Public UUID** — the `id` CHAR(36) column on the 7 public-facing tables, used in URLs and external API responses. Pattern A: the UUID IS the primary key (no separate integer id).
 
 ---
 
@@ -31,10 +31,10 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 ### FR-1: Authentication & Role
 - FR-1.1 The system SHALL store all login credentials in a single `users` table.
 - FR-1.2 `users.role` SHALL be one of: `customer`, `designer`, `printer_provider`, `admin`. The set is fixed and closed for v1.2.
-- FR-1.3 A user MAY have at most one `designer_profiles` row AND at most one `printer_provider_profiles` row; both are 1:1 to `users` via `user_id` FK.
+- FR-1.3 A user MAY have at most one `designer_profiles` row AND at most one `printer_provider_profiles` row; both profile tables use `id` as a `CHAR(36)` UUID PK (Pattern A) and reference `users` via `user_id` FK (also UUID).
 - FR-1.4 No separate `customer` profile table exists. A customer is identified as a `users` row with `role='customer'`.
 - FR-1.5 The v1.1 `role`, `permission`, `role_permission`, `user_role` tables are NOT used in v1.2; authorization in v1.2 is role-gating at the application layer.
-- FR-1.6 `users` SHALL carry a `uuid` CHAR(36) column with a unique index (`users_uuid_unique`). The integer `id` remains the internal join key; the UUID is exposed in URLs and external API responses (FR-15).
+- FR-1.6 `users.id` SHALL be a `CHAR(36)` UUID, the primary key. There is no separate integer `id` column. The UUID is the join key and the URL/external identifier (FR-15).
 
 ### FR-2: Address Book
 - FR-2.1 The system SHALL store user address books in `addresses`, referenced via `user_id`.
@@ -47,7 +47,7 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - FR-3.3 `designs.status` SHALL be one of: `draft`, `published`, `archived`. The set is fixed and closed.
 - FR-3.4 A design MAY be linked to zero or more `tags` via the `design_tag` junction. The `(design_id, tag_id)` pair SHALL be unique (enforced by `design_tag_pk` index).
 - FR-3.5 `designs` supports soft-delete via `deleted_at`; an index on `designs.deleted_at` SHALL be maintained for soft-delete query performance.
-- FR-3.6 `designs` SHALL carry a `uuid` CHAR(36) column with a unique index (`designs_uuid_unique`) — see FR-15.
+- FR-3.6 `designs.id` SHALL be a `CHAR(36)` UUID, the primary key (Pattern A — see FR-15). There is no separate integer `id` column.
 
 ### FR-4: Product Catalog
 - FR-4.1 A `product_template` SHALL belong to exactly one `printer_provider_profiles.id` (`printer_provider_id`).
@@ -55,8 +55,8 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - FR-4.3 `product_templates.specs` SHALL be a JSON column for printer-specific structured metadata (dimensions, materials supported, print method, etc.).
 - FR-4.4 A `product_template` MAY have zero or more `product_variants`. Each variant stores `attributes` as JSON (e.g. size, color, material), a `price_delta`, an optional `sku`, and an `is_active` flag.
 - FR-4.5 Variants that are inactive (`is_active=false`) SHALL NOT be selectable in cart or checkout.
-- FR-4.6 `product_templates` SHALL carry a `uuid` CHAR(36) column with a unique index (`product_templates_uuid_unique`) — see FR-15.
-- FR-4.7 `product_variants` SHALL carry a `uuid` CHAR(36) column with a unique index (`product_variants_uuid_unique`) — see FR-15.
+- FR-4.6 `product_templates.id` SHALL be a `CHAR(36)` UUID, the primary key (Pattern A — see FR-15). There is no separate integer `id` column.
+- FR-4.7 `product_variants.id` SHALL be a `CHAR(36)` UUID, the primary key (Pattern A — see FR-15). There is no separate integer `id` column.
 - FR-4.8 Both `product_templates` and `product_variants` support soft-delete via `deleted_at`.
 
 ### FR-5: Design–Product Mapping
@@ -65,7 +65,7 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - FR-5.3 `final_price` SHALL be a non-negative decimal representing the customer-facing price for this design-on-this-template.
 - FR-5.4 `preferred_printer_id` is informational in v1.2. It MAY reference any `printer_provider_profiles.id` (typically the printer that owns the referenced `product_template`, but the platform does not enforce this).
 - FR-5.5 `created_at` / `updated_at` timestamps SHALL be maintained on the mapping.
-- FR-5.6 `design_product_mappings` SHALL carry a `uuid` CHAR(36) column with a unique index (`design_product_mappings_uuid_unique`) — see FR-15.
+- FR-5.6 `design_product_mappings.id` SHALL be a `CHAR(36)` UUID, the primary key (Pattern A — see FR-15). There is no separate integer `id` column.
 - FR-5.7 `design_product_mappings` supports soft-delete via `deleted_at`.
 
 ### FR-6: Persistent Cart
@@ -83,7 +83,7 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - FR-7.4 `orders.status` SHALL be one of: `pending`, `paid`, `processing`, `shipped`, `delivered`, `cancelled`. The set is fixed and closed.
 - FR-7.5 `orders.total_amount` SHALL equal the sum of `order_items.unit_price * order_items.quantity` across all items in the order (enforced at the application layer).
 - FR-7.6 `orders` supports soft-delete via `deleted_at`.
-- FR-7.7 `orders` SHALL carry a `uuid` CHAR(36) column with a unique index (`orders_uuid_unique`) — see FR-15.
+- FR-7.7 `orders.id` SHALL be a `CHAR(36)` UUID, the primary key (Pattern A — see FR-15). Order-tracking URLs use the UUID. There is no separate integer `id` column.
 
 ### FR-8: Order Items & Per-Item Fulfillment
 - FR-8.1 Each `order_item` SHALL belong to exactly one `order_id`.
@@ -109,7 +109,7 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - FR-10.4 A confirmed payment SHALL record `confirmed_by_admin_id` (nullable FK to `users`) and `confirmed_at`.
 - FR-10.5 Proof-of-payment images SHALL be attached via the `media` table using `model_type='Payment'`, `model_id=<payment.id>`, `collection_name='payment_proof'`.
 - FR-10.6 `payments` supports soft-delete via `deleted_at`.
-- FR-10.7 `payments` SHALL carry a `uuid` CHAR(36) column with a unique index (`payments_uuid_unique`) — see FR-15.
+- FR-10.7 `payments.id` SHALL be a `CHAR(36)` UUID, the primary key (Pattern A — see FR-15). There is no separate integer `id` column.
 
 ### FR-11: Media (polymorphic)
 - FR-11.1 `media` rows SHALL carry `model_type` + `model_id` identifying the owner row, and a `collection_name`.
@@ -130,12 +130,13 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - FR-14.2 Adding a new valid value SHALL be a deliberate code change (not a data-only update), since no lookup-table fallback exists in v1.2.
 - FR-14.3 `notifications.type` is the one exception — explicitly open-ended (FR-12.2).
 
-### FR-15: Public-Facing UUIDs (Pattern B)
-- FR-15.1 The 7 public-facing tables — `users`, `designs`, `design_product_mappings`, `product_templates`, `product_variants`, `orders`, `payments` — SHALL each carry a `uuid` CHAR(36) column with a unique index.
-- FR-15.2 The integer `id` column SHALL remain the primary key on every table; UUIDs are NOT used as primary keys.
-- FR-15.3 FK columns SHALL continue to reference integer `id` values; the UUID is for external identification only.
-- FR-15.4 URLs, JSON exports, and external API responses SHALL expose the `uuid` field; integer `id` SHALL NOT be exposed externally.
-- FR-15.5 Internal-only tables (`cart_items`, `shipments`, `designer_profiles`, `printer_provider_profiles`, `addresses`, `categories`, `tags`, `delivery_companies`, `design_tag`, `media`, `notifications`, `settings`) do NOT carry a `uuid` column.
+### FR-15: Public-Facing UUIDs (Pattern A — UUID as Primary Key)
+- FR-15.1 The 9 public-facing tables — `users`, `designer_profiles`, `printer_provider_profiles`, `designs`, `design_product_mappings`, `product_templates`, `product_variants`, `orders`, `payments` — SHALL use `id` as a `CHAR(36)` UUID primary key. There is NO separate integer `id` and NO separate `uuid` column.
+- FR-15.2 FK columns that reference any of the 9 public tables SHALL be `uuid` (CHAR(36)) type, regardless of whether the FK table's own PK is integer or UUID.
+- FR-15.3 Internal-only tables — `tags`, `categories`, `delivery_companies`, `addresses`, `cart_items`, `order_items`, `shipments`, `design_tag`, `media`, `notifications`, `settings` — keep plain `bigint` `id` PKs. Their FK columns to UUID tables (`users`, `designs`, etc.) are still `uuid` type.
+- FR-15.4 URLs, JSON exports, and external API responses use the UUID `id` directly (e.g. `/users/{uuid}`, `/designers/{uuid}`, `/orders/{uuid}`); there is no second identifier to expose.
+- FR-15.5 Eloquent models for the 9 public-facing tables SHALL use the `HasUuids` trait and override `uniqueIds(): array { return ['id']; }` so the `id` column (not a separate `uuid` column) is populated on create.
+- FR-15.6 Model route binding on the 9 public-facing tables uses the UUID `id` directly (no `Route::get('/users/{user:uuid}', ...)` special form needed — the default `{user}` binding resolves to the primary key).
 
 ### FR-16: Indexing Conventions
 - FR-16.1 Every FK column that drives a list query SHALL have an explicit `$table->index('column')` declaration. SQLite does not auto-index FK columns; explicit indexes are required for cross-DB performance.
@@ -151,7 +152,7 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - All natural-key pair tables enforce uniqueness: `design_tag(design_id, tag_id)`, `design_product_mappings(design_id, product_template_id)`. The cart line uniqueness invariant is enforced via the STORED generated column `cart_items.variant_key` (FR-6.5) and the unique index `cart_items_unique_line`. An index on `categories(parent_id)` is provided for tree-traversal performance.
 - Foreign keys are used throughout in preference to soft references, so referential integrity is enforced by the database. The polymorphic `media` and `notifications` tables are the explicit exceptions — they rely on application-layer owner validation.
 - Lifecycle-bearing business entities — `users`, `designs`, `product_templates`, `product_variants`, `design_product_mappings`, `orders`, `order_items`, `payments` — support soft-delete via `deleted_at`. Ephemeral/derived/immutable tables (`cart_items`, `shipments`, `addresses`, profile rows, catalog reference data, junction tables, polymorphic tables) do NOT independently soft-delete.
-- `uuid` columns on the 7 public-facing tables are unique-indexed (FR-15); integer `id` columns remain the internal join key (NFR-5).
+- `id` on the 7 public-facing tables is a `CHAR(36)` UUID primary key (Pattern A, FR-15); there is no separate integer `id` and no separate `uuid` column.
 
 ### NFR-2: Historical Accuracy / Auditability
 - `order_items.unit_price` and `orders.shipping_*` fields are snapshotted at order time and SHALL remain accurate regardless of later edits to `design_product_mappings.final_price`, `addresses`, `product_variants.price_delta`, or any other upstream table.
@@ -165,11 +166,13 @@ Does NOT cover: custom order requests, sub-orders as separate entities, full RBA
 - `design_product_mappings.preferred_printer_id` is the hook for future multi-printer offers on the same template.
 - `notifications.type` is the open-ended extension point for new notification kinds.
 
-### NFR-5: UUID Trade-off (Security vs Performance)
-- Public-facing resources expose a 36-char UUID for anti-enumeration and external stability. Internal joins continue to use integer `id` for index size and join speed.
-- Storage cost: each `uuid` column is ~36 bytes vs 8 bytes for `bigint`. Every FK column remains `bigint`, so the cost is bounded to one column per public table.
-- URL binding uses `uuid` (Eloquent route-model binding with `Route::get('/designs/{design:uuid}', ...)`). The `HasUuids` trait populates `uuid` on create.
-- UUIDs are NOT used as primary keys; `id` stays as the join key everywhere. This is the deliberate Pattern B choice — the security benefit is realized without paying the full UUID-PK performance cost.
+### NFR-5: UUID as Primary Key — Pattern A Trade-off
+- The 9 public-facing tables use `CHAR(36)` UUID PKs. URLs and external APIs use the UUID directly — there is no second identifier to leak.
+- Storage cost: PK column is 36 bytes vs 8 bytes for `bigint`. Every FK column referencing a UUID table is also 36 bytes. This is the deliberate trade-off — security over micro-optimization.
+- Join performance: UUID PKs are slightly slower than `bigint` PKs on B-tree joins because of size and random distribution. For this project's expected scale (POD platform with thousands of orders, not millions), the cost is negligible.
+- Eloquent integration: `HasUuids` trait + `uniqueIds(): array { return ['id']; }` populates `id` on create. Route binding uses the default `{model}` form (no `{model:uuid}` needed).
+- Cascade: because `id` IS the UUID, FK columns referencing UUID tables are `uuid` typed. ~12 FK columns across `designer_profiles`, `printer_provider_profiles`, `addresses`, `cart_items`, `order_items`, `shipments`, `payments`, `design_tag` are `CHAR(36)` instead of `bigint`.
+- Small / internal tables keep `bigint` PKs — they don't need anti-enumeration and the smaller join keys help on hot paths (cart items, order items).
 
 ---
 
@@ -184,7 +187,7 @@ The following business rules require application-layer enforcement, since they c
 5. **Preferred-printer consistency** (FR-5.4): in v1.2, `design_product_mappings.preferred_printer_id` is informational; the application MAY later enforce that the preferred printer equals the printer that owns the referenced `product_template_id`.
 6. **Shipping snapshot immutability** (FR-7.2): once an `order` is created, its `shipping_line1` / `shipping_city` / `shipping_country` / `shipping_phone` fields SHALL NOT be rewritten by the application.
 7. **Settings key uniqueness** (FR-13.2): the application layer SHOULD prevent duplicate keys; the schema does not enforce it in v1.2.
-8. **UUID population** (FR-15): the application layer SHALL populate the `uuid` column on create (Laravel `HasUuids` trait) before insert; the DB unique index will reject collisions if not populated.
+8. **UUID population** (FR-15): the application layer SHALL populate the `id` (UUID) column on create via Laravel's `HasUuids` trait with `uniqueIds()` overridden to return `['id']`. The DB primary key check rejects collisions; missing UUIDs cause insert failure.
 9. **Cart upsert on conflict** (FR-6.6): on `cart_items_unique_line` conflict, the application layer SHALL merge quantities into the existing row rather than failing the request.
 10. **Cascade blocking on historical references** (PRD Decision 21, FR-8): `order_items.design_product_mapping_id` is `restrictOnDelete`, so a designer with placed orders cannot be soft-deleted via cascade; the application must handle this gracefully (e.g. prompt before delete, or block).
 
