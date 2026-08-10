@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Permission Matrix · POD v1.2</title>
+<style>
+  body{margin:0;background:#fff;color:#1f2937;
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
+  .wrap{max-width:1100px;margin:0 auto;padding:40px 28px 80px}
+  header{margin-bottom:28px;border-bottom:2px solid #e5e7eb;padding-bottom:16px}
+  h1{font-size:26px;margin:0 0 4px;color:#111827;font-weight:700}
+  .meta{color:#6b7280;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  h2{font-size:19px;margin:42px 0 12px;color:#111827;border-bottom:1px solid #e5e7eb;padding-bottom:6px;font-weight:600}
+  h3{font-size:15px;margin:22px 0 8px;color:#374151;font-weight:600}
+  p{margin:8px 0}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:#f3f4f6;padding:1px 6px;border-radius:4px;color:#1f2937}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px;border:1px solid #e5e7eb}
+  th,td{padding:9px 12px;text-align:left;vertical-align:top;border-bottom:1px solid #e5e7eb}
+  th{background:#f9fafb;color:#374151;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:none}
+  td:first-child{font-weight:500;color:#111827}
+  .ok{color:#15803d;font-weight:600}     /* Allow */
+  .ro{color:#a16207;font-weight:600}     /* Read-only */
+  .ow{color:#7c3aed;font-weight:600}     /* Own only */
+  .no{color:#b91c1c;font-weight:600}     /* Deny */
+  .na{color:#9ca3af;font-weight:600}     /* N/A */
+  .pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11.5px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    background:#f3f4f6;border:1px solid #e5e7eb;color:#4b5563}
+  ul.tight{margin:6px 0 6px 20px;padding:0}
+  ul.tight li{margin:3px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .note{color:#4b5563;font-size:13px;border-left:3px solid #2563eb;padding:8px 14px;margin:10px 0;background:#f9fafb;border-radius:0 6px 6px 0}
+  footer{margin-top:64px;padding-top:16px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:12px}
+  @media print{body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Permission Matrix</h1>
+  <div class="meta">POD Platform · v1.2 · companion to PRD &amp; SRS</div>
+</header>
+
+<h2>Verdict legend</h2>
+<table>
+<thead><tr><th>Symbol</th><th>Verdict</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><span class="ok">Allow</span></td><td>Allow</td><td>Action is part of normal product flow for this role.</td></tr>
+<tr><td><span class="ro">Read-only</span></td><td>Read-only</td><td>The role can view but cannot mutate.</td></tr>
+<tr><td><span class="ow">Own only</span></td><td>Own only</td><td>The role can act on records they own, never on others'.</td></tr>
+<tr><td><span class="no">Deny</span></td><td>Deny</td><td>The role must not perform this action (HTTP 403).</td></tr>
+<tr><td><span class="na">N/A</span></td><td>N/A</td><td>The action is not part of the role's product surface.</td></tr>
+</tbody>
+</table>
+
+<h2>1. Roles</h2>
+<p>Simple role-based auth — a single <code>users.role</code> enum drives every authorization decision. No fine-grained RBAC, no permission table.</p>
+<table>
+<thead><tr><th>Role</th><th>Who</th><th>Profile table</th></tr></thead>
+<tbody>
+<tr><td><span class="pill">Customer</span></td><td>Registered buyer; default at signup.</td><td><em>none</em></td></tr>
+<tr><td><span class="pill">Designer</span></td><td>Uploads designs; maps to product templates.</td><td><code>designer_profiles</code></td></tr>
+<tr><td><span class="pill">Printer / PSP</span></td><td>Owns product templates; ships goods.</td><td><code>printer_provider_profiles</code></td></tr>
+<tr><td><span class="pill">Admin</span></td><td>Manages users, payments, catalog.</td><td><em>none</em></td></tr>
+</tbody>
+</table>
+
+<h2>2. Resources</h2>
+
+<h3>2.1 Users</h3>
+<table>
+<thead><tr><th>Action</th><th>Customer</th><th>Designer</th><th>Printer</th><th>Admin</th></tr></thead>
+<tbody>
+<tr><td>Register (self-create)</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ow">Own only (admin-created)</td></tr>
+<tr><td>Read own profile</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Read public profile</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Read email / phone of others</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Update own name / phone / password</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Update own role</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Soft-delete self</td><td class="ok">Allow</td><td class="ow">Own only (blocked if active designs with orders)</td><td class="ow">Own only (blocked if product templates have active items)</td><td class="no">Deny</td></tr>
+<tr><td>Restore / ban / list-all</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+</tbody>
+</table>
+
+<h3>2.2 Designer &amp; Printer Profiles</h3>
+<table>
+<thead><tr><th>Action</th><th>Customer</th><th>Designer</th><th>Printer</th><th>Admin</th></tr></thead>
+<tbody>
+<tr><td>Create own profile</td><td class="no">Deny</td><td class="ok">Allow (one per user)</td><td class="ok">Allow (one per user)</td><td class="ok">Allow (on behalf)</td></tr>
+<tr><td>Read public profile</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Update own bio / company info</td><td class="no">Deny</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Update someone else's</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Soft-delete profile</td><td class="no">Deny</td><td class="ow">Own only (cascade to designs)</td><td class="ow">Own only (cascade to templates)</td><td class="ok">Allow</td></tr>
+</tbody>
+</table>
+
+<h3>2.3 Addresses &amp; Settings</h3>
+<table>
+<thead><tr><th>Action</th><th>Customer</th><th>Designer</th><th>Printer</th><th>Admin</th></tr></thead>
+<tbody>
+<tr><td>CRUD own address</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Read someone else's address</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Choose address at checkout</td><td class="ok">Allow</td><td class="na">N/A</td><td class="na">N/A</td><td class="na">N/A</td></tr>
+<tr><td>Read public setting</td><td class="ro">Read-only</td><td class="ro">Read-only</td><td class="ro">Read-only</td><td class="ok">Allow</td></tr>
+<tr><td>Write settings</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+</tbody>
+</table>
+<div class="note">Shipping address is snapshotted onto <code>orders.shipping_*</code> at checkout — original remains editable, snapshot is immutable.</div>
+
+<h3>2.4 Catalog (Categories · Tags · Designs · Templates · Variants · Mappings)</h3>
+<table>
+<thead><tr><th>Action</th><th>Customer</th><th>Designer</th><th>Printer</th><th>Admin</th></tr></thead>
+<tbody>
+<tr><td>Browse published catalog</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Create / update category</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Apply existing tag to design</td><td class="na">N/A</td><td class="ok">Allow</td><td class="na">N/A</td><td class="ok">Allow</td></tr>
+<tr><td>Create new tag</td><td class="no">Deny</td><td class="ow">Own only (request)</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Create / update own design</td><td class="no">Deny</td><td class="ok">Allow</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Soft-delete own design</td><td class="no">Deny</td><td class="ow">Own only (blocked if order_items reference it)</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Create / update own template</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Create / update own variant</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Create mapping (design × template)</td><td class="no">Deny</td><td class="ok">Allow</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Edit own mapping final_price</td><td class="no">Deny</td><td class="ok">Allow</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+</tbody>
+</table>
+<div class="note">Only <code>is_active=true</code> variants are selectable. Variant / template with <code>order_items</code> reference is blocked from delete.</div>
+
+<h3>2.5 Cart</h3>
+<table>
+<thead><tr><th>Action</th><th>Customer</th><th>Designer</th><th>Printer</th><th>Admin</th></tr></thead>
+<tbody>
+<tr><td>View / add / update / remove own cart</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Add to someone else's cart</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td></tr>
+<tr><td>Merge qty on duplicate line</td><td colspan="4">automatic (DB index <code>cart_items_unique_line</code>)</td></tr>
+</tbody>
+</table>
+
+<h3>2.6 Orders &amp; Order Items</h3>
+<table>
+<thead><tr><th>Action</th><th>Customer</th><th>Designer</th><th>Printer</th><th>Admin</th></tr></thead>
+<tbody>
+<tr><td>Place order from cart</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>View own order</td><td class="ok">Allow</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>View order containing own designs</td><td class="no">Deny</td><td class="ok">Allow (no customer PII)</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>View order containing own printer's items</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Cancel own order (before processing)</td><td class="ok">Allow</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Update item status (received → printed)</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Edit unit_price / shipping fields</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny (immutable)</td></tr>
+<tr><td>Soft-delete order / item</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+</tbody>
+</table>
+<div class="note">Designer / printer see orders via <code>whereHas('items', …)</code>; customer PII is redacted for non-self viewers.</div>
+
+<h3>2.7 Shipments, Payments &amp; Media</h3>
+<table>
+<thead><tr><th>Action</th><th>Customer</th><th>Designer</th><th>Printer</th><th>Admin</th></tr></thead>
+<tbody>
+<tr><td>Create / update own shipment</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>View own active shipments</td><td class="ok">Allow</td><td class="no">Deny</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>Submit payment + proof</td><td class="ok">Allow</td><td class="na">N/A</td><td class="na">N/A</td><td class="ok">Allow</td></tr>
+<tr><td>Confirm / reject payment</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Upload mockup / print_file</td><td class="no">Deny</td><td class="ok">Allow</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+<tr><td>Upload payment_proof</td><td class="ok">Allow</td><td class="na">N/A</td><td class="na">N/A</td><td class="ok">Allow</td></tr>
+<tr><td>Delete own media</td><td class="no">Deny</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>CRUD delivery companies</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+</tbody>
+</table>
+
+<h3>2.8 Notifications</h3>
+<table>
+<thead><tr><th>Action</th><th>Customer</th><th>Designer</th><th>Printer</th><th>Admin</th></tr></thead>
+<tbody>
+<tr><td>View / mark-read own</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td><td class="ok">Allow</td></tr>
+<tr><td>View / broadcast others'</td><td class="no">Deny</td><td class="no">Deny</td><td class="no">Deny</td><td class="ok">Allow</td></tr>
+</tbody>
+</table>
+
+<h2>3. Soft-Delete Policy</h2>
+<div class="grid2">
+  <div class="note">
+    <strong>Soft-deletable</strong> — lifecycle-bearing:<br>
+    <code>users</code>, <code>designs</code>, <code>product_templates</code>, <code>product_variants</code>, <code>design_product_mappings</code>, <code>orders</code>, <code>order_items</code>, <code>payments</code>
+  </div>
+  <div class="note">
+    <strong>Hard-delete / cascade</strong> — ephemeral:<br>
+    <code>cart_items</code>, <code>shipments</code>, <code>addresses</code>, profiles, tags, categories, junctions, polymorphic tables
+  </div>
+</div>
+<p>Designer with placed orders <em>cannot</em> be soft-deleted (<code>order_items.design_product_mapping_id</code> is <code>restrictOnDelete</code>). Same for printers with active items.</p>
+
+<h2>4. Always-Deny</h2>
+<ul class="tight">
+  <li>Read another user's email / phone / address — except admin</li>
+  <li>Edit <code>unit_price</code> after order creation — even admin cannot</li>
+  <li>Edit <code>orders.shipping_*</code> after checkout — snapshot immutable</li>
+  <li>Delete design / template / variant referenced by <code>order_items</code> — DB blocks</li>
+  <li>Soft-delete a user with active order_items — application blocks</li>
+  <li>Add cart item to unpublished design or inactive variant — application blocks</li>
+  <li>Bypass <code>cart_items_unique_line</code> via duplicate insert — index blocks</li>
+</ul>
+
+<h2>5. Workflow Example · Place &amp; Fulfill an Order</h2>
+<table>
+<thead><tr><th>#</th><th>Actor</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Customer</td><td><code>POST /api/cart/items</code> — mapping X, variant Y, qty 2</td></tr>
+<tr><td>2</td><td>Customer</td><td><code>POST /api/cart/items</code> — mapping Z, qty 1</td></tr>
+<tr><td>3</td><td>Customer</td><td><code>POST /api/orders</code> with shipping address → snapshots shipping fields, creates 1 order + 2 items + 1 payment (pending)</td></tr>
+<tr><td>4</td><td>Customer</td><td>Uploads proof-of-payment via <code>media</code> (<code>collection=payment_proof</code>)</td></tr>
+<tr><td>5</td><td>Admin</td><td><code>PATCH /api/payments/{uuid}/confirm</code></td></tr>
+<tr><td>6</td><td>Printer A</td><td><code>PATCH …/items/{id}/status</code> → received → printing → printed → handed_off</td></tr>
+<tr><td>7</td><td>Printer A</td><td><code>POST /api/shipments</code> — system sets <code>shipped_at</code>, customer notified</td></tr>
+<tr><td>8</td><td>Printer A</td><td><code>PATCH /api/shipments/{id}</code> → delivered — system sets <code>delivered_at</code>, order derived status = delivered</td></tr>
+</tbody>
+</table>
+
+<h2>6. Forbidden Scenarios · Cross-Tenant Reads</h2>
+<table>
+<thead><tr><th>Actor</th><th>Tries</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td>Customer B</td><td><code>GET /api/orders/{uuid-A}</code></td><td><span class="no">Deny — 403, no leak</span></td></tr>
+<tr><td>Printer X</td><td><code>GET /api/orders/{uuid-Y}</code></td><td><span class="no">Deny — no items reference Printer X</span></td></tr>
+<tr><td>Designer A</td><td><code>GET /api/orders/{uuid}</code> for own-design order</td><td><span class="ok">Allow — but customer email filtered out</span></td></tr>
+</tbody>
+</table>
+
+<footer>v1.2 · generated alongside PRD &amp; SRS · cross-references Reports-v1.2.md</footer>
+
+</div>
+</body>
+</html>

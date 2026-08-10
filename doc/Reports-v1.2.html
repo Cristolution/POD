@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Top 15 Reports · POD v1.2</title>
+<style>
+  body{margin:0;background:#fff;color:#1f2937;
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
+  .wrap{max-width:1100px;margin:0 auto;padding:40px 28px 80px}
+  header{margin-bottom:28px;border-bottom:2px solid #e5e7eb;padding-bottom:16px}
+  h1{font-size:26px;margin:0 0 4px;color:#111827;font-weight:700}
+  .meta{color:#6b7280;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  h2{font-size:19px;margin:42px 0 12px;color:#111827;border-bottom:1px solid #e5e7eb;padding-bottom:6px;font-weight:600}
+  h3{font-size:16px;margin:24px 0 6px;color:#111827;font-weight:600}
+  h4{font-size:14px;margin:18px 0 4px;color:#374151;font-weight:600}
+  p{margin:6px 0}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:#f3f4f6;padding:1px 6px;border-radius:4px;color:#1f2937}
+  pre{background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:14px 16px;
+    overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;color:#1f2937;margin:8px 0}
+  pre code{background:none;padding:0;color:inherit;font-size:inherit}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px;border:1px solid #e5e7eb}
+  th,td{padding:8px 12px;text-align:left;vertical-align:top;border-bottom:1px solid #e5e7eb}
+  th{background:#f9fafb;color:#374151;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:none}
+  td:first-child{font-weight:500;color:#111827}
+  .pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11.5px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    background:#f3f4f6;border:1px solid #e5e7eb;color:#4b5563}
+  .pill.a{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+  .pill.d{background:#dbeafe;border-color:#93c5fd;color:#1e40af}
+  .pill.p{background:#ede9fe;border-color:#c4b5fd;color:#5b21b6}
+  .pill.c{background:#d1fae5;border-color:#6ee7b7;color:#065f46}
+  .pill.o{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .tag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    background:#f3f4f6;color:#4b5563;margin-right:4px}
+  .tag.rt{background:#d1fae5;color:#065f46}
+  .tag.hr{background:#fef3c7;color:#92400e}
+  .tag.dy{background:#dbeafe;color:#1e40af}
+  ul.tight{margin:6px 0 6px 20px;padding:0}
+  ul.tight li{margin:3px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:14px 16px}
+  .note{color:#4b5563;font-size:13px;border-left:3px solid #2563eb;padding:8px 14px;margin:10px 0;background:#f9fafb;border-radius:0 6px 6px 0}
+  footer{margin-top:64px;padding-top:16px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Top 15 Reports to Implement</h1>
+  <div class="meta">POD Platform · v1.2 · selected from the full 60-report catalog · prioritized by impact &amp; ease</div>
+</header>
+
+<div class="note">
+  <strong>Selection criteria.</strong> Reports ranked by (1) business impact on platform decisions, (2) cross-role reach (how many actors consume them), and (3) implementation cost (only reports that map cleanly to existing indexes). Each entry below includes the question it answers, the audience, the source tables, the SQL shape, the refresh cadence, and any gotchas.
+</div>
+
+<h2>The top 15, in build order</h2>
+<table>
+<thead><tr><th>#</th><th>Report</th><th>Audience</th><th>Refresh</th><th>Phase</th><th>Short description</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Platform Overview Dashboard</td><td><span class="pill a">ADMIN</span></td><td><span class="tag rt">Real-time</span></td><td>1 — MVP dashboards</td><td>Front-page KPIs: user counts, orders today, revenue today, pending payments, in-flight shipments, abandoned carts. Cached 60s.</td></tr>
+<tr><td>2</td><td>Revenue by Day</td><td><span class="pill a">ADMIN</span></td><td><span class="tag dy">Daily</span></td><td>2 — Revenue &amp; payouts</td><td>Daily gross revenue trend chart with order count and units sold. The canonical "is the platform growing?" view.</td></tr>
+<tr><td>3</td><td>Printer Work Queue</td><td><span class="pill p">PRINTER</span></td><td><span class="tag rt">Real-time</span></td><td>1 — MVP dashboards</td><td>List of order items waiting for the printer to advance through received → printing → printed. The fulfillment throughput driver.</td></tr>
+<tr><td>4</td><td>Designer Dashboard</td><td><span class="pill d">DESIGNER</span></td><td><span class="tag rt">Real-time</span></td><td>1 — MVP dashboards</td><td>Designer's KPIs: published count, draft count, mappings, this-month orders, revenue, units sold, best-seller. Cached 60s.</td></tr>
+<tr><td>5</td><td>Revenue by Designer (Top 25)</td><td><span class="pill a">ADMIN</span></td><td><span class="tag dy">Daily</span></td><td>3 — Leaderboards</td><td>Top 25 designers by gross revenue, with order count and units sold. Drives partnership and retention decisions.</td></tr>
+<tr><td>6</td><td>Revenue by Printer (Top 25)</td><td><span class="pill a">ADMIN</span></td><td><span class="tag dy">Daily</span></td><td>3 — Leaderboards</td><td>Top 25 printers by gross revenue. Symmetric to #5. Drives capacity planning and PSP onboarding prioritization.</td></tr>
+<tr><td>7</td><td>Stuck Payments</td><td><span class="pill o">OPS</span></td><td><span class="tag hr">Hourly</span></td><td>4 — Operations &amp; growth</td><td>Payments in <code>pending</code> for more than 3 days. Surfaces both missing proof-of-payment and admin-confirmation backlogs.</td></tr>
+<tr><td>8</td><td>Customer Lifetime Value (Top 100)</td><td><span class="pill a">ADMIN</span></td><td><span class="tag dy">Daily</span></td><td>4 — Operations &amp; growth</td><td>Top 100 customers by total confirmed spend with last-order date. Identifies VIPs for retention and support.</td></tr>
+<tr><td>9</td><td>Designer Payout Statement</td><td><span class="pill d">DESIGNER</span></td><td><span class="tag dy">Daily</span></td><td>2 — Revenue &amp; payouts</td><td>Daily gross / designer payout / platform fee derived from <code>settings.platform.commission_rate</code>. Trust-building document.</td></tr>
+<tr><td>10</td><td>Printer Payout Statement</td><td><span class="pill p">PRINTER</span></td><td><span class="tag dy">Daily</span></td><td>2 — Revenue &amp; payouts</td><td>Same shape as #9 but scoped to the printer's order items. PSPs run on this document.</td></tr>
+<tr><td>11</td><td>Cart Abandonment</td><td><span class="pill o">OPS</span></td><td><span class="tag dy">Daily</span></td><td>4 — Operations &amp; growth</td><td>Customers with cart activity in the last 7 days but no checkout. Classic recoverable-revenue list for re-engagement.</td></tr>
+<tr><td>12</td><td>Failed / Stuck Shipments</td><td><span class="pill o">OPS</span></td><td><span class="tag hr">Hourly</span></td><td>4 — Operations &amp; growth</td><td>Shipments pending or in-transit for more than 7 days. Customer-experience warning system, proactive support queue.</td></tr>
+<tr><td>13</td><td>Customer Order History</td><td><span class="pill c">CUSTOMER</span></td><td><span class="tag rt">Real-time</span></td><td>1 — MVP dashboards</td><td>The customer-facing "my orders" page: order status, total, payment method/status. E-commerce baseline.</td></tr>
+<tr><td>14</td><td>Active Shipments</td><td><span class="pill c">CUSTOMER</span></td><td><span class="tag rt">Real-time</span></td><td>1 — MVP dashboards</td><td>Customer's in-flight shipments with tracking number, tracking URL (rendered from company pattern), status.</td></tr>
+<tr><td>15</td><td>Top Designs by Revenue</td><td><span class="pill a">ADMIN</span></td><td><span class="tag dy">Daily</span></td><td>3 — Leaderboards</td><td>Top 25 designs by gross revenue with designer ID and units sold. Marketing gold — drives homepage and newsletter features.</td></tr>
+</tbody>
+</table>
+<p style="margin-top:6px">Each entry has the question it answers, source tables, SQL, filters, and rationale. A short <strong>Implementation sequencing</strong> table at the bottom groups them into 4 phases (MVP dashboards → revenue/payouts → leaderboards → ops/growth) so you can scope a sprint by phase. The <strong>Indexes that drive these 15</strong> table at the end tells you exactly which DB indexes each query depends on.</p>
+
+<h2>Audience legend</h2>
+<table>
+<thead><tr><th>Pill</th><th>Audience</th><th>Scope</th></tr></thead>
+<tbody>
+<tr><td><span class="pill a">ADMIN</span></td><td>Platform admin</td><td>Platform-wide aggregates, ops monitoring, audit</td></tr>
+<tr><td><span class="pill d">DESIGNER</span></td><td>Designer (self)</td><td>Own designs, mappings, revenue, payouts</td></tr>
+<tr><td><span class="pill p">PRINTER</span></td><td>Printer / PSP (self)</td><td>Own templates, order items, fulfillment queue, payouts</td></tr>
+<tr><td><span class="pill c">CUSTOMER</span></td><td>Customer (self)</td><td>Own orders, shipments, spending</td></tr>
+<tr><td><span class="pill o">OPS</span></td><td>Admin-ops &amp; support</td><td>Stuck items, integrity checks, abandonment</td></tr>
+</tbody>
+</table>
+<p style="margin-top:6px"><strong>Refresh tags:</strong> <span class="tag rt">Real-time</span> read on request · <span class="tag hr">Hourly</span> · <span class="tag dy">Daily</span> aggregated overnight.</p>
+
+<h2>The 15</h2>
+
+<h3 id="r1">1 · Platform Overview Dashboard</h3>
+<p><span class="pill a">ADMIN</span> <span class="tag rt">Real-time</span> · 60s cache</p>
+<p><strong>Question.</strong> What is the platform's current state?</p>
+<p><strong>Source tables.</strong> <code>users</code>, <code>orders</code>, <code>order_items</code>, <code>payments</code>, <code>designs</code>, <code>product_templates</code>, <code>shipments</code>, <code>cart_items</code></p>
+<p><strong>Metrics.</strong> Customer count · designer count · printer count · published designs · active templates · orders today · orders this month · revenue today · revenue this month · pending payments · pending items · in-flight shipments · abandoned carts (last 24h).</p>
+<p><strong>Implementation.</strong> One Eloquent query per metric, fired in parallel. Cache the response for 60s. This is the front-page of the admin console.</p>
+<p><strong>Why first.</strong> It is the only place every business-critical KPI surfaces in one view. Without it, nothing else has context.</p>
+
+<h3 id="r2">2 · Revenue by Day</h3>
+<p><span class="pill a">ADMIN</span> <span class="tag dy">Daily</span></p>
+<p><strong>Question.</strong> What is the daily revenue trend?</p>
+<p><strong>Source tables.</strong> <code>orders</code>, <code>order_items</code>, <code>payments</code></p>
+<pre><code>SELECT DATE(orders.created_at) AS day,
+       COUNT(DISTINCT orders.id) AS order_count,
+       SUM(order_items.unit_price * order_items.quantity) AS gross_revenue,
+       SUM(order_items.quantity) AS units_sold
+FROM orders
+JOIN order_items ON order_items.order_id = orders.id
+JOIN payments ON payments.order_id = orders.id
+WHERE payments.status = 'confirmed'
+  AND orders.created_at BETWEEN :from AND :to
+  AND orders.deleted_at IS NULL
+GROUP BY day
+ORDER BY day;</code></pre>
+<p><strong>Filters.</strong> Date range · payment method · shipping country · category.</p>
+<p><strong>Why second.</strong> The canonical "is the platform growing?" chart. Every board deck, every investor conversation.</p>
+
+<h3 id="r3">3 · Printer Work Queue</h3>
+<p><span class="pill p">PRINTER</span> <span class="tag rt">Real-time</span></p>
+<p><strong>Question.</strong> Which order items are waiting for me to move to the next status?</p>
+<p><strong>Source tables.</strong> <code>order_items</code>, <code>orders</code>, <code>design_product_mappings</code>, <code>designs</code>, <code>product_templates</code>, <code>product_variants</code></p>
+<pre><code>SELECT order_items.id, order_items.status, order_items.quantity, order_items.unit_price,
+       orders.id AS order_id, orders.shipping_city, orders.shipping_country,
+       designs.title AS design_title, product_templates.name AS template_name,
+       product_variants.attributes AS variant_attributes
+FROM order_items
+JOIN orders ON orders.id = order_items.order_id
+JOIN design_product_mappings dpm ON dpm.id = order_items.design_product_mapping_id
+JOIN designs ON designs.id = dpm.design_id
+JOIN product_templates ON product_templates.id = dpm.product_template_id
+LEFT JOIN product_variants ON product_variants.id = order_items.product_variant_id
+WHERE order_items.printer_provider_id = :printer_id
+  AND order_items.status IN ('pending','received','printing','printed')
+  AND order_items.deleted_at IS NULL
+ORDER BY orders.created_at ASC;</code></pre>
+<p><strong>Why third.</strong> It is the only report a printer opens every day. Drives fulfillment throughput — the platform's biggest operational lever.</p>
+
+<h3 id="r4">4 · Designer Dashboard</h3>
+<p><span class="pill d">DESIGNER</span> <span class="tag rt">Real-time</span> · 60s cache</p>
+<p><strong>Question.</strong> How are my designs performing right now?</p>
+<p><strong>Source tables.</strong> <code>designs</code>, <code>design_product_mappings</code>, <code>order_items</code>, <code>orders</code>, <code>payments</code></p>
+<p><strong>Metrics.</strong> Published designs · draft designs · total mappings · orders this month · revenue this month (gross) · units sold this month · best-selling design this month.</p>
+<p><strong>Why fourth.</strong> Same rationale as admin dashboard but for designers. The first thing every designer checks after logging in.</p>
+
+<h3 id="r5">5 · Revenue by Designer (Top 25)</h3>
+<p><span class="pill a">ADMIN</span> <span class="tag dy">Daily</span></p>
+<p><strong>Question.</strong> Which designers earn the platform the most revenue?</p>
+<p><strong>Source tables.</strong> <code>users</code>, <code>designer_profiles</code>, <code>designs</code>, <code>design_product_mappings</code>, <code>order_items</code>, <code>orders</code>, <code>payments</code></p>
+<pre><code>SELECT users.id, users.name,
+       COUNT(DISTINCT orders.id) AS order_count,
+       SUM(order_items.unit_price * order_items.quantity) AS gross_revenue,
+       SUM(order_items.quantity) AS units_sold
+FROM orders
+JOIN order_items ON order_items.order_id = orders.id
+JOIN design_product_mappings dpm ON dpm.id = order_items.design_product_mapping_id
+JOIN designs ON designs.id = dpm.design_id
+JOIN designer_profiles ON designer_profiles.id = designs.designer_id
+JOIN users ON users.id = designer_profiles.user_id
+JOIN payments ON payments.order_id = orders.id
+WHERE payments.status = 'confirmed'
+  AND orders.created_at BETWEEN :from AND :to
+GROUP BY users.id
+ORDER BY gross_revenue DESC LIMIT 25;</code></pre>
+<p><strong>Why fifth.</strong> Identifies the top tier of creators. Drives partnership, retention, and incentive-program decisions.</p>
+
+<h3 id="r6">6 · Revenue by Printer (Top 25)</h3>
+<p><span class="pill a">ADMIN</span> <span class="tag dy">Daily</span></p>
+<p><strong>Question.</strong> Which printers fulfill the most revenue?</p>
+<p><strong>Source tables.</strong> <code>users</code>, <code>printer_provider_profiles</code>, <code>order_items</code>, <code>orders</code>, <code>payments</code></p>
+<pre><code>SELECT users.id, users.name,
+       COUNT(DISTINCT orders.id) AS order_count,
+       SUM(order_items.unit_price * order_items.quantity) AS gross_revenue,
+       SUM(order_items.quantity) AS units_sold
+FROM orders
+JOIN order_items ON order_items.order_id = orders.id
+JOIN printer_provider_profiles ON printer_provider_profiles.id = order_items.printer_provider_id
+JOIN users ON users.id = printer_provider_profiles.user_id
+JOIN payments ON payments.order_id = orders.id
+WHERE payments.status = 'confirmed'
+  AND orders.created_at BETWEEN :from AND :to
+GROUP BY users.id
+ORDER BY gross_revenue DESC LIMIT 25;</code></pre>
+<p><strong>Why sixth.</strong> Symmetric to Report 5. Identifies high-volume printers for capacity planning.</p>
+
+<h3 id="r7">7 · Stuck Payments</h3>
+<p><span class="pill o">OPS</span> <span class="tag hr">Hourly</span></p>
+<p><strong>Question.</strong> Which payments have been <code>pending</code> for more than 3 days?</p>
+<p><strong>Source tables.</strong> <code>payments</code>, <code>orders</code></p>
+<pre><code>SELECT payments.id, payments.method, payments.created_at,
+       orders.id AS order_id, orders.customer_id,
+       JULIANDAY('now') - JULIANDAY(payments.created_at) AS age_days
+FROM payments
+JOIN orders ON orders.id = payments.order_id
+WHERE payments.status = 'pending'
+  AND payments.created_at &lt; DATE('now','-3 days')
+ORDER BY age_days DESC;</code></pre>
+<p><strong>Why seventh.</strong> Drives admin action queue. A pending payment is either awaiting proof-of-payment (customer) or waiting on confirmation (admin). The report surfaces both buckets.</p>
+
+<h3 id="r8">8 · Customer Lifetime Value (Top 100)</h3>
+<p><span class="pill a">ADMIN</span> <span class="tag dy">Daily</span></p>
+<p><strong>Question.</strong> Which customers spend the most over time?</p>
+<p><strong>Source tables.</strong> <code>users</code>, <code>orders</code>, <code>payments</code></p>
+<pre><code>SELECT users.id, users.name, users.email,
+       COUNT(DISTINCT orders.id) AS order_count,
+       SUM(orders.total_amount) AS ltv,
+       MAX(orders.created_at) AS last_order_at
+FROM users
+JOIN orders ON orders.customer_id = users.id
+JOIN payments ON payments.order_id = orders.id
+WHERE payments.status = 'confirmed'
+  AND users.role = 'customer' AND users.deleted_at IS NULL
+GROUP BY users.id
+ORDER BY ltv DESC LIMIT 100;</code></pre>
+<p><strong>Why eighth.</strong> Identifies VIP customers for retention, support prioritization, and future incentive programs.</p>
+
+<h3 id="r9">9 · Designer Payout Statement</h3>
+<p><span class="pill d">DESIGNER</span> <span class="tag dy">Daily</span></p>
+<p><strong>Question.</strong> How much should the platform pay me?</p>
+<p><strong>Source tables.</strong> <code>orders</code>, <code>order_items</code>, <code>design_product_mappings</code>, <code>designs</code>, <code>payments</code>, <code>settings</code></p>
+<pre><code>SELECT DATE(orders.created_at) AS day,
+       SUM(order_items.unit_price * order_items.quantity) AS gross_revenue,
+       SUM(order_items.unit_price * order_items.quantity) * (1 - :commission_rate) AS designer_payout,
+       SUM(order_items.unit_price * order_items.quantity) * :commission_rate AS platform_fee
+FROM orders
+JOIN order_items ON order_items.order_id = orders.id
+JOIN design_product_mappings dpm ON dpm.id = order_items.design_product_mapping_id
+JOIN designs ON designs.id = dpm.design_id
+JOIN payments ON payments.order_id = orders.id
+WHERE payments.status = 'confirmed'
+  AND designs.designer_id = :designer_id
+  AND orders.created_at BETWEEN :from AND :to
+GROUP BY day;</code></pre>
+<p><strong>Why ninth.</strong> The single most important financial document for designers. Drives trust and retention. <code>:commission_rate</code> is read from <code>settings.platform.commission_rate</code>.</p>
+
+<h3 id="r10">10 · Printer Payout Statement</h3>
+<p><span class="pill p">PRINTER</span> <span class="tag dy">Daily</span></p>
+<p><strong>Question.</strong> How much should the platform pay me?</p>
+<p><strong>Source tables.</strong> <code>orders</code>, <code>order_items</code>, <code>payments</code>, <code>settings</code></p>
+<pre><code>SELECT DATE(orders.created_at) AS day,
+       SUM(order_items.unit_price * order_items.quantity) AS gross_revenue,
+       SUM(order_items.unit_price * order_items.quantity) * (1 - :commission_rate) AS printer_payout,
+       SUM(order_items.unit_price * order_items.quantity) * :commission_rate AS platform_fee
+FROM orders
+JOIN order_items ON order_items.order_id = orders.id
+JOIN payments ON payments.order_id = orders.id
+WHERE payments.status = 'confirmed'
+  AND order_items.printer_provider_id = :printer_id
+  AND orders.created_at BETWEEN :from AND :to
+GROUP BY day;</code></pre>
+<p><strong>Why tenth.</strong> Same rationale as Report 9 but for printers. PSPs run on this document.</p>
+
+<h3 id="r11">11 · Cart Abandonment</h3>
+<p><span class="pill o">OPS</span> <span class="tag dy">Daily</span> · 6h cache</p>
+<p><strong>Question.</strong> Which customers added to cart but never checked out?</p>
+<p><strong>Source tables.</strong> <code>users</code>, <code>cart_items</code>, <code>orders</code></p>
+<pre><code>SELECT users.id, users.name, users.email,
+       COUNT(DISTINCT cart_items.id) AS cart_items_count,
+       MAX(cart_items.updated_at) AS last_cart_activity
+FROM users
+JOIN cart_items ON cart_items.user_id = users.id
+LEFT JOIN orders ON orders.customer_id = users.id
+  AND orders.created_at &gt; cart_items.updated_at
+WHERE users.role = 'customer' AND users.deleted_at IS NULL
+  AND orders.id IS NULL
+GROUP BY users.id
+HAVING last_cart_activity &lt; DATE('now','-7 days')
+ORDER BY last_cart_activity DESC;</code></pre>
+<p><strong>Why eleventh.</strong> The classic e-commerce growth lever. Identifies recoverable revenue with a simple re-engagement email.</p>
+
+<h3 id="r12">12 · Failed / Stuck Shipments</h3>
+<p><span class="pill o">OPS</span> <span class="tag hr">Hourly</span> · 5min cache</p>
+<p><strong>Question.</strong> Which shipments are pending or in-transit for too long?</p>
+<p><strong>Source tables.</strong> <code>shipments</code>, <code>orders</code></p>
+<pre><code>SELECT shipments.id, shipments.status, shipments.shipped_at,
+       orders.id AS order_id,
+       JULIANDAY('now') - JULIANDAY(shipments.created_at) AS age_days
+FROM shipments
+JOIN orders ON orders.id = shipments.order_id
+WHERE shipments.status IN ('pending','shipped')
+  AND (shipments.shipped_at IS NULL OR shipments.shipped_at &lt; DATE('now','-7 days'))
+ORDER BY age_days DESC;</code></pre>
+<p><strong>Why twelfth.</strong> Customer-experience warning system. Drives proactive support before complaints arrive.</p>
+
+<h3 id="r13">13 · Customer Order History</h3>
+<p><span class="pill c">CUSTOMER</span> <span class="tag rt">Real-time</span></p>
+<p><strong>Question.</strong> What have I ordered?</p>
+<p><strong>Source tables.</strong> <code>orders</code>, <code>order_items</code>, <code>payments</code></p>
+<pre><code>SELECT orders.id, orders.created_at, orders.status, orders.total_amount,
+       payments.method AS payment_method, payments.status AS payment_status
+FROM orders
+LEFT JOIN payments ON payments.order_id = orders.id
+WHERE orders.customer_id = :customer_id AND orders.deleted_at IS NULL
+ORDER BY orders.created_at DESC;</code></pre>
+<p><strong>Why thirteenth.</strong> The customer-facing "my orders" page. E-commerce baseline expectation.</p>
+
+<h3 id="r14">14 · Active Shipments</h3>
+<p><span class="pill c">CUSTOMER</span> <span class="tag rt">Real-time</span></p>
+<p><strong>Question.</strong> Which of my orders are currently being delivered?</p>
+<p><strong>Source tables.</strong> <code>shipments</code>, <code>orders</code>, <code>delivery_companies</code></p>
+<pre><code>SELECT shipments.id, shipments.tracking_number, shipments.tracking_url,
+       shipments.status, shipments.shipped_at, shipments.delivered_at,
+       delivery_companies.name AS delivery_company, orders.id AS order_id
+FROM shipments
+JOIN orders ON orders.id = shipments.order_id
+JOIN delivery_companies ON delivery_companies.id = shipments.delivery_company_id
+WHERE orders.customer_id = :customer_id
+  AND shipments.status IN ('pending','shipped')
+ORDER BY shipments.shipped_at DESC;</code></pre>
+<p><strong>Why fourteenth.</strong> High-traffic page. Customers check this constantly after ordering. <code>tracking_url</code> is rendered from <code>delivery_companies.tracking_url_pattern</code>.</p>
+
+<h3 id="r15">15 · Top Designs by Revenue</h3>
+<p><span class="pill a">ADMIN</span> <span class="tag dy">Daily</span></p>
+<p><strong>Question.</strong> Which designs drive the most revenue?</p>
+<p><strong>Source tables.</strong> <code>designs</code>, <code>design_product_mappings</code>, <code>order_items</code>, <code>orders</code>, <code>payments</code></p>
+<pre><code>SELECT designs.id, designs.title, designer_profiles.id AS designer_id,
+       COUNT(DISTINCT orders.id) AS order_count,
+       SUM(order_items.unit_price * order_items.quantity) AS revenue,
+       SUM(order_items.quantity) AS units_sold
+FROM designs
+JOIN design_product_mappings dpm ON dpm.design_id = designs.id
+JOIN order_items ON order_items.design_product_mapping_id = dpm.id
+JOIN orders ON orders.id = order_items.order_id
+JOIN payments ON payments.order_id = orders.id
+JOIN designer_profiles ON designer_profiles.id = designs.designer_id
+WHERE payments.status = 'confirmed'
+  AND orders.created_at BETWEEN :from AND :to
+  AND designs.deleted_at IS NULL
+GROUP BY designs.id
+ORDER BY revenue DESC LIMIT 25;</code></pre>
+<p><strong>Why fifteenth.</strong> Marketing gold. Identifies which designs to feature on the homepage, in newsletters, and in promotional campaigns.</p>
+
+<h2>Implementation sequencing</h2>
+<p>The reports are already ordered by suggested build sequence. A practical rollout:</p>
+<table>
+<thead><tr><th>Phase</th><th>Reports</th><th>Why this phase</th></tr></thead>
+<tbody>
+<tr><td><strong>Phase 1 — MVP dashboards</strong></td><td>1, 3, 4, 13, 14</td><td>The five pages every user opens every day. Without these, the platform feels broken.</td></tr>
+<tr><td><strong>Phase 2 — Revenue &amp; payouts</strong></td><td>2, 9, 10</td><td>Trust-building. Without payouts, designers and printers will not stay.</td></tr>
+<tr><td><strong>Phase 3 — Leaderboards</strong></td><td>5, 6, 15</td><td>Drives healthy competition among designers and printers. Useful for admin decisions.</td></tr>
+<tr><td><strong>Phase 4 — Operations &amp; growth</strong></td><td>7, 8, 11, 12</td><td>Active management. Surfaces problems before they grow, and identifies recoverable revenue.</td></tr>
+</tbody>
+</table>
+
+<h2>Conventions (apply to all 15)</h2>
+<ul class="tight">
+  <li><strong>Soft-delete:</strong> every count excludes <code>deleted_at IS NOT NULL</code> rows.</li>
+  <li><strong>Revenue:</strong> every monetary report joins <code>payments</code> with <code>payments.status = 'confirmed'</code>. Snapshotted <code>order_items.unit_price × quantity</code> is the source of truth — historical price integrity is preserved.</li>
+  <li><strong>Date dimension:</strong> financial metrics use <code>payments.confirmed_at</code>; order-count metrics use <code>orders.created_at</code>.</li>
+  <li><strong>PII protection:</strong> designer / printer reports never expose customer email or phone; customer reports only ever show the authenticated customer's own data.</li>
+  <li><strong>UUID lookups:</strong> queries filter on UUID <code>id</code> values where applicable (e.g. <code>designs.designer_id</code>). The 9 public-facing tables use CHAR(36) UUIDs per FR-15.</li>
+  <li><strong>Export:</strong> every report supports <code>?format=json</code> (default) and <code>?format=csv</code> stream.</li>
+</ul>
+
+<h2>Indexes that drive these 15</h2>
+<table>
+<thead><tr><th>Report</th><th>Index used</th></tr></thead>
+<tbody>
+<tr><td>1 · Platform Overview</td><td><code>users.role</code>, <code>designs.status</code>, <code>payments.status</code>, <code>order_items.status</code>, <code>shipments.status</code>, <code>cart_items.updated_at</code></td></tr>
+<tr><td>2 · Revenue by Day</td><td><code>orders.created_at</code>, <code>payments.confirmed_at</code></td></tr>
+<tr><td>3 · Printer Work Queue</td><td><code>order_items.printer_provider_id</code>, <code>order_items.status</code>, <code>order_items.deleted_at</code></td></tr>
+<tr><td>4 · Designer Dashboard</td><td><code>designs.designer_id</code>, <code>designs.status</code></td></tr>
+<tr><td>5, 6 · Top Designers / Printers</td><td><code>designs.designer_id</code>, <code>order_items.printer_provider_id</code>, <code>users.role</code></td></tr>
+<tr><td>7 · Stuck Payments</td><td><code>payments.status</code>, <code>payments.created_at</code></td></tr>
+<tr><td>8 · Customer LTV</td><td><code>orders.customer_id</code>, <code>payments.status</code></td></tr>
+<tr><td>9, 10 · Payouts</td><td><code>designs.designer_id</code>, <code>order_items.printer_provider_id</code>, <code>settings.key</code></td></tr>
+<tr><td>11 · Cart Abandonment</td><td><code>cart_items.user_id</code>, <code>cart_items.updated_at</code></td></tr>
+<tr><td>12 · Stuck Shipments</td><td><code>shipments.status</code>, <code>shipments.shipped_at</code></td></tr>
+<tr><td>13 · Order History</td><td><code>orders.customer_id</code>, <code>orders.created_at</code></td></tr>
+<tr><td>14 · Active Shipments</td><td><code>shipments.status</code>, <code>shipments.printer_provider_id</code></td></tr>
+<tr><td>15 · Top Designs</td><td><code>designs.designer_id</code>, <code>design_product_mappings(design_id, product_template_id)</code></td></tr>
+</tbody>
+</table>
+
+<footer>v1.2 · 15 prioritized reports · full catalog (60 reports) available in <code>Reports-v1.2.md</code></footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API Endpoints · POD v1.2</title>
+<style>
+  body{margin:0;background:#fff;color:#1f2937;
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 80px}
+  header{margin-bottom:28px;border-bottom:2px solid #e5e7eb;padding-bottom:16px}
+  h1{font-size:26px;margin:0 0 4px;color:#111827;font-weight:700}
+  .meta{color:#6b7280;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  h2{font-size:19px;margin:42px 0 12px;color:#111827;border-bottom:1px solid #e5e7eb;padding-bottom:6px;font-weight:600}
+  h3{font-size:16px;margin:24px 0 6px;color:#111827;font-weight:600}
+  h4{font-size:14px;margin:18px 0 4px;color:#374151;font-weight:600}
+  p{margin:6px 0}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:#f3f4f6;padding:1px 6px;border-radius:4px;color:#1f2937}
+  pre{background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:14px 16px;
+    overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;color:#1f2937;margin:8px 0}
+  pre code{background:none;padding:0;color:inherit;font-size:inherit}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px;border:1px solid #e5e7eb}
+  th,td{padding:8px 12px;text-align:left;vertical-align:top;border-bottom:1px solid #e5e7eb}
+  th{background:#f9fafb;color:#374151;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  tr:last-child td{border-bottom:none}
+  td:first-child{font-weight:500;color:#111827}
+  .verb{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    background:#f3f4f6;border:1px solid #e5e7eb;color:#374151;font-weight:600;min-width:46px;text-align:center}
+  .v.GET{background:#dbeafe;border-color:#93c5fd;color:#1e40af}
+  .v.POST{background:#d1fae5;border-color:#6ee7b7;color:#065f46}
+  .v.PUT,.v.PATCH{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+  .v.DELETE{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+  .pill{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    background:#f3f4f6;border:1px solid #e5e7eb;color:#4b5563;font-weight:500}
+  .pill.pub{background:#f3f4f6;color:#374151}
+  .pill.auth{background:#e0e7ff;border-color:#a5b4fc;color:#3730a3}
+  .pill.cust{background:#d1fae5;border-color:#6ee7b7;color:#065f46}
+  .pill.des{background:#dbeafe;border-color:#93c5fd;color:#1e40af}
+  .pill.pri{background:#ede9fe;border-color:#c4b5fd;color:#5b21b6}
+  .pill.adm{background:#fef3c7;border-color:#fcd34d;color:#92400e}
+  .pill.own{background:#fce7f3;border-color:#f9a8d4;color:#9d174d}
+  ul.tight{margin:6px 0 6px 20px;padding:0}
+  ul.tight li{margin:3px 0}
+  .toc{background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:14px 18px;margin:18px 0;font-size:13px}
+  .toc ol{margin:6px 0 0 22px;padding:0;columns:2;column-gap:32px}
+  .toc li{margin:2px 0;break-inside:avoid}
+  .toc a{color:#1e40af;text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  .note{color:#4b5563;font-size:13px;border-left:3px solid #2563eb;padding:8px 14px;margin:10px 0;background:#f9fafb;border-radius:0 6px 6px 0}
+  footer{margin-top:64px;padding-top:16px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>API Endpoints</h1>
+  <div class="meta">POD Platform · v1.2 · complete route surface · role-scoped · paired with PermissionMatrix-v1.2</div>
+</header>
+
+<div class="note">
+  <strong>How to read this doc.</strong> Every row is one HTTP route. <strong>Verb</strong> uses standard REST (GET / POST / PATCH / DELETE). <strong>Roles</strong> shows who may call the route — <em>public</em> (no auth), <em>authenticated</em> (any role), <em>customer / designer / printer / admin</em> (role-gated), or <em>own</em> (the record must belong to the caller). <strong>Path params</strong> indicate whether the ID is a UUID (the 9 public-facing tables) or a bigint (the 11 internal tables). <strong>Body / Returns</strong> lists the FormRequest fields expected and the API Resource shape returned.
+</div>
+
+<h2>Convention legend</h2>
+<table>
+<thead><tr><th>Marker</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><span class="pill pub">public</span></td><td>No authentication required.</td></tr>
+<tr><td><span class="pill auth">authenticated</span></td><td>Any logged-in user, regardless of role.</td></tr>
+<tr><td><span class="pill cust">customer</span></td><td>Role <code>customer</code>.</td></tr>
+<tr><td><span class="pill des">designer</span></td><td>Role <code>designer</code> (own records unless specified).</td></tr>
+<tr><td><span class="pill pri">printer</span></td><td>Role <code>printer_provider</code> (own records unless specified).</td></tr>
+<tr><td><span class="pill adm">admin</span></td><td>Role <code>admin</code> (full access).</td></tr>
+<tr><td><span class="pill own">own</span></td><td>Caller must own the record (e.g. own <code>cart_item</code>, own <code>design</code>).</td></tr>
+<tr><td><code>{uuid}</code></td><td>CHAR(36) UUID — one of the 9 public-facing tables.</td></tr>
+<tr><td><code>{id}</code></td><td>Bigint integer — one of the 11 internal tables.</td></tr>
+</tbody>
+</table>
+
+<nav class="toc">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#auth">Auth &amp; self</a></li>
+    <li><a href="#users">Users</a></li>
+    <li><a href="#profiles">Profiles</a></li>
+    <li><a href="#addresses">Addresses</a></li>
+    <li><a href="#catalog">Catalog — categories, tags, designs, templates, variants, mappings</a></li>
+    <li><a href="#cart">Cart</a></li>
+    <li><a href="#orders">Orders &amp; order items</a></li>
+    <li><a href="#shipments">Shipments &amp; delivery companies</a></li>
+    <li><a href="#payments">Payments</a></li>
+    <li><a href="#media">Media (polymorphic)</a></li>
+    <li><a href="#notifications">Notifications</a></li>
+    <li><a href="#settings">Settings</a></li>
+    <li><a href="#admin">Admin</a></li>
+    <li><a href="#reports">Reports (top 15)</a></li>
+  </ol>
+</nav>
+
+<h2 id="auth">1 · Auth &amp; Self</h2>
+
+<h3>1.1 Authentication</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/auth/register</code></td><td><span class="pill pub">public</span></td><td><code>StoreUserRequest</code>: name, email, password (confirmed), phone, role (default <code>customer</code>)</td><td><code>UserResource</code> + Sanctum token</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/auth/login</code></td><td><span class="pill pub">public</span></td><td>email, password</td><td><code>UserResource</code> + Sanctum token</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/auth/logout</code></td><td><span class="pill auth">authenticated</span></td><td>—</td><td><code>204 No Content</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/auth/forgot-password</code></td><td><span class="pill pub">public</span></td><td>email</td><td>Reset-link dispatched</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/auth/reset-password</code></td><td><span class="pill pub">public</span></td><td>token, email, password (confirmed)</td><td>Sanctum token</td></tr>
+</tbody>
+</table>
+
+<h3>1.2 Self-management (<code>/me</code>)</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/me</code></td><td><span class="pill auth">authenticated</span></td><td>—</td><td><code>UserResource</code> with email/phone visible</td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me</code></td><td><span class="pill auth">authenticated</span></td><td><code>UpdateUserRequest</code>: name, phone, email, current_password (required if password set)</td><td><code>UserResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/password</code></td><td><span class="pill auth">authenticated</span></td><td>current_password, password (confirmed)</td><td><code>204 No Content</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me</code></td><td><span class="pill auth">authenticated</span></td><td>—</td><td><code>204</code> (or <code>409</code> if designer/printer with active items)</td></tr>
+</tbody>
+</table>
+
+<h2 id="users">2 · Users</h2>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/users/{uuid}</code></td><td><span class="pill pub">public</span></td><td>—</td><td><code>UserResource</code> with email/phone <strong>redacted</strong> unless self-or-admin</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/admin/users</code></td><td><span class="pill adm">admin</span></td><td>filter: role, search, page</td><td>paginated <code>UserResource</code> collection</td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/admin/users/{uuid}</code></td><td><span class="pill adm">admin</span></td><td><code>UpdateUserRequest</code> + role change</td><td><code>UserResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/admin/users/{uuid}</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>204</code> (soft-delete, cascades where applicable)</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/admin/users/{uuid}/restore</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>UserResource</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="profiles">3 · Profiles</h2>
+
+<h3>3.1 Designer profiles</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/designers</code></td><td><span class="pill pub">public</span></td><td>filter: search, page</td><td>paginated <code>DesignerProfileResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/designers/{uuid}</code></td><td><span class="pill pub">public</span></td><td>—</td><td><code>DesignerProfileResource</code> + <code>designs</code> (whenLoaded)</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/me/designer-profile</code></td><td><span class="pill des">designer</span></td><td><code>StoreDesignerProfileRequest</code>: bio, links</td><td><code>DesignerProfileResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/designer-profile</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span></td><td><code>UpdateDesignerProfileRequest</code>: bio, links</td><td><code>DesignerProfileResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/designer-profile</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code> (or <code>409</code> if active designs)</td></tr>
+</tbody>
+</table>
+
+<h3>3.2 Printer profiles</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/printers</code></td><td><span class="pill pub">public</span></td><td>filter: search, page</td><td>paginated <code>PrinterProfileResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/printers/{uuid}</code></td><td><span class="pill pub">public</span></td><td>—</td><td><code>PrinterProfileResource</code> + <code>productTemplates</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/me/printer-profile</code></td><td><span class="pill pri">printer</span></td><td><code>StorePrinterProfileRequest</code>: company_name, capabilities</td><td><code>PrinterProfileResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/printer-profile</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span></td><td><code>UpdatePrinterProfileRequest</code>: company_name, capabilities</td><td><code>PrinterProfileResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/printer-profile</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code> (or <code>409</code> if active templates)</td></tr>
+</tbody>
+</table>
+
+<h2 id="addresses">4 · Addresses</h2>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/me/addresses</code></td><td><span class="pill auth">authenticated</span></td><td>—</td><td>paginated <code>AddressResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/me/addresses</code></td><td><span class="pill auth">authenticated</span></td><td><code>StoreAddressRequest</code>: line1, line2, city, postal_code, country, phone</td><td><code>AddressResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/me/addresses/{id}</code></td><td><span class="pill auth">authenticated</span> <span class="pill own">own</span></td><td>—</td><td><code>AddressResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/addresses/{id}</code></td><td><span class="pill auth">authenticated</span> <span class="pill own">own</span></td><td><code>UpdateAddressRequest</code></td><td><code>AddressResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/addresses/{id}</code></td><td><span class="pill auth">authenticated</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="catalog">5 · Catalog</h2>
+
+<h3>5.1 Categories</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/categories</code></td><td><span class="pill pub">public</span></td><td>filter: parent_id, tree=true</td><td>paginated <code>CategoryResource</code> (with children)</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/categories/{id}</code></td><td><span class="pill pub">public</span></td><td>—</td><td><code>CategoryResource</code> + breadcrumb</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/admin/categories</code></td><td><span class="pill adm">admin</span></td><td><code>StoreCategoryRequest</code>: name, parent_id (nullable)</td><td><code>CategoryResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/admin/categories/{id}</code></td><td><span class="pill adm">admin</span></td><td><code>UpdateCategoryRequest</code>: name, parent_id</td><td><code>CategoryResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/admin/categories/{id}</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>204</code> (or <code>409</code> if designs attached)</td></tr>
+</tbody>
+</table>
+
+<h3>5.2 Tags</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/tags</code></td><td><span class="pill pub">public</span></td><td>filter: search, autocomplete prefix</td><td>paginated <code>TagResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/admin/tags</code></td><td><span class="pill adm">admin</span></td><td><code>StoreTagRequest</code>: name (unique)</td><td><code>TagResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/admin/tags/{id}</code></td><td><span class="pill adm">admin</span></td><td><code>UpdateTagRequest</code>: name</td><td><code>TagResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/admin/tags/{id}</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>204</code> (or <code>409</code> if designs attached)</td></tr>
+</tbody>
+</table>
+
+<h3>5.3 Designs</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/designs</code></td><td><span class="pill pub">public</span></td><td>filter: status=published, category_id, tag_id, designer_id, search, sort, page</td><td>paginated <code>DesignResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/designs/{uuid}</code></td><td><span class="pill pub">public</span> (published) / <span class="pill des">designer</span> <span class="pill own">own</span> (draft / archived)</td><td>—</td><td><code>DesignResource</code> with designer, category, tags, mappings, media</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/designs</code></td><td><span class="pill des">designer</span></td><td><code>StoreDesignRequest</code>: title, description, category_id, tag_ids[]</td><td><code>DesignResource</code> (status=draft)</td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/designs/{uuid}</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span></td><td><code>UpdateDesignRequest</code>: title, description, category_id, tag_ids[], status</td><td><code>DesignResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/designs/{uuid}</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code> (or <code>409</code> if order_items reference it)</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/designs/{uuid}/restore</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span></td><td>—</td><td><code>DesignResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/admin/designs/{uuid}/transfer</code></td><td><span class="pill adm">admin</span></td><td>new_designer_id</td><td><code>DesignResource</code> (audit-logged)</td></tr>
+</tbody>
+</table>
+
+<h3>5.4 Product templates &amp; variants</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/templates</code></td><td><span class="pill pub">public</span></td><td>filter: printer_provider_id, type, search, page</td><td>paginated <code>ProductTemplateResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/templates/{uuid}</code></td><td><span class="pill pub">public</span></td><td>—</td><td><code>ProductTemplateResource</code> + variants</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/me/templates</code></td><td><span class="pill pri">printer</span></td><td><code>StoreProductTemplateRequest</code>: name, type, base_cost, specs</td><td><code>ProductTemplateResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/templates/{uuid}</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span></td><td><code>UpdateProductTemplateRequest</code>: name, type, base_cost, specs</td><td><code>ProductTemplateResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/templates/{uuid}</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code> (or <code>409</code> if order_items reference it)</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/me/templates/{uuid}/variants</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span></td><td><code>StoreProductVariantRequest</code>: attributes (JSON), price_delta, sku (unique), is_active</td><td><code>ProductVariantResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/variants/{uuid}</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span></td><td><code>UpdateProductVariantRequest</code>: attributes, price_delta, sku, is_active</td><td><code>ProductVariantResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/variants/{uuid}</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code> (or <code>409</code> if order_items reference it)</td></tr>
+</tbody>
+</table>
+
+<h3>5.5 Design–product mappings</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/mappings</code></td><td><span class="pill pub">public</span></td><td>filter: design_id, product_template_id, page</td><td>paginated <code>DesignProductMappingResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/mappings/{uuid}</code></td><td><span class="pill pub">public</span></td><td>—</td><td><code>DesignProductMappingResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/me/mappings</code></td><td><span class="pill des">designer</span></td><td><code>StoreDesignProductMappingRequest</code>: design_id, product_template_id, final_price, preferred_printer_id</td><td><code>DesignProductMappingResource</code> (or <code>409</code> on duplicate)</td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/mappings/{uuid}</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span></td><td><code>UpdateDesignProductMappingRequest</code>: final_price, preferred_printer_id</td><td><code>DesignProductMappingResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/mappings/{uuid}</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="cart">6 · Cart</h2>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/me/cart</code></td><td><span class="pill auth">authenticated</span></td><td>—</td><td>collection of <code>CartItemResource</code> with line totals and grand total</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/me/cart/items</code></td><td><span class="pill auth">authenticated</span></td><td><code>StoreCartItemRequest</code>: design_product_mapping_id, product_variant_id (nullable), quantity (1–100)</td><td><code>CartItemResource</code> (or upsert on duplicate line, FR-6.6)</td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/cart/items/{id}</code></td><td><span class="pill auth">authenticated</span> <span class="pill own">own</span></td><td><code>UpdateCartItemRequest</code>: quantity</td><td><code>CartItemResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/cart/items/{id}</code></td><td><span class="pill auth">authenticated</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/cart</code></td><td><span class="pill auth">authenticated</span></td><td>—</td><td><code>204</code> (clear cart)</td></tr>
+</tbody>
+</table>
+<div class="note">The <code>product_variant_id</code> field is nullable. The duplicate-line index <code>cart_items_unique_line</code> on <code>(user_id, design_product_mapping_id, variant_key)</code> collapses duplicate inserts and the application layer upserts the quantity (FR-6.6).</div>
+
+<h2 id="orders">7 · Orders &amp; Order Items</h2>
+
+<h3>7.1 Orders</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/orders</code></td><td><span class="pill auth">authenticated</span></td><td><code>StoreOrderRequest</code>: shipping_address_id (or fresh snapshot), payment_method</td><td><code>OrderResource</code> (with <code>items</code> + initial <code>payment</code>)</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/orders</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td>filter: status, date_from, date_to, page</td><td>paginated <code>OrderResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/orders/{uuid}</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span> / <span class="pill des">designer</span> (own designs) / <span class="pill pri">printer</span> (own items) / <span class="pill adm">admin</span></td><td>—</td><td><code>OrderResource</code> with items, payments, shipments</td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/orders/{uuid}/cancel</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span> (before <code>processing</code>) / <span class="pill adm">admin</span></td><td>reason</td><td><code>OrderResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/orders/{uuid}/status</code></td><td><span class="pill adm">admin</span></td><td>status</td><td><code>OrderResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/admin/orders/{uuid}</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>204</code> (soft-delete)</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/admin/orders/{uuid}/restore</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>OrderResource</code></td></tr>
+</tbody>
+</table>
+
+<h3>7.2 Order items</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/orders/{uuid}/items</code></td><td>same as <code>GET /api/orders/{uuid}</code></td><td>—</td><td>collection of <code>OrderItemResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/orders/{uuid}/items/{id}/status</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td><code>UpdateOrderItemRequest</code>: status (received → printing → printed → handed_off)</td><td><code>OrderItemResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/orders/{uuid}/items/{id}/cancel</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span> (before <code>printed</code>) / <span class="pill pri">printer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td>reason</td><td><code>OrderItemResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/admin/orders/{uuid}/items/{id}/printer</code></td><td><span class="pill adm">admin</span></td><td>printer_provider_id (only if <code>pending</code>)</td><td><code>OrderItemResource</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="shipments">8 · Shipments &amp; Delivery Companies</h2>
+
+<h3>8.1 Delivery companies</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/delivery-companies</code></td><td><span class="pill pub">public</span></td><td>filter: coverage_zone, page</td><td>paginated <code>DeliveryCompanyResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/delivery-companies/{id}</code></td><td><span class="pill pub">public</span></td><td>—</td><td><code>DeliveryCompanyResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/admin/delivery-companies</code></td><td><span class="pill adm">admin</span></td><td><code>StoreDeliveryCompanyRequest</code>: name (unique), coverage_zones (array), tracking_url_pattern</td><td><code>DeliveryCompanyResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/admin/delivery-companies/{id}</code></td><td><span class="pill adm">admin</span></td><td><code>UpdateDeliveryCompanyRequest</code></td><td><code>DeliveryCompanyResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/admin/delivery-companies/{id}</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>204</code> (or <code>409</code> if shipments reference)</td></tr>
+</tbody>
+</table>
+
+<h3>8.2 Shipments</h3>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/shipments</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td>filter: status, order_id, page</td><td>paginated <code>ShipmentResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/shipments/{id}</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span> (via order) / <span class="pill pri">printer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td>—</td><td><code>ShipmentResource</code> with tracking_url</td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/orders/{uuid}/shipments</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td><code>StoreShipmentRequest</code>: printer_provider_id (self), delivery_company_id, tracking_number, covered_item_ids[]</td><td><code>ShipmentResource</code> (auto-sets <code>shipped_at</code> if status=shipped)</td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/shipments/{id}</code></td><td><span class="pill pri">printer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td><code>UpdateShipmentRequest</code>: status, tracking_number, shipped_at, delivered_at</td><td><code>ShipmentResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/shipments/{id}</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>204</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="payments">9 · Payments</h2>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/me/payments</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span></td><td>filter: status, page</td><td>paginated <code>PaymentResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/payments/{uuid}</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td>—</td><td><code>PaymentResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/orders/{uuid}/payments</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td><code>StorePaymentRequest</code>: method (cash_on_delivery / bank_transfer / card)</td><td><code>PaymentResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/payments/{uuid}/confirm</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>PaymentResource</code> (sets <code>confirmed_by_admin_id</code>, <code>confirmed_at</code>)</td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/payments/{uuid}/reject</code></td><td><span class="pill adm">admin</span></td><td>reason</td><td><code>PaymentResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/admin/payments/{uuid}</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>204</code> (soft-delete)</td></tr>
+</tbody>
+</table>
+
+<h2 id="media">10 · Media (polymorphic)</h2>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/media/{id}</code></td><td>depends on owner (designer / customer / admin)</td><td>—</td><td><code>MediaResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/designs/{uuid}/media</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td>multipart: file, collection_name (mockup / print_file / attachment)</td><td><code>MediaResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/payments/{uuid}/media</code></td><td><span class="pill cust">customer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td>multipart: file, collection_name=payment_proof</td><td><code>MediaResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/media/{id}</code></td><td><span class="pill des">designer</span> <span class="pill own">own</span> / <span class="pill pri">printer</span> <span class="pill own">own</span> / <span class="pill adm">admin</span></td><td>—</td><td><code>204</code></td></tr>
+</tbody>
+</table>
+<div class="note">The polymorphic <code>media</code> table has no single resource controller — uploads are nested under the owner route. <code>collection_name</code> is a closed enum: <code>mockup</code>, <code>print_file</code>, <code>payment_proof</code>, <code>attachment</code> (FR-11.2).</div>
+
+<h2 id="notifications">11 · Notifications</h2>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/me/notifications</code></td><td><span class="pill auth">authenticated</span></td><td>filter: unread=true, page</td><td>paginated <code>NotificationResource</code></td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/me/notifications/unread-count</code></td><td><span class="pill auth">authenticated</span></td><td>—</td><td><code>{ "unread_count": int }</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/me/notifications/{id}/read</code></td><td><span class="pill auth">authenticated</span> <span class="pill own">own</span></td><td>—</td><td><code>NotificationResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/me/notifications/mark-all-read</code></td><td><span class="pill auth">authenticated</span></td><td>—</td><td><code>{ "marked": int }</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/admin/notifications</code></td><td><span class="pill adm">admin</span></td><td><code>StoreNotificationRequest</code>: notifiable_type, notifiable_id (or broadcast=true), type, data (JSON)</td><td><code>NotificationResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/me/notifications/{id}</code></td><td><span class="pill auth">authenticated</span> <span class="pill own">own</span></td><td>—</td><td><code>204</code></td></tr>
+</tbody>
+</table>
+<div class="note"><code>notifications.type</code> is intentionally an open-ended string — new notification types ship with new features (FR-12.2).</div>
+
+<h2 id="settings">12 · Settings</h2>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/settings</code></td><td><span class="pill pub">public</span></td><td>filter: namespace (e.g. <code>platform.*</code>)</td><td>filtered <code>SettingResource</code> collection</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/settings/{id}</code></td><td><span class="pill pub">public</span> (if public namespace) / <span class="pill adm">admin</span></td><td>—</td><td><code>SettingResource</code></td></tr>
+<tr><td><span class="verb POST">POST</span></td><td><code>/api/admin/settings</code></td><td><span class="pill adm">admin</span></td><td><code>StoreSettingRequest</code>: key (unique), value, is_public</td><td><code>SettingResource</code></td></tr>
+<tr><td><span class="verb PATCH">PATCH</span></td><td><code>/api/admin/settings/{id}</code></td><td><span class="pill adm">admin</span></td><td><code>UpdateSettingRequest</code>: key, value, is_public</td><td><code>SettingResource</code></td></tr>
+<tr><td><span class="verb DELETE">DELETE</span></td><td><code>/api/admin/settings/{id}</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>204</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="admin">13 · Admin</h2>
+<table>
+<thead><tr><th>Verb</th><th>Path</th><th>Roles</th><th>Body / Validation</th><th>Returns</th></tr></thead>
+<tbody>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/admin/dashboard</code></td><td><span class="pill adm">admin</span></td><td>—</td><td>platform overview KPIs (see Report #1)</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/admin/audit/deleted</code></td><td><span class="pill adm">admin</span></td><td>filter: entity, date_from, date_to</td><td>soft-delete audit trail</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/admin/integrity/profile-mismatches</code></td><td><span class="pill adm">admin</span></td><td>—</td><td>users without matching profile rows</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/admin/integrity/orphaned-media</code></td><td><span class="pill adm">admin</span></td><td>—</td><td>media rows with missing owner</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/admin/integrity/items-without-shipment</code></td><td><span class="pill adm">admin</span></td><td>—</td><td><code>handed_off</code> items lacking a shipment</td></tr>
+<tr><td><span class="verb GET">GET</span></td><td><code>/api/admin/integrity/stuck-cart-items</code></td><td><span class="pill adm">admin</span></td><td>—</td><td>cart rows pointing to inactive variants</td></tr>
+</tbody>
+</table>
+
+<h2 id="reports">14 · Reports (top 15)</h2>
+<p>Every report endpoint lives under <code>/api/reports/...</code>. All accept <code>from</code>, <code>to</code>, <code>format=json|csv</code>. JSON returns paginated. CSV streams as text/csv.</p>
+
+<table>
+<thead><tr><th>#</th><th>Verb</th><th>Path</th><th>Roles</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/admin/overview</code></td><td><span class="pill adm">admin</span></td><td>60s cache. Platform KPIs.</td></tr>
+<tr><td>2</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/admin/revenue-by-day</code></td><td><span class="pill adm">admin</span></td><td>filter: payment_method, country, category</td></tr>
+<tr><td>3</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/printer/work-queue</code></td><td><span class="pill pri">printer</span></td><td>filter: status, page</td></tr>
+<tr><td>4</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/designer/dashboard</code></td><td><span class="pill des">designer</span></td><td>60s cache. KPIs.</td></tr>
+<tr><td>5</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/admin/revenue-by-designer</code></td><td><span class="pill adm">admin</span></td><td>limit: 25</td></tr>
+<tr><td>6</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/admin/revenue-by-printer</code></td><td><span class="pill adm">admin</span></td><td>limit: 25</td></tr>
+<tr><td>7</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/ops/stuck-payments</code></td><td><span class="pill adm">admin</span></td><td>filter: min_age_days (default 3)</td></tr>
+<tr><td>8</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/admin/customer-ltv</code></td><td><span class="pill adm">admin</span></td><td>limit: 100</td></tr>
+<tr><td>9</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/designer/payout</code></td><td><span class="pill des">designer</span></td><td>filter: from, to</td></tr>
+<tr><td>10</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/printer/payout</code></td><td><span class="pill pri">printer</span></td><td>filter: from, to</td></tr>
+<tr><td>11</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/ops/cart-abandonment</code></td><td><span class="pill adm">admin</span></td><td>filter: min_age_days (default 7)</td></tr>
+<tr><td>12</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/ops/stuck-shipments</code></td><td><span class="pill adm">admin</span></td><td>filter: min_age_days (default 7)</td></tr>
+<tr><td>13</td><td><span class="verb GET">GET</span></td><td><code>/api/me/orders</code></td><td><span class="pill cust">customer</span></td><td>alias of <code>GET /api/orders</code> filtered to self</td></tr>
+<tr><td>14</td><td><span class="verb GET">GET</span></td><td><code>/api/me/shipments/active</code></td><td><span class="pill cust">customer</span></td><td>status in <code>(pending, shipped)</code></td></tr>
+<tr><td>15</td><td><span class="verb GET">GET</span></td><td><code>/api/reports/admin/top-designs</code></td><td><span class="pill adm">admin</span></td><td>limit: 25</td></tr>
+</tbody>
+</table>
+
+<h2>Cross-cutting conventions</h2>
+<ul class="tight">
+  <li><strong>Authentication</strong> — Laravel Sanctum bearer tokens. Token returned on register/login; sent as <code>Authorization: Bearer …</code>.</li>
+  <li><strong>Validation</strong> — every write route uses a <code>Store{Model}Request</code> or <code>Update{Model}Request</code>. UUID FK fields use <code>exists:table,id</code>; enum fields use <code>Rule::in([...])</code>; unique fields ignore the current record on update via <code>Rule::unique(...)->ignore($this->route('x')?->id)</code>.</li>
+  <li><strong>Response shape</strong> — every resource returns via an <code>App\Http\Resources\{Model}Resource</code> extending <code>JsonResource</code>. Relations are lazy via <code>whenLoaded</code>; aggregates via <code>whenCounted</code>.</li>
+  <li><strong>Errors</strong> — <code>401</code> unauthenticated, <code>403</code> forbidden, <code>404</code> missing, <code>409</code> conflict (e.g. delete-blocked by reference), <code>422</code> validation failure with field-keyed errors.</li>
+  <li><strong>Pagination</strong> — list endpoints default to 25 per page, max 100. JSON response includes <code>links</code> + <code>meta</code> (Laravel default).</li>
+  <li><strong>Filtering</strong> — query string <code>filter[...]</code> or flat keys (e.g. <code>?status=pending&amp;from=2025-01-01</code>). Sort via <code>?sort=-created_at</code> (prefix <code>-</code> for desc).</li>
+  <li><strong>Soft-delete</strong> — deleted records return <code>404</code> by default. Include them with <code>?include_deleted=1</code> (admin only).</li>
+  <li><strong>Rate limiting</strong> — auth routes <code>10/min</code>, write routes <code>60/min</code>, read routes <code>300/min</code> per token.</li>
+</ul>
+
+<footer>v1.2 · companion to PermissionMatrix-v1.2.md and Reports-v1.2.html · role-scoped route surface</footer>
+
+</div>
+</body>
+</html>
