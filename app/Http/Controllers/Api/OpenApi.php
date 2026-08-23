@@ -1109,4 +1109,328 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'status', type: 'string', enum: ['draft', 'published', 'archived']),
     ]
 )]
+// ─── Catalog / Templates + Variants ───────────────────────────────────────────
+#[OA\Get(
+    path: '/api/templates',
+    operationId: 'templates.index',
+    tags: ['Catalog'],
+    summary: 'Public: list product templates.',
+    parameters: [
+        new OA\Parameter(name: 'printer_provider_id', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'type', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/ProductTemplate')))]
+)]
+#[OA\Get(
+    path: '/api/templates/{uuid}',
+    operationId: 'templates.show',
+    tags: ['Catalog'],
+    summary: 'Public: single template with variants.',
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/ProductTemplate')),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/me/templates',
+    operationId: 'me.templates.store',
+    tags: ['Catalog'],
+    summary: 'Printer: create template.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreProductTemplateRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/ProductTemplate')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not a printer'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/templates/{uuid}',
+    operationId: 'me.templates.update',
+    tags: ['Catalog'],
+    summary: 'Printer: update own template.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateProductTemplateRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/ProductTemplate')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/templates/{uuid}',
+    operationId: 'me.templates.destroy',
+    tags: ['Catalog'],
+    summary: 'Printer: delete own template. 409 if order_items reference it.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 409, description: 'Order items reference this template'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/me/templates/{uuid}/variants',
+    operationId: 'me.templates.variants.store',
+    tags: ['Catalog'],
+    summary: 'Printer: add variant to own template.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreProductVariantRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/ProductVariant')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Template not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/variants/{uuid}',
+    operationId: 'me.variants.update',
+    tags: ['Catalog'],
+    summary: 'Printer: update own variant.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateProductVariantRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/ProductVariant')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/variants/{uuid}',
+    operationId: 'me.variants.destroy',
+    tags: ['Catalog'],
+    summary: 'Printer: delete own variant. 409 if order_items reference it.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 409, description: 'Order items reference this variant'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreProductTemplateRequest',
+    required: ['name', 'type', 'base_cost'],
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 180),
+        new OA\Property(property: 'type', type: 'string', maxLength: 80),
+        new OA\Property(property: 'base_cost', type: 'number', format: 'float', minimum: 0),
+        new OA\Property(property: 'specs', type: 'object', additionalProperties: new OA\AdditionalProperties, nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateProductTemplateRequest',
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 180),
+        new OA\Property(property: 'type', type: 'string', maxLength: 80),
+        new OA\Property(property: 'base_cost', type: 'number', format: 'float', minimum: 0),
+        new OA\Property(property: 'specs', type: 'object', additionalProperties: new OA\AdditionalProperties, nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreProductVariantRequest',
+    required: ['attributes', 'price_delta', 'sku'],
+    properties: [
+        new OA\Property(property: 'attributes', type: 'object', additionalProperties: new OA\AdditionalProperties(type: 'string')),
+        new OA\Property(property: 'price_delta', type: 'number', format: 'float'),
+        new OA\Property(property: 'sku', type: 'string', maxLength: 80),
+        new OA\Property(property: 'is_active', type: 'boolean', default: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateProductVariantRequest',
+    properties: [
+        new OA\Property(property: 'attributes', type: 'object', additionalProperties: new OA\AdditionalProperties(type: 'string')),
+        new OA\Property(property: 'price_delta', type: 'number', format: 'float'),
+        new OA\Property(property: 'sku', type: 'string', maxLength: 80),
+        new OA\Property(property: 'is_active', type: 'boolean'),
+    ]
+)]
+// ─── Catalog / Mappings ────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/mappings',
+    operationId: 'mappings.index',
+    tags: ['Catalog'],
+    summary: 'Public: list design-to-template mappings.',
+    parameters: [
+        new OA\Parameter(name: 'design_id', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'product_template_id', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/DesignProductMapping')))]
+)]
+#[OA\Get(
+    path: '/api/mappings/{uuid}',
+    operationId: 'mappings.show',
+    tags: ['Catalog'],
+    summary: 'Public: single mapping.',
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/DesignProductMapping')),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/me/mappings',
+    operationId: 'me.mappings.store',
+    tags: ['Catalog'],
+    summary: 'Designer: create mapping. 409 on duplicate (design, template).',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreDesignProductMappingRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/DesignProductMapping')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not a designer'),
+        new OA\Response(response: 409, description: 'Duplicate mapping'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/mappings/{uuid}',
+    operationId: 'me.mappings.update',
+    tags: ['Catalog'],
+    summary: 'Designer: update own mapping.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateDesignProductMappingRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/DesignProductMapping')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/mappings/{uuid}',
+    operationId: 'me.mappings.destroy',
+    tags: ['Catalog'],
+    summary: 'Designer: delete own mapping.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreDesignProductMappingRequest',
+    required: ['design_id', 'product_template_id', 'final_price'],
+    properties: [
+        new OA\Property(property: 'design_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'product_template_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'final_price', type: 'number', format: 'float', minimum: 0),
+        new OA\Property(property: 'preferred_printer_id', type: 'string', format: 'uuid', nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateDesignProductMappingRequest',
+    properties: [
+        new OA\Property(property: 'final_price', type: 'number', format: 'float', minimum: 0),
+        new OA\Property(property: 'preferred_printer_id', type: 'string', format: 'uuid', nullable: true),
+    ]
+)]
+// ─── Cart ──────────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/me/cart',
+    operationId: 'me.cart.show',
+    tags: ['Cart'],
+    summary: 'Get own cart (items + grand total envelope).',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/CartResponse')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/me/cart/items',
+    operationId: 'me.cart.items.store',
+    tags: ['Cart'],
+    summary: 'Add item (upserts on duplicate line per FR-6.6).',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreCartItemRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/CartItem')),
+        new OA\Response(response: 200, description: 'Updated (existing line quantity increased)'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/cart/items/{id}',
+    operationId: 'me.cart.items.update',
+    tags: ['Cart'],
+    summary: 'Update own cart item quantity.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateCartItemRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/CartItem')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Item not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/cart/items/{id}',
+    operationId: 'me.cart.items.destroy',
+    tags: ['Cart'],
+    summary: 'Remove a single cart item.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Item not found'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/cart',
+    operationId: 'me.cart.clear',
+    tags: ['Cart'],
+    summary: 'Clear entire cart.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreCartItemRequest',
+    required: ['design_product_mapping_id', 'quantity'],
+    properties: [
+        new OA\Property(property: 'design_product_mapping_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'product_variant_id', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'quantity', type: 'integer', minimum: 1, maximum: 100),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateCartItemRequest',
+    required: ['quantity'],
+    properties: [
+        new OA\Property(property: 'quantity', type: 'integer', minimum: 1, maximum: 100),
+    ]
+)]
 final class OpenApi {}
