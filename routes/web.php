@@ -30,7 +30,17 @@ if (class_exists(L5SwaggerFacade::class)) {
         'middleware' => [Config::class],
     ];
 
-    Route::get('/api/docs', $l5Action('l5-swagger.api', 'api'));
-    Route::get('/api/docs.json', $l5Action('l5-swagger.docs', 'docs'));
-    Route::get('/api/docs/{jsonFile?}', $l5Action('l5-swagger.docs.file', 'docs'));
+    if (app()->environment('local', 'testing', 'development')) {
+        // Public access in non-production environments.
+        Route::get('/api/docs', $l5Action('l5-swagger.api', 'api'));
+        Route::get('/api/docs.json', $l5Action('l5-swagger.docs', 'docs'));
+        Route::get('/api/docs/{jsonFile?}', $l5Action('l5-swagger.docs.file', 'docs'));
+    } else {
+        // Production: gate behind web-session auth + admin role.
+        Route::middleware(['auth', 'admin'])->group(function () use ($l5Action): void {
+            Route::get('/api/docs', $l5Action('l5-swagger.api', 'api'));
+            Route::get('/api/docs.json', $l5Action('l5-swagger.docs', 'docs'));
+            Route::get('/api/docs/{jsonFile?}', $l5Action('l5-swagger.docs.file', 'docs'));
+        });
+    }
 }
