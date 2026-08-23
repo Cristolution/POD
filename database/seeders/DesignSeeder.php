@@ -13,6 +13,22 @@ use Illuminate\Database\Seeder;
 
 class DesignSeeder extends Seeder
 {
+    /**
+     * Real seed PNGs committed alongside the SVG sources (gitignored at runtime).
+     * Each design in this seeder picks one of these as its primary mockup,
+     * plus 1-2 additional mockups and a print file. File paths are stored as
+     * `designs/.png` so they resolve via the public storage symlink
+     * (i.e. http://app.test/storage/designs/.png).
+     */
+    private const SEED_IMAGES = [
+        'sunset-mountains.png',
+        'minimal-wolf.png',
+        'cosmic-cat.png',
+        'botanical-line.png',
+        'geometric-bear.png',
+        'retro-sunset.png',
+    ];
+
     public function run(): void
     {
         $designTitles = [
@@ -24,8 +40,14 @@ class DesignSeeder extends Seeder
         $allTags = Tag::all();
         $subCategories = Category::whereNotNull('parent_id')->get();
 
-        DesignerProfile::all()->each(function (DesignerProfile $designer) use ($designTitles, $allTags, $subCategories) {
-            foreach (array_slice($designTitles, 0, 4) as $title) {
+        // Cycle through the 6 real images so titles share/cascade files evenly.
+        $imageCount = count(self::SEED_IMAGES);
+
+        DesignerProfile::all()->each(function (DesignerProfile $designer) use ($designTitles, $allTags, $subCategories, $imageCount): void {
+            foreach (array_slice($designTitles, 0, 4) as $index => $title) {
+                // Primary mockup for this design — deterministic per (designer, index).
+                $primaryImage = self::SEED_IMAGES[($index + abs((int) crc32($designer->id))) % $imageCount];
+
                 /** @var Design $design */
                 $design = Design::factory()
                     ->for($designer, 'designer')
@@ -40,18 +62,25 @@ class DesignSeeder extends Seeder
                     $allTags->random(fake()->numberBetween(2, 4))->pluck('id')->toArray()
                 );
 
-                // Attach 1-2 mockups + 1 print file as media
-                Media::factory()->mockup()->create([
+                // Media: primary mockup + one alternate mockup + one print file.
+                // file_path uses the public disk so it resolves via /storage/{path}.
+                Media::factory()->create([
                     'model_type' => Design::class,
                     'model_id' => $design->id,
+                    'collection_name' => 'mockup',
+                    'file_path' => 'designs/'.$primaryImage,
                 ]);
-                Media::factory()->mockup()->create([
+                Media::factory()->create([
                     'model_type' => Design::class,
                     'model_id' => $design->id,
+                    'collection_name' => 'mockup',
+                    'file_path' => 'designs/'.self::SEED_IMAGES[($index + 1) % $imageCount],
                 ]);
-                Media::factory()->printFile()->create([
+                Media::factory()->create([
                     'model_type' => Design::class,
                     'model_id' => $design->id,
+                    'collection_name' => 'print_file',
+                    'file_path' => 'designs/'.$primaryImage,
                 ]);
 
                 // Map this design to 1-2 product templates, preferred_printer = the template's owner
