@@ -22,8 +22,8 @@ class CartItemResource extends JsonResource
             'design_product_mapping_id' => $this->design_product_mapping_id,
             'product_variant_id' => $this->product_variant_id,
             'quantity' => $this->quantity,
-            'unit_price' => $this->unitPrice(),
-            'line_total' => $this->lineTotal(),
+            'unit_price' => number_format((float) $this->unitPrice(), 2, '.', ''),
+            'line_total' => number_format((float) $this->lineTotal(), 2, '.', ''),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
 

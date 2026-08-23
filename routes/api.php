@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DesignController;
 use App\Http\Controllers\Api\DesignerController;
@@ -106,6 +107,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/me/templates/{template}/variants', [ProductVariantController::class, 'store'])->name('me.variants.store');
     Route::patch('/me/variants/{variant}', [ProductVariantController::class, 'update'])->name('me.variants.update');
     Route::delete('/me/variants/{variant}', [ProductVariantController::class, 'destroy'])->name('me.variants.destroy');
+
+    Route::get('/me/cart', [CartController::class, 'index'])->name('me.cart.index');
+    Route::post('/me/cart/items', [CartController::class, 'store'])->name('me.cart.items.store');
+    Route::patch('/me/cart/items/{item}', [CartController::class, 'update'])->name('me.cart.items.update');
+    Route::delete('/me/cart/items/{item}', [CartController::class, 'destroy'])->name('me.cart.items.destroy');
+    Route::delete('/me/cart', [CartController::class, 'clear'])->name('me.cart.clear');
 });
 
 // Admin — Categories and Tags.
