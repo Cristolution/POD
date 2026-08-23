@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\DesignController;
 use App\Http\Controllers\Api\DesignerController;
 use App\Http\Controllers\Api\DesignProductMappingController;
 use App\Http\Controllers\Api\MeController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\OrderItemController;
 use App\Http\Controllers\Api\PrinterController;
 use App\Http\Controllers\Api\ProductTemplateController;
 use App\Http\Controllers\Api\ProductVariantController;
@@ -126,4 +128,28 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
     Route::delete('/admin/tags/{tag}', [TagController::class, 'destroy'])->name('admin.tags.destroy');
 
     Route::post('/admin/designs/{design}/transfer', [DesignController::class, 'transfer'])->name('admin.designs.transfer');
+});
+
+// Orders — customer self-service + printer/customer item updates.
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+});
+
+// Orders — admin restore / delete / printer reassignment.
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
+    Route::delete('/admin/orders/{order}', [OrderController::class, 'destroy'])->name('admin.orders.destroy');
+    Route::post('/admin/orders/{order}/restore', [OrderController::class, 'restore'])
+        ->withTrashed()
+        ->name('admin.orders.restore');
+    Route::patch('/admin/orders/{order}/items/{item}/printer', [OrderItemController::class, 'reassignPrinter'])
+        ->name('admin.orders.items.reassign-printer');
+});
+
+// Order items — printer status updates, customer/admin reads.
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/order-items/{item}', [OrderItemController::class, 'show'])->name('order-items.show');
+    Route::patch('/order-items/{item}/status', [OrderItemController::class, 'updateStatus'])->name('order-items.update-status');
 });
