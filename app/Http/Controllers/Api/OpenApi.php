@@ -49,10 +49,6 @@ use OpenApi\Attributes as OA;
     bearerFormat: 'Sanctum token',
     description: 'Sanctum personal access token. Obtain via POST /api/auth/login or POST /api/auth/register.',
 )]
-#[OA\PathItem(
-    path: '/api/health',
-    description: 'Liveness probe. Placeholder PathItem to satisfy swagger-php v3.0 generation requirement. Phase 2 replaces this with a real HealthController.',
-)]
 #[OA\Get(
     path: '/api/health',
     operationId: 'health',
@@ -367,5 +363,384 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'is_public', type: 'boolean'),
     ],
     required: ['id', 'key', 'is_public'],
+)]
+// ─── Auth ────────────────────────────────────────────────────────────────────
+#[OA\Post(
+    path: '/api/auth/register',
+    operationId: 'auth.register',
+    tags: ['Auth'],
+    summary: 'Register a new user.',
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreUserRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/UserWithToken')),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/auth/login',
+    operationId: 'auth.login',
+    tags: ['Auth'],
+    summary: 'Authenticate and receive a Sanctum bearer token.',
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['email', 'password'],
+        properties: [
+            new OA\Property(property: 'email', type: 'string', format: 'email'),
+            new OA\Property(property: 'password', type: 'string', format: 'password'),
+        ]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/UserWithToken')),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/auth/logout',
+    operationId: 'auth.logout',
+    tags: ['Auth'],
+    summary: 'Revoke the current Sanctum token.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/auth/forgot-password',
+    operationId: 'auth.forgotPassword',
+    tags: ['Auth'],
+    summary: 'Send a password reset link.',
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['email'],
+        properties: [new OA\Property(property: 'email', type: 'string', format: 'email')]
+    )),
+    responses: [
+        new OA\Response(response: 202, description: 'Reset link dispatched (always returned)'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/auth/reset-password',
+    operationId: 'auth.resetPassword',
+    tags: ['Auth'],
+    summary: 'Reset the password using the emailed token.',
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['token', 'email', 'password'],
+        properties: [
+            new OA\Property(property: 'token', type: 'string'),
+            new OA\Property(property: 'email', type: 'string', format: 'email'),
+            new OA\Property(property: 'password', type: 'string', format: 'password'),
+        ]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/UserWithToken')),
+        new OA\Response(response: 422, description: 'Token invalid/expired'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreUserRequest',
+    required: ['name', 'email', 'password'],
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 120),
+        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 180),
+        new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8),
+        new OA\Property(property: 'password_confirmation', type: 'string', format: 'password'),
+        new OA\Property(property: 'phone', type: 'string', maxLength: 32, nullable: true),
+        new OA\Property(property: 'role', type: 'string', enum: ['customer', 'designer', 'printer_provider'], default: 'customer'),
+    ]
+)]
+// ─── Me ───────────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/me',
+    operationId: 'me.show',
+    tags: ['Me'],
+    summary: 'Return the authenticated user.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/User')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me',
+    operationId: 'me.update',
+    tags: ['Me'],
+    summary: 'Update profile. current_password required when password is set.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateUserRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/User')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/password',
+    operationId: 'me.updatePassword',
+    tags: ['Me'],
+    summary: 'Change password.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['current_password', 'password'],
+        properties: [
+            new OA\Property(property: 'current_password', type: 'string', format: 'password'),
+            new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8),
+            new OA\Property(property: 'password_confirmation', type: 'string', format: 'password'),
+        ]
+    )),
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated or wrong current_password'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me',
+    operationId: 'me.destroy',
+    tags: ['Me'],
+    summary: 'Soft-delete the authenticated user. 409 if designer/printer with active items.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 409, description: 'Active references block deletion'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateUserRequest',
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 120),
+        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 180),
+        new OA\Property(property: 'phone', type: 'string', maxLength: 32, nullable: true),
+        new OA\Property(property: 'current_password', type: 'string', format: 'password'),
+        new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8),
+    ]
+)]
+// ─── Users ────────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/users/{uuid}',
+    operationId: 'users.show',
+    tags: ['Users'],
+    summary: 'Public user read. Email/phone redacted unless requester is self or admin.',
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/User')),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/admin/users',
+    operationId: 'admin.users.index',
+    tags: ['Users'],
+    summary: 'Admin: paginated user list.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'role', in: 'query', schema: new OA\Schema(type: 'string', enum: ['admin', 'designer', 'printer_provider', 'customer'])),
+        new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/UserCollection')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/admin/users/{uuid}',
+    operationId: 'admin.users.update',
+    tags: ['Users'],
+    summary: 'Admin: update user (incl. role).',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateUserRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/User')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/admin/users/{uuid}',
+    operationId: 'admin.users.destroy',
+    tags: ['Users'],
+    summary: 'Admin: soft-delete user.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/admin/users/{uuid}/restore',
+    operationId: 'admin.users.restore',
+    tags: ['Users'],
+    summary: 'Admin: restore a soft-deleted user.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/User')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+// ─── Designers ────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/designers',
+    operationId: 'designers.index',
+    tags: ['Designers'],
+    summary: 'Public: paginated designer directory.',
+    parameters: [
+        new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/DesignerProfile')))]
+)]
+#[OA\Get(
+    path: '/api/designers/{uuid}',
+    operationId: 'designers.show',
+    tags: ['Designers'],
+    summary: 'Public: single designer (with designs whenLoaded).',
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/DesignerProfile')),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/me/designer-profile',
+    operationId: 'me.designerProfile.store',
+    tags: ['Designers'],
+    summary: 'Designer: create own profile.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreDesignerProfileRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/DesignerProfile')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not a designer'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/designer-profile',
+    operationId: 'me.designerProfile.update',
+    tags: ['Designers'],
+    summary: 'Designer: update own profile.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateDesignerProfileRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/DesignerProfile')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/designer-profile',
+    operationId: 'me.designerProfile.destroy',
+    tags: ['Designers'],
+    summary: 'Designer: delete own profile. 409 if active designs.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 409, description: 'Active designs reference this profile'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreDesignerProfileRequest',
+    properties: [
+        new OA\Property(property: 'bio', type: 'string', nullable: true),
+        new OA\Property(property: 'links', type: 'object', additionalProperties: new OA\AdditionalProperties(type: 'string'), nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateDesignerProfileRequest',
+    properties: [
+        new OA\Property(property: 'bio', type: 'string', nullable: true),
+        new OA\Property(property: 'links', type: 'object', additionalProperties: new OA\AdditionalProperties(type: 'string'), nullable: true),
+    ]
+)]
+// ─── Printers ──────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/printers',
+    operationId: 'printers.index',
+    tags: ['Printers'],
+    summary: 'Public: paginated printer directory.',
+    parameters: [
+        new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/PrinterProviderProfile')))]
+)]
+#[OA\Get(
+    path: '/api/printers/{uuid}',
+    operationId: 'printers.show',
+    tags: ['Printers'],
+    summary: 'Public: single printer (with productTemplates whenLoaded).',
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/PrinterProviderProfile')),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/me/printer-profile',
+    operationId: 'me.printerProfile.store',
+    tags: ['Printers'],
+    summary: 'Printer: create own profile.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StorePrinterProviderProfileRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/PrinterProviderProfile')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not a printer'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/printer-profile',
+    operationId: 'me.printerProfile.update',
+    tags: ['Printers'],
+    summary: 'Printer: update own profile.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdatePrinterProviderProfileRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/PrinterProviderProfile')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/printer-profile',
+    operationId: 'me.printerProfile.destroy',
+    tags: ['Printers'],
+    summary: 'Printer: delete own profile. 409 if active templates.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 409, description: 'Active templates reference this profile'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StorePrinterProviderProfileRequest',
+    required: ['company_name'],
+    properties: [
+        new OA\Property(property: 'company_name', type: 'string', maxLength: 180),
+        new OA\Property(property: 'capabilities', type: 'object', additionalProperties: new OA\AdditionalProperties(type: 'string'), nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdatePrinterProviderProfileRequest',
+    properties: [
+        new OA\Property(property: 'company_name', type: 'string', maxLength: 180),
+        new OA\Property(property: 'capabilities', type: 'object', additionalProperties: new OA\AdditionalProperties(type: 'string'), nullable: true),
+    ]
 )]
 final class OpenApi {}
