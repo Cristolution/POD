@@ -123,16 +123,11 @@ return [
              * @link https://zircote.github.io/swagger-php/reference/processors.html
              */
             'default_processors_configuration' => [
-            /** Example */
-            /**
-             * 'operationId.hash' => true,
-             * 'pathFilter' => [
-             * 'tags' => [
-             * '/pets/',
-             * '/store/',
-             * ],
-             * ],.
-             */
+                // Keep all declared tags even when no operation uses them yet.
+                // Phase 1 declares 17 tags up front; Phase 2 will populate operations.
+                'augmentTags' => [
+                    'whitelist' => ['*'],
+                ],
             ],
 
             /**
