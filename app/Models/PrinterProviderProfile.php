@@ -32,7 +32,7 @@ class PrinterProviderProfile extends Model
 
     public function productTemplates(): HasMany
     {
-        return $this->hasMany(ProductTemplate::class);
+        return $this->hasMany(ProductTemplate::class, 'printer_provider_id');
     }
 
     public function preferredDesignProductMappings(): HasMany

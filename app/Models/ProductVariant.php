@@ -74,8 +74,8 @@ class ProductVariant extends Model
      */
     public function label(string $separator = ' / '): string
     {
-        return collect($this->attributes ?? [])
-            ->map(fn ($v) => is_array($v) ? json_encode($v) : (string) $v)
+        return collect($this->getAttribute('attributes') ?? [])
+            ->map(fn ($v) => \is_array($v) ? json_encode($v) : (string) $v)
             ->implode($separator);
     }
 }
