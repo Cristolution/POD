@@ -1433,4 +1433,1124 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'quantity', type: 'integer', minimum: 1, maximum: 100),
     ]
 )]
+// ─── Orders ────────────────────────────────────────────────────────────────────
+#[OA\Post(
+    path: '/api/orders',
+    operationId: 'orders.store',
+    tags: ['Orders'],
+    summary: 'Place an order from the current cart. Hard-deletes cart on success (DB transaction).',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreOrderRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created (with items + initial payment)', content: new OA\JsonContent(ref: '#/components/schemas/Order')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 422, description: 'Cart empty or validation failed'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/orders',
+    operationId: 'orders.index',
+    tags: ['Orders'],
+    summary: 'List orders: customer sees own; admin sees all.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'status', in: 'query', schema: new OA\Schema(type: 'string', enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])),
+        new OA\Parameter(name: 'date_from', in: 'query', schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'date_to', in: 'query', schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Order'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not customer/admin'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/orders/{uuid}',
+    operationId: 'orders.show',
+    tags: ['Orders'],
+    summary: 'Single order (customer own / designer own designs / printer own items / admin).',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Order')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/orders/{uuid}/cancel',
+    operationId: 'orders.cancel',
+    tags: ['Orders'],
+    summary: 'Customer (own, before processing) / admin. Fires OrderCancelled.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(content: new OA\JsonContent(
+        required: ['reason'],
+        properties: [new OA\Property(property: 'reason', type: 'string', maxLength: 500)]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Order')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed / order already processing'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/orders/{uuid}/status',
+    operationId: 'orders.updateStatus',
+    tags: ['Orders'],
+    summary: 'Admin: force-set status (audit-logged).',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['status'],
+        properties: [new OA\Property(property: 'status', type: 'string', enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'])]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Order')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/admin/orders/{uuid}',
+    operationId: 'admin.orders.destroy',
+    tags: ['Orders'],
+    summary: 'Admin: soft-delete order.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/admin/orders/{uuid}/restore',
+    operationId: 'admin.orders.restore',
+    tags: ['Orders'],
+    summary: 'Admin: restore soft-deleted order.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Order')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreOrderRequest',
+    required: ['payment_method'],
+    properties: [
+        new OA\Property(property: 'shipping_address_id', type: 'integer', nullable: true, description: 'If omitted, snapshot fields below are required'),
+        new OA\Property(property: 'shipping_address', ref: '#/components/schemas/StoreAddressRequest', nullable: true),
+        new OA\Property(property: 'payment_method', type: 'string', enum: ['cash_on_delivery', 'bank_transfer', 'card']),
+    ]
+)]
+// ─── Order Items ───────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/orders/{uuid}/items',
+    operationId: 'orders.items.index',
+    tags: ['OrderItems'],
+    summary: 'List items for an order.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/OrderItem'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/orders/{uuid}/items/{id}/status',
+    operationId: 'orders.items.updateStatus',
+    tags: ['OrderItems'],
+    summary: 'Printer (own) / admin: advance item status.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['status'],
+        properties: [new OA\Property(property: 'status', type: 'string', enum: ['received', 'printing', 'printed', 'handed_off'])]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/OrderItem')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/orders/{uuid}/items/{id}/cancel',
+    operationId: 'orders.items.cancel',
+    tags: ['OrderItems'],
+    summary: 'Customer (own, before printed) / printer (own) / admin.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    requestBody: new OA\RequestBody(content: new OA\JsonContent(
+        required: ['reason'],
+        properties: [new OA\Property(property: 'reason', type: 'string', maxLength: 500)]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/OrderItem')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed / item already printed'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/admin/orders/{uuid}/items/{id}/printer',
+    operationId: 'admin.orders.items.reassignPrinter',
+    tags: ['OrderItems'],
+    summary: 'Admin: reassign printer (only when item status=pending).',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['printer_provider_id'],
+        properties: [new OA\Property(property: 'printer_provider_id', type: 'string', format: 'uuid')]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/OrderItem')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Item not in pending status'),
+    ]
+)]
+// ─── Delivery Companies ────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/delivery-companies',
+    operationId: 'deliveryCompanies.index',
+    tags: ['DeliveryCompanies'],
+    summary: 'Public: list delivery companies.',
+    parameters: [
+        new OA\Parameter(name: 'coverage_zone', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/DeliveryCompany')))]
+)]
+#[OA\Get(
+    path: '/api/delivery-companies/{id}',
+    operationId: 'deliveryCompanies.show',
+    tags: ['DeliveryCompanies'],
+    summary: 'Public: single delivery company.',
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/DeliveryCompany')),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/admin/delivery-companies',
+    operationId: 'admin.deliveryCompanies.store',
+    tags: ['DeliveryCompanies'],
+    summary: 'Admin: create delivery company.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreDeliveryCompanyRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/DeliveryCompany')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/admin/delivery-companies/{id}',
+    operationId: 'admin.deliveryCompanies.update',
+    tags: ['DeliveryCompanies'],
+    summary: 'Admin: update delivery company.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateDeliveryCompanyRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/DeliveryCompany')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/admin/delivery-companies/{id}',
+    operationId: 'admin.deliveryCompanies.destroy',
+    tags: ['DeliveryCompanies'],
+    summary: 'Admin: delete. 409 if shipments reference.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 409, description: 'Shipments reference this company'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreDeliveryCompanyRequest',
+    required: ['name'],
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 180),
+        new OA\Property(property: 'coverage_zones', type: 'array', items: new OA\Items(type: 'string')),
+        new OA\Property(property: 'tracking_url_pattern', type: 'string', format: 'uri', nullable: true, description: 'Must contain {tracking_number}'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateDeliveryCompanyRequest',
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 180),
+        new OA\Property(property: 'coverage_zones', type: 'array', items: new OA\Items(type: 'string')),
+        new OA\Property(property: 'tracking_url_pattern', type: 'string', format: 'uri', nullable: true),
+    ]
+)]
+// ─── Shipments ─────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/shipments',
+    operationId: 'shipments.index',
+    tags: ['Shipments'],
+    summary: 'Printer (own) / admin: list shipments.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'status', in: 'query', schema: new OA\Schema(type: 'string', enum: ['pending', 'shipped', 'delivered'])),
+        new OA\Parameter(name: 'order_id', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Shipment'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not printer/admin'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/shipments/{id}',
+    operationId: 'shipments.show',
+    tags: ['Shipments'],
+    summary: 'Customer (own via order) / printer (own) / admin.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Shipment')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/orders/{uuid}/shipments',
+    operationId: 'orders.shipments.store',
+    tags: ['Shipments'],
+    summary: 'Printer (own) / admin: create shipment.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreShipmentRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Shipment')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+        new OA\Response(response: 404, description: 'Order not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/shipments/{id}',
+    operationId: 'shipments.update',
+    tags: ['Shipments'],
+    summary: 'Printer (own) / admin: update shipment. Fires OrderShipped / OrderDelivered.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateShipmentRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Shipment')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/shipments/{id}',
+    operationId: 'shipments.destroy',
+    tags: ['Shipments'],
+    summary: 'Admin: hard-delete shipment.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreShipmentRequest',
+    required: ['printer_provider_id', 'covered_item_ids'],
+    properties: [
+        new OA\Property(property: 'printer_provider_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'delivery_company_id', type: 'integer', nullable: true),
+        new OA\Property(property: 'tracking_number', type: 'string', maxLength: 120, nullable: true),
+        new OA\Property(property: 'covered_item_ids', type: 'array', items: new OA\Items(type: 'integer'), minItems: 1),
+        new OA\Property(property: 'status', type: 'string', enum: ['pending', 'shipped', 'delivered'], default: 'pending'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateShipmentRequest',
+    properties: [
+        new OA\Property(property: 'status', type: 'string', enum: ['pending', 'shipped', 'delivered']),
+        new OA\Property(property: 'tracking_number', type: 'string', maxLength: 120, nullable: true),
+        new OA\Property(property: 'shipped_at', type: 'string', format: 'date-time', nullable: true),
+        new OA\Property(property: 'delivered_at', type: 'string', format: 'date-time', nullable: true),
+    ]
+)]
+// ─── Payments ──────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/me/payments',
+    operationId: 'me.payments.index',
+    tags: ['Payments'],
+    summary: 'Customer: own payments.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'status', in: 'query', schema: new OA\Schema(type: 'string', enum: ['pending', 'confirmed', 'rejected'])),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Payment'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not customer'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/payments/{uuid}',
+    operationId: 'payments.show',
+    tags: ['Payments'],
+    summary: 'Customer (own) / admin.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Payment')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/orders/{uuid}/payments',
+    operationId: 'orders.payments.store',
+    tags: ['Payments'],
+    summary: 'Customer (own) / admin: create payment for an order.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StorePaymentRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Payment')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+        new OA\Response(response: 404, description: 'Order not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/payments/{uuid}/confirm',
+    operationId: 'payments.confirm',
+    tags: ['Payments'],
+    summary: 'Admin: confirm payment. Fires PaymentConfirmed.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Payment')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/payments/{uuid}/reject',
+    operationId: 'payments.reject',
+    tags: ['Payments'],
+    summary: 'Admin: reject payment.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['reason'],
+        properties: [new OA\Property(property: 'reason', type: 'string', maxLength: 500)]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Payment')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/admin/payments/{uuid}',
+    operationId: 'admin.payments.destroy',
+    tags: ['Payments'],
+    summary: 'Admin: soft-delete payment.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StorePaymentRequest',
+    required: ['method'],
+    properties: [
+        new OA\Property(property: 'method', type: 'string', enum: ['cash_on_delivery', 'bank_transfer', 'card']),
+    ]
+)]
+// ─── Media ─────────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/media/{id}',
+    operationId: 'media.show',
+    tags: ['Media'],
+    summary: 'Show media (depends on owner type).',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Media')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/designs/{uuid}/media',
+    operationId: 'designs.media.store',
+    tags: ['Media'],
+    summary: 'Designer (own) / admin: upload design media (multipart).',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                required: ['file', 'collection_name'],
+                properties: [
+                    new OA\Property(property: 'file', type: 'string', format: 'binary'),
+                    new OA\Property(property: 'collection_name', type: 'string', enum: ['mockup', 'print_file', 'attachment']),
+                ]
+            )
+        )
+    ),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Media')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/payments/{uuid}/media',
+    operationId: 'payments.media.store',
+    tags: ['Media'],
+    summary: 'Customer (own) / admin: upload payment proof.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                required: ['file'],
+                properties: [
+                    new OA\Property(property: 'file', type: 'string', format: 'binary'),
+                    new OA\Property(property: 'collection_name', type: 'string', enum: ['payment_proof'], default: 'payment_proof'),
+                ]
+            )
+        )
+    ),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Media')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/media/{id}',
+    operationId: 'media.destroy',
+    tags: ['Media'],
+    summary: 'Designer (own) / printer (own) / admin: delete media.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not allowed'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+// ─── Notifications ─────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/me/notifications',
+    operationId: 'me.notifications.index',
+    tags: ['Notifications'],
+    summary: 'List own notifications.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'unread', in: 'query', schema: new OA\Schema(type: 'boolean')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Notification'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/me/notifications/unread-count',
+    operationId: 'me.notifications.unreadCount',
+    tags: ['Notifications'],
+    summary: 'Get unread count badge.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/UnreadCount')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/notifications/{id}/read',
+    operationId: 'me.notifications.markRead',
+    tags: ['Notifications'],
+    summary: 'Mark a single notification read.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Notification')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/me/notifications/mark-all-read',
+    operationId: 'me.notifications.markAllRead',
+    tags: ['Notifications'],
+    summary: 'Mark all own notifications read.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(properties: [new OA\Property(property: 'marked', type: 'integer')])),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/admin/notifications',
+    operationId: 'admin.notifications.store',
+    tags: ['Notifications'],
+    summary: 'Admin broadcasts or targets a notification.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreNotificationRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Notification')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/notifications/{id}',
+    operationId: 'me.notifications.destroy',
+    tags: ['Notifications'],
+    summary: 'Delete a single own notification.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+// ─── Settings ──────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/settings',
+    operationId: 'settings.index',
+    tags: ['Settings'],
+    summary: 'List public platform settings (filtered by namespace).',
+    parameters: [new OA\Parameter(name: 'namespace', in: 'query', required: false, schema: new OA\Schema(type: 'string'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Setting'))),
+    ]
+)]
+#[OA\Get(
+    path: '/api/settings/{id}',
+    operationId: 'settings.show',
+    tags: ['Settings'],
+    summary: 'Show a single setting (public if namespace is public, else admin only).',
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Setting')),
+        new OA\Response(response: 403, description: 'Forbidden — namespace is admin-only'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/admin/settings',
+    operationId: 'admin.settings.store',
+    tags: ['Settings'],
+    summary: 'Create a platform setting.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreSettingRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Setting')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/admin/settings/{id}',
+    operationId: 'admin.settings.update',
+    tags: ['Settings'],
+    summary: 'Update a platform setting.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateSettingRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Setting')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+// ─── Admin: Dashboard, Audit, Integrity ────────────────────────────────────────
+#[OA\Get(
+    path: '/api/admin/dashboard',
+    operationId: 'admin.dashboard',
+    tags: ['Admin'],
+    summary: 'Platform overview KPIs (see Report #1, 60s cache).',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/PlatformOverview')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/admin/audit/deleted',
+    operationId: 'admin.audit.deleted',
+    tags: ['Admin'],
+    summary: 'Soft-delete audit trail.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'entity', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'date_from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'date_to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/AuditEntry'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/admin/integrity/profile-mismatches',
+    operationId: 'admin.integrity.profileMismatches',
+    tags: ['Admin'],
+    summary: 'Users whose role is designer/printer_provider but lack a profile row.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/User'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/admin/integrity/orphaned-media',
+    operationId: 'admin.integrity.orphanedMedia',
+    tags: ['Admin'],
+    summary: 'Media rows whose owner is missing or soft-deleted.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Media'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/admin/integrity/items-without-shipment',
+    operationId: 'admin.integrity.itemsWithoutShipment',
+    tags: ['Admin'],
+    summary: 'Order items with status handed_off lacking a shipment.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/OrderItem'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/admin/integrity/stuck-cart-items',
+    operationId: 'admin.integrity.stuckCartItems',
+    tags: ['Admin'],
+    summary: 'Cart rows pointing to inactive product variants.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/CartItem'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+    ]
+)]
+// ─── Reports ───────────────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/reports/admin/overview',
+    operationId: 'reports.admin.overview',
+    tags: ['Reports'],
+    summary: 'Platform KPI snapshot (60s cache).',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'format', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['json', 'csv'], default: 'json')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/PlatformOverview')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — admin only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/admin/revenue-by-day',
+    operationId: 'reports.admin.revenueByDay',
+    tags: ['Reports'],
+    summary: 'Daily revenue series.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'payment_method', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'country', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'category_id', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'format', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['json', 'csv'], default: 'json')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/RevenueByDayRow'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/printer/work-queue',
+    operationId: 'reports.printer.workQueue',
+    tags: ['Reports'],
+    summary: 'Order items needing action for the authenticated printer.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/OrderItem'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — printer only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/designer/dashboard',
+    operationId: 'reports.designer.dashboard',
+    tags: ['Reports'],
+    summary: 'Designer KPIs (60s cache).',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/DesignerDashboard')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — designer only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/admin/revenue-by-designer',
+    operationId: 'reports.admin.revenueByDesigner',
+    tags: ['Reports'],
+    summary: 'Top designers by revenue.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25, maximum: 100)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/RevenueByDesignerRow'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/admin/revenue-by-printer',
+    operationId: 'reports.admin.revenueByPrinter',
+    tags: ['Reports'],
+    summary: 'Top printers by revenue.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25, maximum: 100)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/RevenueByPrinterRow'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/ops/stuck-payments',
+    operationId: 'reports.ops.stuckPayments',
+    tags: ['Reports'],
+    summary: 'Payments pending past threshold.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'min_age_days', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 3))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Payment'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/admin/customer-ltv',
+    operationId: 'reports.admin.customerLtv',
+    tags: ['Reports'],
+    summary: 'Customer lifetime value leaderboard.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 100, maximum: 500)),
+        new OA\Parameter(name: 'format', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['json', 'csv'], default: 'json')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/CustomerLtvRow'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/designer/payout',
+    operationId: 'reports.designer.payout',
+    tags: ['Reports'],
+    summary: 'Designer payout statement.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'format', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['json', 'csv'], default: 'json')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/DesignerPayoutStatement')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — designer only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/printer/payout',
+    operationId: 'reports.printer.payout',
+    tags: ['Reports'],
+    summary: 'Printer payout statement.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'format', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['json', 'csv'], default: 'json')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/PrinterPayoutStatement')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Forbidden — printer only'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/ops/cart-abandonment',
+    operationId: 'reports.ops.cartAbandonment',
+    tags: ['Reports'],
+    summary: 'Cart rows inactive past threshold.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'min_age_days', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 7))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/CartItem'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/ops/stuck-shipments',
+    operationId: 'reports.ops.stuckShipments',
+    tags: ['Reports'],
+    summary: 'Shipments pending/shipped past threshold.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'min_age_days', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 7))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Shipment'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/me/orders',
+    operationId: 'reports.me.orders',
+    tags: ['Reports'],
+    summary: 'Alias of GET /api/orders filtered to the authenticated customer.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 1))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Order'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/me/shipments/active',
+    operationId: 'reports.me.shipmentsActive',
+    tags: ['Reports'],
+    summary: 'Active shipments for the authenticated customer.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Shipment'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/reports/admin/top-designs',
+    operationId: 'reports.admin.topDesigns',
+    tags: ['Reports'],
+    summary: 'Top designs by revenue.',
+    security: [['sanctum' => []]],
+    parameters: [
+        new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        new OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', default: 25, maximum: 100)),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/DesignRevenueRow'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+// ─── Additional Schemas (Task 12) ──────────────────────────────────────────────
+#[OA\Schema(
+    schema: 'StoreNotificationRequest',
+    required: ['user_id', 'type', 'data'],
+    properties: [
+        new OA\Property(property: 'user_id', type: 'string', format: 'uuid', nullable: true, description: 'If null, broadcast to all users'),
+        new OA\Property(property: 'type', type: 'string', maxLength: 80),
+        new OA\Property(property: 'data', type: 'object', additionalProperties: new OA\AdditionalProperties),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreSettingRequest',
+    required: ['namespace', 'key', 'value'],
+    properties: [
+        new OA\Property(property: 'namespace', type: 'string', maxLength: 80),
+        new OA\Property(property: 'key', type: 'string', maxLength: 80),
+        new OA\Property(property: 'value', type: 'object', additionalProperties: new OA\AdditionalProperties),
+        new OA\Property(property: 'is_public', type: 'boolean', default: false),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateSettingRequest',
+    properties: [
+        new OA\Property(property: 'value', type: 'object', additionalProperties: new OA\AdditionalProperties),
+        new OA\Property(property: 'is_public', type: 'boolean'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'AuditEntry',
+    properties: [
+        new OA\Property(property: 'id', type: 'integer'),
+        new OA\Property(property: 'entity_type', type: 'string'),
+        new OA\Property(property: 'entity_id', type: 'string'),
+        new OA\Property(property: 'action', type: 'string', enum: ['create', 'update', 'delete', 'restore']),
+        new OA\Property(property: 'user_id', type: 'string', format: 'uuid', nullable: true),
+        new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'RevenueByDayRow',
+    properties: [
+        new OA\Property(property: 'date', type: 'string', format: 'date'),
+        new OA\Property(property: 'revenue', type: 'number', format: 'float'),
+        new OA\Property(property: 'order_count', type: 'integer'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'RevenueByDesignerRow',
+    properties: [
+        new OA\Property(property: 'designer_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'revenue', type: 'number', format: 'float'),
+        new OA\Property(property: 'order_count', type: 'integer'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'RevenueByPrinterRow',
+    properties: [
+        new OA\Property(property: 'printer_provider_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'revenue', type: 'number', format: 'float'),
+        new OA\Property(property: 'shipment_count', type: 'integer'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'CustomerLtvRow',
+    properties: [
+        new OA\Property(property: 'user_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'total_spent', type: 'number', format: 'float'),
+        new OA\Property(property: 'order_count', type: 'integer'),
+        new OA\Property(property: 'first_order_at', type: 'string', format: 'date-time', nullable: true),
+        new OA\Property(property: 'last_order_at', type: 'string', format: 'date-time', nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'DesignerDashboard',
+    properties: [
+        new OA\Property(property: 'design_count', type: 'integer'),
+        new OA\Property(property: 'published_count', type: 'integer'),
+        new OA\Property(property: 'total_revenue', type: 'number', format: 'float'),
+        new OA\Property(property: 'pending_payout', type: 'number', format: 'float'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'DesignerPayoutStatement',
+    properties: [
+        new OA\Property(property: 'designer_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'from', type: 'string', format: 'date'),
+        new OA\Property(property: 'to', type: 'string', format: 'date'),
+        new OA\Property(property: 'total_payout', type: 'number', format: 'float'),
+        new OA\Property(property: 'lines', type: 'array', items: new OA\Items(type: 'object', additionalProperties: new OA\AdditionalProperties)),
+    ]
+)]
+#[OA\Schema(
+    schema: 'PrinterPayoutStatement',
+    properties: [
+        new OA\Property(property: 'printer_provider_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'from', type: 'string', format: 'date'),
+        new OA\Property(property: 'to', type: 'string', format: 'date'),
+        new OA\Property(property: 'total_payout', type: 'number', format: 'float'),
+        new OA\Property(property: 'lines', type: 'array', items: new OA\Items(type: 'object', additionalProperties: new OA\AdditionalProperties)),
+    ]
+)]
+#[OA\Schema(
+    schema: 'DesignRevenueRow',
+    properties: [
+        new OA\Property(property: 'design_id', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'revenue', type: 'number', format: 'float'),
+        new OA\Property(property: 'order_count', type: 'integer'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'PlatformOverview',
+    description: 'Aggregated platform KPIs returned by the admin dashboard and admin overview report.',
+    properties: [
+        new OA\Property(property: 'users_total', type: 'integer'),
+        new OA\Property(property: 'designs_total', type: 'integer'),
+        new OA\Property(property: 'orders_total', type: 'integer'),
+        new OA\Property(property: 'revenue_total', type: 'number', format: 'float'),
+        new OA\Property(property: 'orders_pending', type: 'integer'),
+        new OA\Property(property: 'shipments_in_transit', type: 'integer'),
+        new OA\Property(property: 'generated_at', type: 'string', format: 'date-time'),
+    ]
+)]
 final class OpenApi {}
