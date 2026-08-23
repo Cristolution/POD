@@ -6,15 +6,18 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\DeliveryCompanyController;
 use App\Http\Controllers\Api\DesignController;
 use App\Http\Controllers\Api\DesignerController;
 use App\Http\Controllers\Api\DesignProductMappingController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderItemController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PrinterController;
 use App\Http\Controllers\Api\ProductTemplateController;
 use App\Http\Controllers\Api\ProductVariantController;
+use App\Http\Controllers\Api\ShipmentController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -152,4 +155,35 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/order-items/{item}', [OrderItemController::class, 'show'])->name('order-items.show');
     Route::patch('/order-items/{item}/status', [OrderItemController::class, 'updateStatus'])->name('order-items.update-status');
+});
+
+// Public delivery company reads.
+Route::get('/delivery-companies', [DeliveryCompanyController::class, 'index'])->name('delivery-companies.index');
+Route::get('/delivery-companies/{company}', [DeliveryCompanyController::class, 'show'])->name('delivery-companies.show');
+
+// Shipments — authenticated.
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/orders/{order}/shipments', [ShipmentController::class, 'index'])->name('orders.shipments.index');
+    Route::get('/shipments/{shipment}', [ShipmentController::class, 'show'])->name('shipments.show');
+    Route::post('/shipments', [ShipmentController::class, 'store'])->name('shipments.store');
+    Route::patch('/shipments/{shipment}/mark-shipped', [ShipmentController::class, 'markShipped'])->name('shipments.mark-shipped');
+    Route::patch('/shipments/{shipment}/mark-delivered', [ShipmentController::class, 'markDelivered'])->name('shipments.mark-delivered');
+    Route::patch('/shipments/{shipment}/tracking', [ShipmentController::class, 'updateTracking'])->name('shipments.update-tracking');
+});
+
+// Payments — admin view all, customer view own.
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/me/payments', [PaymentController::class, 'meIndex'])->name('me.payments.index');
+    Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/orders/{order}/payments', [PaymentController::class, 'store'])->name('orders.payments.store');
+    Route::patch('/payments/{payment}/confirm', [PaymentController::class, 'confirm'])->name('payments.confirm');
+    Route::patch('/payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
+});
+
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
+    Route::delete('/admin/delivery-companies/{company}', [DeliveryCompanyController::class, 'destroy'])->name('admin.delivery-companies.destroy');
+    Route::post('/admin/delivery-companies', [DeliveryCompanyController::class, 'store'])->name('admin.delivery-companies.store');
+    Route::patch('/admin/delivery-companies/{company}', [DeliveryCompanyController::class, 'update'])->name('admin.delivery-companies.update');
+    Route::delete('/admin/payments/{payment}', [PaymentController::class, 'destroy'])->name('admin.payments.destroy');
 });

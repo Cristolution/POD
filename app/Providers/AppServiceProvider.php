@@ -3,16 +3,22 @@
 namespace App\Providers;
 
 use App\Models\Address;
+use App\Models\DeliveryCompany;
 use App\Models\DesignerProfile;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\PrinterProviderProfile;
+use App\Models\Shipment;
 use App\Models\User;
 use App\Policies\AddressPolicy;
+use App\Policies\DeliveryCompanyPolicy;
 use App\Policies\DesignerProfilePolicy;
 use App\Policies\OrderItemPolicy;
 use App\Policies\OrderPolicy;
+use App\Policies\PaymentPolicy;
 use App\Policies\PrinterProfilePolicy;
+use App\Policies\ShipmentPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -32,5 +38,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Address::class, AddressPolicy::class);
         Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(OrderItem::class, OrderItemPolicy::class);
+        Gate::policy(DeliveryCompany::class, DeliveryCompanyPolicy::class);
+        Gate::policy(Shipment::class, ShipmentPolicy::class);
+        Gate::policy(Payment::class, PaymentPolicy::class);
     }
 }
