@@ -26,5 +26,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
-storage/api-docs/
+storage/api-docs/api-docs.json
 storage/api-docs.json
+!/storage/api-docs/api-docs.phase1-baseline.json
