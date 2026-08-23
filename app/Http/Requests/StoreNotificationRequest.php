@@ -18,10 +18,10 @@ class StoreNotificationRequest extends FormRequest
     {
         return [
             'notifiable_type' => ['required', 'string', 'max:255'],
-            'notifiable_id'   => ['required', 'integer'],
-            'type'            => ['required', 'string', 'max:255'],
-            'data'            => ['required', 'array'],
-            'read_at'         => ['nullable', 'date'],
+            'notifiable_id' => ['required', 'integer'],
+            'type' => ['required', 'string', 'max:255'],
+            'data' => ['required', 'array'],
+            'read_at' => ['nullable', 'date'],
         ];
     }
 }

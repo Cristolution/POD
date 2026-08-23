@@ -20,8 +20,8 @@ class StoreDesignRequest extends FormRequest
         return [
             'designer_id' => ['required', 'string', 'exists:designer_profiles,id'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
-            'title'       => ['required', 'string', 'max:255'],
-            'status'      => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
+            'title' => ['required', 'string', 'max:255'],
+            'status' => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
         ];
     }
 }

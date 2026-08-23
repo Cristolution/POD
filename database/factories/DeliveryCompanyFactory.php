@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\DeliveryCompany>
+ * @extends Factory<DeliveryCompany>
  */
 class DeliveryCompanyFactory extends Factory
 {
@@ -20,7 +20,7 @@ class DeliveryCompanyFactory extends Factory
         return [
             'name' => $name,
             'coverage_zones' => ['US', 'EU', 'CA'],
-            'tracking_url_pattern' => 'https://track.' . Str::slug($name) . '.com/{number}',
+            'tracking_url_pattern' => 'https://track.'.Str::slug($name).'.com/{number}',
         ];
     }
 }

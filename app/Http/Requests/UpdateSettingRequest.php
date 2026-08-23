@@ -20,7 +20,7 @@ class UpdateSettingRequest extends FormRequest
         $settingId = $this->route('setting')?->id;
 
         return [
-            'key'   => ['sometimes', 'string', 'max:255', Rule::unique('settings', 'key')->ignore($settingId)],
+            'key' => ['sometimes', 'string', 'max:255', Rule::unique('settings', 'key')->ignore($settingId)],
             'value' => ['sometimes', 'nullable', 'string'],
         ];
     }

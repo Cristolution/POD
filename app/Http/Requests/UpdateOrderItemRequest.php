@@ -18,8 +18,8 @@ class UpdateOrderItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'     => ['sometimes', Rule::in(['pending', 'received', 'printing', 'printed', 'handed_off', 'cancelled'])],
-            'quantity'   => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'status' => ['sometimes', Rule::in(['pending', 'received', 'printing', 'printed', 'handed_off', 'cancelled'])],
+            'quantity' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'unit_price' => ['sometimes', 'numeric', 'min:0'],
         ];
     }

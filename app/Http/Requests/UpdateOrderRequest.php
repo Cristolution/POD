@@ -18,8 +18,8 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'         => ['sometimes', Rule::in(['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'])],
-            'total_amount'   => ['sometimes', 'numeric', 'min:0'],
+            'status' => ['sometimes', Rule::in(['pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'])],
+            'total_amount' => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 }

@@ -18,9 +18,9 @@ class StoreDeliveryCompanyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'                 => ['required', 'string', 'max:255', Rule::unique('delivery_companies', 'name')],
-            'coverage_zones'       => ['nullable', 'array'],
-            'coverage_zones.*'     => ['string'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('delivery_companies', 'name')],
+            'coverage_zones' => ['nullable', 'array'],
+            'coverage_zones.*' => ['string'],
             'tracking_url_pattern' => ['nullable', 'string', 'max:500'],
         ];
     }

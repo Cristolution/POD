@@ -19,8 +19,8 @@ class UpdateDesignRequest extends FormRequest
     {
         return [
             'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
-            'title'       => ['sometimes', 'string', 'max:255'],
-            'status'      => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
+            'title' => ['sometimes', 'string', 'max:255'],
+            'status' => ['sometimes', Rule::in(['draft', 'published', 'archived'])],
         ];
     }
 }

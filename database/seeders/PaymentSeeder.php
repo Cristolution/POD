@@ -17,9 +17,9 @@ class PaymentSeeder extends Seeder
         Order::whereNotIn('status', ['cancelled'])->get()->each(function (Order $order) use ($admin) {
             // 1 payment per order. Status mirrors the order's progression.
             $status = match ($order->status) {
-                'pending'    => 'pending',
+                'pending' => 'pending',
                 'paid', 'processing', 'shipped', 'delivered' => 'confirmed',
-                default      => 'pending',
+                default => 'pending',
             };
 
             /** @var Payment $payment */

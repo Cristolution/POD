@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Notification>
+ * @extends Factory<Notification>
  */
 class NotificationFactory extends Factory
 {
@@ -24,7 +24,7 @@ class NotificationFactory extends Factory
             'data' => [
                 'title' => fake()->sentence(4),
                 'message' => fake()->sentence(),
-                'url' => '/notifications/' . fake()->uuid(),
+                'url' => '/notifications/'.fake()->uuid(),
             ],
             'read_at' => null,
         ];

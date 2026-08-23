@@ -19,7 +19,7 @@ class UpdateMediaRequest extends FormRequest
     {
         return [
             'collection_name' => ['sometimes', Rule::in(['mockup', 'print_file', 'payment_proof', 'attachment'])],
-            'file_path'       => ['sometimes', 'string', 'max:500'],
+            'file_path' => ['sometimes', 'string', 'max:500'],
         ];
     }
 }

@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\User
+ * @mixin User
  */
 class UserResource extends JsonResource
 {
@@ -16,9 +17,9 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'         => $this->id,            // UUID PK (Pattern A)
-            'name'       => $this->name,
-            'role'       => $this->role,
+            'id' => $this->id,            // UUID PK (Pattern A)
+            'name' => $this->name,
+            'role' => $this->role,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
 
@@ -30,7 +31,7 @@ class UserResource extends JsonResource
             ]),
 
             // Conditionally include loaded relations
-            'designer_profile'         => $this->whenLoaded('designerProfile'),
+            'designer_profile' => $this->whenLoaded('designerProfile'),
             'printer_provider_profile' => $this->whenLoaded('printerProviderProfile'),
         ];
     }

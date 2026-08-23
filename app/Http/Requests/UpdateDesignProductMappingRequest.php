@@ -18,7 +18,7 @@ class UpdateDesignProductMappingRequest extends FormRequest
     {
         return [
             'preferred_printer_id' => ['sometimes', 'string', 'exists:printer_provider_profiles,id'],
-            'final_price'          => ['sometimes', 'numeric', 'min:0'],
+            'final_price' => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 }

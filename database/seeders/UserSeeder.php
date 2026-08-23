@@ -57,7 +57,7 @@ class UserSeeder extends Seeder
             ['name' => 'Carla Rossi',    'email' => 'carla@example.test'],
             ['name' => 'Diego Lopez',    'email' => 'diego@example.test'],
             ['name' => 'Emma Patel',     'email' => 'emma@example.test'],
-            ['name' => 'Felix Andersson','email' => 'felix@example.test'],
+            ['name' => 'Felix Andersson', 'email' => 'felix@example.test'],
             ['name' => 'Grace Mensah',   'email' => 'grace@example.test'],
             ['name' => 'Hiro Nakamura',  'email' => 'hiro@example.test'],
             ['name' => 'Ines Costa',     'email' => 'ines@example.test'],

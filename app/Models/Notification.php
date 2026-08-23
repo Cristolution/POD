@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Notifications\DatabaseNotification as BaseDatabaseNotification;
 
@@ -18,6 +19,8 @@ use Illuminate\Notifications\DatabaseNotification as BaseDatabaseNotification;
  */
 class Notification extends BaseDatabaseNotification
 {
+    use HasFactory;
+
     // ------------------------------------------------------------------
     // Relationships
     // ------------------------------------------------------------------

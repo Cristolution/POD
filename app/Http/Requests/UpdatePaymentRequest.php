@@ -18,9 +18,9 @@ class UpdatePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'              => ['sometimes', Rule::in(['pending', 'confirmed', 'rejected'])],
+            'status' => ['sometimes', Rule::in(['pending', 'confirmed', 'rejected'])],
             'confirmed_by_admin_id' => ['sometimes', 'nullable', 'string', 'exists:users,id'],
-            'confirmed_at'        => ['sometimes', 'nullable', 'date'],
+            'confirmed_at' => ['sometimes', 'nullable', 'date'],
         ];
     }
 }

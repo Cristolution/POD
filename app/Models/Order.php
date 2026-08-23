@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 #[Fillable([
     'customer_id',
@@ -124,7 +125,7 @@ class Order extends Model
     /**
      * Group items by their printer — convenient for split fulfilment views.
      *
-     * @return \Illuminate\Support\Collection<string, \Illuminate\Database\Eloquent\Collection<int, OrderItem>>
+     * @return Collection<string, \Illuminate\Database\Eloquent\Collection<int, OrderItem>>
      */
     public function itemsByPrinter()
     {

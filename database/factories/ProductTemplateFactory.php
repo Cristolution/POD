@@ -7,7 +7,7 @@ use App\Models\ProductTemplate;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ProductTemplate>
+ * @extends Factory<ProductTemplate>
  */
 class ProductTemplateFactory extends Factory
 {

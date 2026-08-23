@@ -18,7 +18,7 @@ class StoreSettingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'key'   => ['required', 'string', 'max:255', Rule::unique('settings', 'key')],
+            'key' => ['required', 'string', 'max:255', Rule::unique('settings', 'key')],
             'value' => ['nullable', 'string'],
         ];
     }

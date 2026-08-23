@@ -17,10 +17,10 @@ class StoreCartItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id'                  => ['required', 'string', 'exists:users,id'],
+            'user_id' => ['required', 'string', 'exists:users,id'],
             'design_product_mapping_id' => ['required', 'string', 'exists:design_product_mappings,id'],
-            'product_variant_id'        => ['nullable', 'string', 'exists:product_variants,id'],
-            'quantity'                  => ['required', 'integer', 'min:1', 'max:100'],
+            'product_variant_id' => ['nullable', 'string', 'exists:product_variants,id'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:100'],
         ];
     }
 }

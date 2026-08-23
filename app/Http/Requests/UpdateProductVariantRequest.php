@@ -20,10 +20,10 @@ class UpdateProductVariantRequest extends FormRequest
         $variantId = $this->route('product_variant')?->id;
 
         return [
-            'attributes'  => ['sometimes', 'array'],
+            'attributes' => ['sometimes', 'array'],
             'price_delta' => ['sometimes', 'numeric', 'min:0'],
-            'sku'         => ['sometimes', 'nullable', 'string', 'max:100', Rule::unique('product_variants', 'sku')->ignore($variantId)],
-            'is_active'   => ['sometimes', 'boolean'],
+            'sku' => ['sometimes', 'nullable', 'string', 'max:100', Rule::unique('product_variants', 'sku')->ignore($variantId)],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 }

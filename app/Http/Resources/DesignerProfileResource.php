@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\DesignerProfile;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\DesignerProfile
+ * @mixin DesignerProfile
  */
 class DesignerProfileResource extends JsonResource
 {
@@ -16,15 +17,15 @@ class DesignerProfileResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'         => $this->id,
-            'user_id'    => $this->user_id,
-            'bio'        => $this->bio,
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+            'bio' => $this->bio,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
 
-            'user'           => $this->whenLoaded('user'),
-            'designs'        => $this->whenLoaded('designs'),
-            'designs_count'  => $this->whenCounted('designs'),
+            'user' => $this->whenLoaded('user'),
+            'designs' => $this->whenLoaded('designs'),
+            'designs_count' => $this->whenCounted('designs'),
         ];
     }
 }

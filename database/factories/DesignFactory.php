@@ -8,7 +8,7 @@ use App\Models\DesignerProfile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Design>
+ * @extends Factory<Design>
  */
 class DesignFactory extends Factory
 {

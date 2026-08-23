@@ -18,10 +18,10 @@ class StoreMediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'model_type'     => ['required', 'string', 'max:255'],
-            'model_id'       => ['required', 'integer'],
+            'model_type' => ['required', 'string', 'max:255'],
+            'model_id' => ['required', 'integer'],
             'collection_name' => ['required', Rule::in(['mockup', 'print_file', 'payment_proof', 'attachment'])],
-            'file_path'      => ['required', 'string', 'max:500'],
+            'file_path' => ['required', 'string', 'max:500'],
         ];
     }
 }

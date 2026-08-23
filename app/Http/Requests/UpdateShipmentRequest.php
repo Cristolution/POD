@@ -19,9 +19,9 @@ class UpdateShipmentRequest extends FormRequest
     {
         return [
             'tracking_number' => ['sometimes', 'nullable', 'string', 'max:100'],
-            'status'         => ['sometimes', Rule::in(['pending', 'shipped', 'delivered', 'returned'])],
-            'shipped_at'     => ['sometimes', 'nullable', 'date'],
-            'delivered_at'   => ['sometimes', 'nullable', 'date'],
+            'status' => ['sometimes', Rule::in(['pending', 'shipped', 'delivered', 'returned'])],
+            'shipped_at' => ['sometimes', 'nullable', 'date'],
+            'delivered_at' => ['sometimes', 'nullable', 'date'],
         ];
     }
 }

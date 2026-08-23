@@ -20,11 +20,11 @@ class UpdateUserRequest extends FormRequest
         $userId = $this->route('user')?->id;
 
         return [
-            'name'     => ['sometimes', 'string', 'max:255'],
-            'email'    => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'email' => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'password' => ['sometimes', 'string', 'min:8', 'confirmed'],
-            'phone'    => ['sometimes', 'nullable', 'string', 'max:32'],
-            'role'     => ['sometimes', Rule::in(['customer', 'designer', 'printer_provider', 'admin'])],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:32'],
+            'role' => ['sometimes', Rule::in(['customer', 'designer', 'printer_provider', 'admin'])],
         ];
     }
 }

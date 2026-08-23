@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Design;
-use App\Models\DesignProductMapping;
 use App\Models\DesignerProfile;
+use App\Models\DesignProductMapping;
 use App\Models\Media;
 use App\Models\ProductTemplate;
 use App\Models\Tag;

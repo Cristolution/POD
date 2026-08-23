@@ -18,7 +18,7 @@ class StoreDesignerProfileRequest extends FormRequest
     {
         return [
             'user_id' => ['required', 'string', 'exists:users,id'],
-            'bio'     => ['nullable', 'string', 'max:5000'],
+            'bio' => ['nullable', 'string', 'max:5000'],
         ];
     }
 }

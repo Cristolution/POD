@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'password', 'phone', 'role'])]
@@ -95,7 +95,7 @@ class User extends Authenticatable
 
     public function notifications(): HasMany
     {
-        return $this->morphMany(\Illuminate\Notifications\DatabaseNotification::class, 'notifiable');
+        return $this->morphMany(DatabaseNotification::class, 'notifiable');
     }
 
     // ------------------------------------------------------------------

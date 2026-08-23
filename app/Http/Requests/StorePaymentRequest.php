@@ -18,9 +18,9 @@ class StorePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'order_id'  => ['required', 'string', 'exists:orders,id'],
-            'method'    => ['required', Rule::in(['cash_on_delivery', 'bank_transfer', 'card'])],
-            'status'    => ['sometimes', Rule::in(['pending', 'confirmed', 'rejected'])],
+            'order_id' => ['required', 'string', 'exists:orders,id'],
+            'method' => ['required', Rule::in(['cash_on_delivery', 'bank_transfer', 'card'])],
+            'status' => ['sometimes', Rule::in(['pending', 'confirmed', 'rejected'])],
         ];
     }
 }

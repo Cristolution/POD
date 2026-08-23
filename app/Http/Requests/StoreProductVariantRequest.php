@@ -19,10 +19,10 @@ class StoreProductVariantRequest extends FormRequest
     {
         return [
             'product_template_id' => ['required', 'string', 'exists:product_templates,id'],
-            'attributes'          => ['required', 'array'],
-            'price_delta'         => ['required', 'numeric', 'min:0'],
-            'sku'                 => ['nullable', 'string', 'max:100', Rule::unique('product_variants', 'sku')],
-            'is_active'           => ['sometimes', 'boolean'],
+            'attributes' => ['required', 'array'],
+            'price_delta' => ['required', 'numeric', 'min:0'],
+            'sku' => ['nullable', 'string', 'max:100', Rule::unique('product_variants', 'sku')],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 }

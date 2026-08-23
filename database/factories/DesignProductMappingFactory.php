@@ -9,7 +9,7 @@ use App\Models\ProductTemplate;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\DesignProductMapping>
+ * @extends Factory<DesignProductMapping>
  */
 class DesignProductMappingFactory extends Factory
 {

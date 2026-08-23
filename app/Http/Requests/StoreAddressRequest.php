@@ -18,10 +18,10 @@ class StoreAddressRequest extends FormRequest
     {
         return [
             'user_id' => ['required', 'string', 'exists:users,id'],
-            'line1'   => ['required', 'string', 'max:255'],
-            'city'    => ['required', 'string', 'max:255'],
+            'line1' => ['required', 'string', 'max:255'],
+            'city' => ['required', 'string', 'max:255'],
             'country' => ['required', 'string', 'max:255'],
-            'phone'   => ['nullable', 'string', 'max:32'],
+            'phone' => ['nullable', 'string', 'max:32'],
         ];
     }
 }

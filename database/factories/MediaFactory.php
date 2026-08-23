@@ -7,7 +7,7 @@ use App\Models\Media;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Media>
+ * @extends Factory<Media>
  */
 class MediaFactory extends Factory
 {
@@ -19,7 +19,7 @@ class MediaFactory extends Factory
             'model_type' => Design::class,
             'model_id' => Design::factory(),
             'collection_name' => 'mockup',
-            'file_path' => 'media/' . fake()->uuid() . '.jpg',
+            'file_path' => 'media/'.fake()->uuid().'.jpg',
         ];
     }
 

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\DesignProductMapping;
 use App\Models\DeliveryCompany;
+use App\Models\DesignProductMapping;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Shipment;
