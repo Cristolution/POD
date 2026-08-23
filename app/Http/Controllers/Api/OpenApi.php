@@ -743,4 +743,370 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'capabilities', type: 'object', additionalProperties: new OA\AdditionalProperties(type: 'string'), nullable: true),
     ]
 )]
+// ─── Me / Addresses ──────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/me/addresses',
+    operationId: 'me.addresses.index',
+    tags: ['Me'],
+    summary: 'List own addresses.',
+    security: [['sanctum' => []]],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Address'))),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/me/addresses',
+    operationId: 'me.addresses.store',
+    tags: ['Me'],
+    summary: 'Create address.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreAddressRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Address')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Get(
+    path: '/api/me/addresses/{id}',
+    operationId: 'me.addresses.show',
+    tags: ['Me'],
+    summary: 'Show own address.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Address')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/me/addresses/{id}',
+    operationId: 'me.addresses.update',
+    tags: ['Me'],
+    summary: 'Update own address.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateAddressRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Address')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/me/addresses/{id}',
+    operationId: 'me.addresses.destroy',
+    tags: ['Me'],
+    summary: 'Delete own address.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreAddressRequest',
+    required: ['line1', 'city', 'postal_code', 'country'],
+    properties: [
+        new OA\Property(property: 'label', type: 'string', maxLength: 80, nullable: true),
+        new OA\Property(property: 'line1', type: 'string', maxLength: 200),
+        new OA\Property(property: 'line2', type: 'string', maxLength: 200, nullable: true),
+        new OA\Property(property: 'city', type: 'string', maxLength: 120),
+        new OA\Property(property: 'postal_code', type: 'string', maxLength: 32),
+        new OA\Property(property: 'country', type: 'string', minLength: 2, maxLength: 2, description: 'ISO 3166-1 alpha-2'),
+        new OA\Property(property: 'phone', type: 'string', maxLength: 32, nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateAddressRequest',
+    properties: [
+        new OA\Property(property: 'label', type: 'string', maxLength: 80, nullable: true),
+        new OA\Property(property: 'line1', type: 'string', maxLength: 200),
+        new OA\Property(property: 'line2', type: 'string', maxLength: 200, nullable: true),
+        new OA\Property(property: 'city', type: 'string', maxLength: 120),
+        new OA\Property(property: 'postal_code', type: 'string', maxLength: 32),
+        new OA\Property(property: 'country', type: 'string', minLength: 2, maxLength: 2),
+        new OA\Property(property: 'phone', type: 'string', maxLength: 32, nullable: true),
+    ]
+)]
+// ─── Catalog / Categories ─────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/categories',
+    operationId: 'categories.index',
+    tags: ['Catalog'],
+    summary: 'Public: list categories (tree optional).',
+    parameters: [
+        new OA\Parameter(name: 'parent_id', in: 'query', schema: new OA\Schema(type: 'integer', nullable: true)),
+        new OA\Parameter(name: 'tree', in: 'query', schema: new OA\Schema(type: 'boolean', default: false)),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Category')))]
+)]
+#[OA\Get(
+    path: '/api/categories/{id}',
+    operationId: 'categories.show',
+    tags: ['Catalog'],
+    summary: 'Public: single category with breadcrumb.',
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Category')),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/admin/categories',
+    operationId: 'admin.categories.store',
+    tags: ['Catalog'],
+    summary: 'Admin: create category.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreCategoryRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Category')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/admin/categories/{id}',
+    operationId: 'admin.categories.update',
+    tags: ['Catalog'],
+    summary: 'Admin: update category.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateCategoryRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Category')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/admin/categories/{id}',
+    operationId: 'admin.categories.destroy',
+    tags: ['Catalog'],
+    summary: 'Admin: delete category. 409 if designs attached.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 409, description: 'Designs attached'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreCategoryRequest',
+    required: ['name'],
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 120),
+        new OA\Property(property: 'parent_id', type: 'integer', nullable: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateCategoryRequest',
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 120),
+        new OA\Property(property: 'parent_id', type: 'integer', nullable: true),
+    ]
+)]
+// ─── Catalog / Tags ───────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/tags',
+    operationId: 'tags.index',
+    tags: ['Catalog'],
+    summary: 'Public: list tags (autocomplete by prefix).',
+    parameters: [
+        new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Tag')))]
+)]
+#[OA\Post(
+    path: '/api/admin/tags',
+    operationId: 'admin.tags.store',
+    tags: ['Catalog'],
+    summary: 'Admin: create tag.',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreTagRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Tag')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/admin/tags/{id}',
+    operationId: 'admin.tags.update',
+    tags: ['Catalog'],
+    summary: 'Admin: update tag.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateTagRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Tag')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/admin/tags/{id}',
+    operationId: 'admin.tags.destroy',
+    tags: ['Catalog'],
+    summary: 'Admin: delete tag. 409 if designs attached.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 409, description: 'Designs attached'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreTagRequest',
+    required: ['name'],
+    properties: [new OA\Property(property: 'name', type: 'string', maxLength: 80)]
+)]
+#[OA\Schema(
+    schema: 'UpdateTagRequest',
+    properties: [new OA\Property(property: 'name', type: 'string', maxLength: 80)]
+)]
+// ─── Catalog / Designs ────────────────────────────────────────────────────────
+#[OA\Get(
+    path: '/api/designs',
+    operationId: 'designs.index',
+    tags: ['Catalog'],
+    summary: 'Public: list published designs.',
+    parameters: [
+        new OA\Parameter(name: 'status', in: 'query', schema: new OA\Schema(type: 'string', enum: ['published'], default: 'published')),
+        new OA\Parameter(name: 'category_id', in: 'query', schema: new OA\Schema(type: 'integer')),
+        new OA\Parameter(name: 'tag_id', in: 'query', schema: new OA\Schema(type: 'integer')),
+        new OA\Parameter(name: 'designer_id', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+        new OA\Parameter(name: 'search', in: 'query', schema: new OA\Schema(type: 'string')),
+        new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string', enum: ['newest', 'oldest', 'popular'])),
+        new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', minimum: 1)),
+    ],
+    responses: [new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(type: 'array', items: new OA\Items(ref: '#/components/schemas/Design')))]
+)]
+#[OA\Get(
+    path: '/api/designs/{uuid}',
+    operationId: 'designs.show',
+    tags: ['Catalog'],
+    summary: 'Public for published; owner/admin for draft/archived.',
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Design')),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/designs',
+    operationId: 'designs.store',
+    tags: ['Catalog'],
+    summary: 'Designer: create design (status=draft).',
+    security: [['sanctum' => []]],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/StoreDesignRequest')),
+    responses: [
+        new OA\Response(response: 201, description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/Design')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not a designer'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Patch(
+    path: '/api/designs/{uuid}',
+    operationId: 'designs.update',
+    tags: ['Catalog'],
+    summary: 'Designer: update own design.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UpdateDesignRequest')),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Design')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 422, description: 'Validation failed'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/designs/{uuid}',
+    operationId: 'designs.destroy',
+    tags: ['Catalog'],
+    summary: 'Designer: soft-delete own design. 409 if order_items reference it.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 204, description: 'No content'),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+        new OA\Response(response: 409, description: 'Order items reference this design'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/designs/{uuid}/restore',
+    operationId: 'designs.restore',
+    tags: ['Catalog'],
+    summary: 'Designer: restore own soft-deleted design.',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Design')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not the owner'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Post(
+    path: '/api/admin/designs/{uuid}/transfer',
+    operationId: 'admin.designs.transfer',
+    tags: ['Catalog'],
+    summary: 'Admin: transfer design ownership (audit-logged).',
+    security: [['sanctum' => []]],
+    parameters: [new OA\Parameter(name: 'uuid', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
+    requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+        required: ['new_designer_id'],
+        properties: [new OA\Property(property: 'new_designer_id', type: 'string', format: 'uuid')]
+    )),
+    responses: [
+        new OA\Response(response: 200, description: 'OK', content: new OA\JsonContent(ref: '#/components/schemas/Design')),
+        new OA\Response(response: 401, description: 'Unauthenticated'),
+        new OA\Response(response: 403, description: 'Not admin'),
+        new OA\Response(response: 404, description: 'Not found'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StoreDesignRequest',
+    required: ['title'],
+    properties: [
+        new OA\Property(property: 'title', type: 'string', maxLength: 180),
+        new OA\Property(property: 'description', type: 'string', nullable: true),
+        new OA\Property(property: 'category_id', type: 'integer', nullable: true),
+        new OA\Property(property: 'tag_ids', type: 'array', items: new OA\Items(type: 'integer')),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UpdateDesignRequest',
+    properties: [
+        new OA\Property(property: 'title', type: 'string', maxLength: 180),
+        new OA\Property(property: 'description', type: 'string', nullable: true),
+        new OA\Property(property: 'category_id', type: 'integer', nullable: true),
+        new OA\Property(property: 'tag_ids', type: 'array', items: new OA\Items(type: 'integer')),
+        new OA\Property(property: 'status', type: 'string', enum: ['draft', 'published', 'archived']),
+    ]
+)]
 final class OpenApi {}
