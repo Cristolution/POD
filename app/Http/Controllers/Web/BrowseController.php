@@ -56,7 +56,7 @@ class BrowseController extends Controller
     public function designers(Request $request): View
     {
         $designers = DesignerProfile::query()
-            ->with(['user', 'publishedDesigns'])
+            ->with(['user'])
             ->withCount('publishedDesigns')
             ->orderByDesc('published_designs_count')
             ->paginate(24);
