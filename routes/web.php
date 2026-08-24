@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\Web\BrowseController;
+use App\Http\Controllers\Web\DesignDetailController;
 use App\Http\Controllers\Web\HomeController;
-use App\Models\Design;
 use App\Models\DesignerProfile;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use L5Swagger\Http\Controllers\SwaggerController;
@@ -34,9 +35,12 @@ Route::middleware(['share.unread'])->group(function (): void {
     Route::get('/browse/categories', [BrowseController::class, 'categories'])->name('browse.categories');
     Route::get('/browse/designers', [BrowseController::class, 'designers'])->name('browse.designers');
 
-    // -- Task 4 stub: replaced by DesignDetailController ----------------
-    Route::get('/designs/{design}', static fn (Design $design): Response => response("Design detail placeholder for #{$design->id}", 404))
-        ->name('design.show');
+    // -- Task 4: real design detail page ---------------------------------
+    Route::get('/designs/{design}', [DesignDetailController::class, 'show'])->name('design.show');
+
+    // -- Task 5 placeholder: replaced by Web\CartController@store --------
+    Route::post('/cart/items', static fn (Request $r) => response()->json(['message' => 'Add-to-cart placeholder — Task 5 will wire real handler.'], 501)
+    )->name('cart.items.store');
 
     // -- Future task stub: replaced by DesignerProfileController --------
     Route::get('/designers/{designer}', static fn (DesignerProfile $designer): Response => response("Designer profile placeholder for #{$designer->id}", 404))
