@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Http\Middleware\EnsureAdmin;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -19,7 +22,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'password', 'phone', 'role'])]
 #[Hidden(['password'])]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasUuids, Notifiable, SoftDeletes;
@@ -146,5 +149,16 @@ class User extends Authenticatable
     public function isCustomer(): bool
     {
         return $this->role === 'customer';
+    }
+
+    /**
+     * Filament v4 panel access gate. Returns true so any authenticated user
+     * can reach the panel — the {@see EnsureAdmin}
+     * middleware then 403s anyone whose role is not `admin`. Per-panel
+     * gating can be added here by inspecting `$panel->getId()`.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
     }
 }
