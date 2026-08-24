@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PrinterController;
 use App\Http\Controllers\Api\ProductTemplateController;
 use App\Http\Controllers\Api\ProductVariantController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\ShipmentController;
 use App\Http\Controllers\Api\TagController;
@@ -226,3 +227,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::get('/integrity/items-without-shipment', [AdminController::class, 'itemsWithoutShipment'])->name('admin.integrity.items-without-shipment');
     Route::get('/integrity/stuck-cart-items', [AdminController::class, 'stuckCartItems'])->name('admin.integrity.stuck-cart-items');
 });
+
+// Reporting endpoints (dispatch by key — role gated inside the controller).
+Route::middleware('auth:sanctum')->get('/reports/{reportKey}', [ReportController::class, 'show'])
+    ->where('reportKey', '[a-z\-\/]+')
+    ->name('reports.show');
