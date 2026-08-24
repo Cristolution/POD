@@ -40,7 +40,9 @@ class DesignerProfile extends Model
 
     public function publishedDesigns(): HasMany
     {
-        return $this->designs()->where('status', 'published');
+        return $this->designs()
+            ->where('status', 'published')
+            ->whereNull('deleted_at');
     }
 
     // ------------------------------------------------------------------

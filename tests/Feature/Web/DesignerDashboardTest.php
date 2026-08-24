@@ -77,6 +77,17 @@ class DesignerDashboardTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_dashboard_returns_html_403_not_json_for_customer(): void
+    {
+        $customer = User::factory()->customer()->create();
+
+        $response = $this->actingAs($customer)
+            ->get(route('designer.dashboard'))
+            ->assertForbidden();
+
+        $this->assertStringNotContainsString('"message":', (string) $response->getContent());
+    }
+
     public function test_dashboard_returns_200_for_designer(): void
     {
         $user = User::factory()->designer()->create(['name' => 'Grace Hopper']);
@@ -116,7 +127,7 @@ class DesignerDashboardTest extends TestCase
             ->assertDontSee('Other Designer');
     }
 
-    public function test_dashboard_redirects_to_login_when_role_middleware_fails_unauthenticated(): void
+    public function test_edit_page_redirects_anonymous_to_login(): void
     {
         $this->get(route('designer.edit'))->assertRedirect(route('login'));
     }

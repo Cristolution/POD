@@ -72,14 +72,14 @@ class DesignerProfileController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        $user = $request->user();
-        abort_unless($user->role === 'designer' && $user->designerProfile !== null, 403);
+        $profile = $request->user()->designerProfile;
+        abort_if($profile === null, 404, 'Designer profile not found.');
 
         $data = $request->validate([
-            'bio' => ['nullable', 'string', 'max:2000'],
+            'bio' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $user->designerProfile->update($data);
+        $profile->update($data);
 
         return redirect()->route('designer.edit')->with('status', 'Profile updated.');
     }

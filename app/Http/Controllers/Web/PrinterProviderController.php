@@ -78,14 +78,14 @@ class PrinterProviderController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        $user = $request->user();
-        abort_unless($user->role === 'printer_provider' && $user->printerProviderProfile !== null, 403);
+        $profile = $request->user()->printerProviderProfile;
+        abort_if($profile === null, 404, 'Printer profile not found.');
 
         $data = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
         ]);
 
-        $user->printerProviderProfile->update($data);
+        $profile->update($data);
 
         return redirect()->route('printer.edit')->with('status', 'Profile updated.');
     }
