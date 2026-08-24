@@ -68,6 +68,7 @@
            font-display uppercase tracking-wider text-sm
            bg-ink-800 text-sand-100 border-3 border-ink-800
            hover:bg-coral-500 hover:border-coral-500
+           focus-visible:outline-2 focus-visible:outline-coral-500 focus-visible:outline-offset-2
            transition-colors duration-150 cursor-pointer;
   }
   .btn-secondary {
@@ -80,7 +81,8 @@
   .input {
     @apply w-full px-4 py-3 bg-surface text-ink-800
            font-mono text-sm
-           focus:outline-none focus:border-coral-500;
+           focus:outline-none focus:border-coral-500
+           focus-visible:outline-2 focus-visible:outline-coral-500 focus-visible:outline-offset-2;
   }
 
   .label {
