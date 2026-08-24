@@ -1,9 +1,125 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  /* Sand + Coral palette */
+  --color-sand-50:  #FBF8F3;
+  --color-sand-100: #F5EFE6;
+  --color-sand-200: #E8DECF;
+  --color-sand-300: #D4C3A8;
+
+  --color-ink-900: #0a0a0a;
+  --color-ink-800: #1a1a1a;
+  --color-ink-700: #2a2a2a;
+
+  --color-coral-500: #FF6B4A;
+  --color-coral-600: #E85A39;
+  --color-coral-700: #C84A2C;
+
+  --color-orange-500: #FFA500;
+
+  --color-surface:    #FFFFFF;
+  --color-surface-2:  #F5EFE6;  /* sand-100 */
+  --color-surface-3:  #E8DECF;  /* sand-200 */
+
+  /* Typography */
+  --font-display: "Archivo Black", "Work Sans", system-ui, sans-serif;
+  --font-body:    "Work Sans", system-ui, sans-serif;
+  --font-mono:    "Space Mono", ui-monospace, monospace;
+
+  /* Border weights */
+  --border-weight-thin:   3px;
+  --border-weight-thick:  5px;
+
+  /* No radius */
+  --radius-none: 0px;
+}
+
+@layer base {
+  html { background: var(--color-sand-100); color: var(--color-ink-800); }
+  body { font-family: var(--font-body); }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  /* Sharp corners everywhere */
+  *, *::before, *::after { border-radius: 0 !important; }
+
+  /* No shadows on any element by default */
+  * { box-shadow: none !important; }
+
+  /* Borders default to 3px ink */
+  button, input, select, textarea, .card, .surface {
+    border: 3px solid var(--color-ink-800);
+  }
+
+  /* Selection */
+  ::selection { background: var(--color-coral-500); color: white; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3
+           font-display uppercase tracking-wider text-sm
+           bg-ink-800 text-sand-100 border-3 border-ink-800
+           hover:bg-coral-500 hover:border-coral-500
+           transition-colors duration-150 cursor-pointer;
+  }
+  .btn-secondary {
+    @apply bg-sand-100 text-ink-800 hover:bg-sand-200;
+  }
+  .btn-coral {
+    @apply bg-coral-500 text-white border-coral-500 hover:bg-coral-600 hover:border-coral-600;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 bg-surface text-ink-800
+           font-mono text-sm
+           focus:outline-none focus:border-coral-500;
+  }
+
+  .label {
+    @apply block mb-2 font-mono uppercase tracking-wider text-xs text-ink-700;
+  }
+
+  .card {
+    @apply bg-surface p-6;
+  }
+
+  .card-featured {
+    @apply border-5 border-ink-800 bg-surface p-8;
+  }
+
+  .badge {
+    @apply inline-block px-3 py-1 font-mono uppercase tracking-wider text-xs
+           border-3 border-ink-800 bg-sand-200 text-ink-800;
+  }
+
+  .badge-coral {
+    @apply bg-coral-500 text-white border-coral-500;
+  }
+
+  .heading-1 { @apply font-display text-5xl uppercase tracking-wider; }
+  .heading-2 { @apply font-display text-3xl uppercase tracking-wider; }
+  .heading-3 { @apply font-display text-xl uppercase tracking-wider; }
+
+  .nav-link {
+    @apply font-display uppercase tracking-wider text-sm text-ink-800
+           hover:text-coral-500 transition-colors;
+  }
+
+  .table-pod {
+    @apply w-full border-collapse;
+  }
+  .table-pod th, .table-pod td {
+    @apply border-3 border-ink-800 px-4 py-3 text-left;
+  }
+  .table-pod th {
+    @apply font-display uppercase tracking-wider text-xs bg-sand-200;
+  }
 }
