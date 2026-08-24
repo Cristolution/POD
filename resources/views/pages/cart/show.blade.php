@@ -79,11 +79,9 @@
                 </div>
             </div>
 
-            @if (\Illuminate\Support\Facades\Route::has('checkout.show'))
-                <div class="mt-8 text-right">
-                    <a href="{{ route('checkout.show') }}" class="btn-coral text-lg">Proceed to checkout →</a>
-                </div>
-            @endif
+            <div class="mt-8 text-right">
+                <a href="{{ route('checkout.show') }}" class="btn-coral text-lg">Proceed to checkout →</a>
+            </div>
         @endif
     </section>
 @endsection

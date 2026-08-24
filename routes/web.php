@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Web\BrowseController;
 use App\Http\Controllers\Web\CartController;
+use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\DesignDetailController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\OrderController;
 use App\Models\DesignerProfile;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +46,15 @@ Route::middleware(['share.cart'])->group(function (): void {
         Route::patch('/cart/items/{item}', [CartController::class, 'update'])->name('cart.items.update');
         Route::delete('/cart/items/{item}', [CartController::class, 'destroy'])->name('cart.items.destroy');
         Route::delete('/cart', [CartController::class, 'clearAll'])->name('cart.clear');
+
+        // -- Task 6: checkout + order detail -----------------------------
+        Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout.show');
+        Route::post('/checkout', [CheckoutController::class, 'place'])->name('checkout.place');
+        // Note: the API owns the name `orders.show` for the Sanctum-protected
+        // REST resource. The web confirmation page shares the URL pattern
+        // but uses `orders.confirmation` so the named route resolves to the
+        // session-auth web handler, not the API resource.
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.confirmation');
     });
 
     // -- Future task stub: replaced by DesignerProfileController --------
