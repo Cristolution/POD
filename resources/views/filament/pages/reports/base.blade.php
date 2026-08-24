@@ -67,8 +67,12 @@
                 @forelse ($rows as $row)
                     <tr>
                         @foreach ((array) $row as $cell)
+                            @php $cell = match (true) {
+                                is_array($cell), is_object($cell) => json_encode($cell),
+                                default => (string) $cell,
+                            }; @endphp
                             <td class="fi-ta-cell px-4 py-2 font-mono text-sm">
-                                {{ is_array($cell) ? json_encode($cell) : (is_scalar($cell) || $cell === null ? (string) $cell : json_encode($cell)) }}
+                                {{ $cell }}
                             </td>
                         @endforeach
                     </tr>

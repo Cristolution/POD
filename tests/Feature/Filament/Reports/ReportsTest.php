@@ -54,6 +54,20 @@ class ReportsTest extends TestCase
         ];
     }
 
+    /**
+     * Slug-only projection of {@see reportPages()} for tests that only need the
+     * URL segment and ignore the page FQCN.
+     *
+     * @return array<string, array{0: string}>
+     */
+    public static function reportSlugs(): array
+    {
+        return array_map(
+            static fn (array $row): array => [$row[0]],
+            self::reportPages(),
+        );
+    }
+
     #[DataProvider('reportPages')]
     public function test_admin_can_view_report_page(string $slug, string $pageClass): void
     {
@@ -64,7 +78,7 @@ class ReportsTest extends TestCase
             ->assertOk();
     }
 
-    #[DataProvider('reportPages')]
+    #[DataProvider('reportSlugs')]
     public function test_non_admin_cannot_view_report_page(string $slug): void
     {
         $customer = User::factory()->create(['role' => 'customer']);

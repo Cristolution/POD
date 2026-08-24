@@ -6,7 +6,6 @@ namespace App\Filament\Pages\Reports;
 
 use App\Reports\Contracts\Report;
 use App\Reports\CsvExporter;
-use Filament\Forms\Forms;
 use Filament\Pages\Page;
 use Illuminate\Http\Request;
 use UnitEnum;
@@ -18,8 +17,8 @@ use UnitEnum;
  * Subclasses must implement {@see reportClass()} to point at a concrete Report class.
  *
  * Filter values are bound directly via raw HTML inputs with `wire:model="data.X"` in
- * the shared Blade view — that sidesteps the v3 → v4 {@see Forms::renderHeader()}
- * facade, which no longer exists.
+ * the shared Blade view — that sidesteps the v3 → v4 Forms facade, which no longer
+ * ships `renderHeader()`.
  *
  * NOTE: PHP 8.5 strictly requires overriding static properties with the EXACT same
  * type declared in the parent. {@see Page}'s typed properties
@@ -34,7 +33,7 @@ abstract class BaseReportPage extends Page
     protected static string|UnitEnum|null $navigationGroup = 'Reports';
 
     /**
-     * Livewire-bound filter values: 'from' (Y-m-d), 'to' (Y-m-d), 'format'.
+     * Livewire-bound filter values: 'from' (Y-m-d), 'to' (Y-m-d).
      *
      * @var array<string, string|null>
      */
@@ -48,7 +47,6 @@ abstract class BaseReportPage extends Page
         $this->data = [
             'from' => now()->subDays(30)->toDateString(),
             'to' => now()->toDateString(),
-            'format' => 'json',
         ];
     }
 
@@ -81,7 +79,6 @@ abstract class BaseReportPage extends Page
 
         return [
             'rows' => $normalised,
-            'csvUrl' => $this->getUrl().'?export=csv',
         ];
     }
 
@@ -91,10 +88,5 @@ abstract class BaseReportPage extends Page
             'from' => $this->data['from'] ?? null,
             'to' => $this->data['to'] ?? null,
         ]);
-    }
-
-    public static function getNavigationLabel(): string
-    {
-        return (string) (static::$navigationLabel ?? static::$title ?? str(class_basename(static::class))->beforeLast('Report'));
     }
 }
