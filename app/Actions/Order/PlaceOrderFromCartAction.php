@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Order;
 
+use App\Actions\Payment\CreatePaymentForOrderAction;
 use App\Events\OrderPlaced;
 use App\Models\Address;
 use App\Models\Order;
@@ -14,9 +15,13 @@ use Illuminate\Support\Facades\DB;
 
 class PlaceOrderFromCartAction
 {
-    public function execute(User $user, int $shippingAddressId): Order
+    public function __construct(
+        private readonly CreatePaymentForOrderAction $createPayment,
+    ) {}
+
+    public function execute(User $user, int $shippingAddressId, string $paymentMethod = 'cash_on_delivery'): Order
     {
-        return DB::transaction(function () use ($user, $shippingAddressId): Order {
+        return DB::transaction(function () use ($user, $shippingAddressId, $paymentMethod): Order {
             $items = $user->cartItems()
                 ->with(['designProductMapping.productTemplate.printerProvider', 'productVariant'])
                 ->get();
@@ -56,10 +61,14 @@ class PlaceOrderFromCartAction
                 ]);
             }
 
+            // Record the chosen payment method in the same transaction so a
+            // partial failure rolls the order back together with the payment.
+            $this->createPayment->execute($order, $paymentMethod);
+
             // Clear the cart in the same transaction so a partial failure rolls everything back.
             $user->cartItems()->delete();
 
-            $order = $order->refresh()->load(['items', 'shippingAddress', 'customer']);
+            $order = $order->refresh()->load(['items', 'shippingAddress', 'customer', 'payments']);
 
             OrderPlaced::dispatch($order);
             $user->notify(new OrderPlacedNotification($order));
