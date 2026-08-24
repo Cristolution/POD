@@ -16,6 +16,7 @@ use App\Filament\Pages\Reports\TopDesignsReport;
 use App\Models\User;
 use App\Reports\Admin\PlatformOverviewReport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -80,8 +81,21 @@ class ReportsTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin/overview-report')
             ->assertOk()
-            ->assertSee('Download CSV')
-            ->assertSee('?export=csv', false);
+            ->assertSee('Download CSV');
+    }
+
+    public function test_overview_report_csv_export_streams_csv_response(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        Livewire::actingAs($admin)
+            ->test(OverviewReport::class)
+            ->call('exportCsv')
+            ->assertFileDownloaded(
+                'overview-report-'.now()->format('Ymd-His').'.csv',
+                null,
+                'text/csv',
+            );
     }
 
     public function test_report_page_renders_table_headers_from_first_row(): void

@@ -2,11 +2,38 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Stand up the Filament v3 admin panel at `/admin`, themed to match the Sand + Coral brutalist design system. Build 13 Resources (full CRUD) + 15 custom Report Pages + a KPI dashboard, gated exclusively to `role='admin'`.
+> **⚠ v4 MIGRATION NOTE (added 2026-08-24):** Laravel 13 forces Filament v4 (`filament/filament v4.12.6` installed; v3.x is incompatible with `illuminate/auth ^13`). The plan snippets below were written for v3 and need the adjustments listed at the end of this preamble — read them BEFORE starting each task.
 
-**Architecture:** Filament v3 with a single panel (`AdminPanelProvider`). Resources and Pages query Eloquent directly through Filament's auto-generated table and form components. Reports are custom Filament Pages that instantiate a `Report` class from Phase 2 and render either a Table or a chart widget.
+**v4 API adjustments** (apply these to the plan steps):
 
-**Tech Stack:** Filament v3, Filament Spatie Media Library plugin (NOT used — we use the custom `Media` model), Filament Shield (NOT used — `User::isAdmin()` only), Filament Charts via `flowframe/laravel-trend`, custom Tailwind 4 theme overrides.
+- **Theme registration**: use `php artisan make:filament-theme sand-coral` instead of the manual `@import "/vendor/filament/filament/resources/css/theme.css"`. The artisan command publishes a themed CSS file and registers an identifier in `config/filament.php`. Then call `->theme('sand-coral')` on the panel, not `->viteTheme()`.
+- **VerifyCsrfToken**: replaced by Filament's own `Filament\Http\Middleware\PreventRequestForgery` (auto-wired by `filament:install --panels`; don't reference Laravel's directly).
+- **NavigationGroup factory**: use `NavigationGroup::make('Catalog')->icon('heroicon-o-squares-2x2')` instead of `NavigationGroup::label(...)`.
+- **Resource generator flag**: `php artisan make:filament-resource User --generate --view --no-interaction` (add `--view` in v4).
+- **Action namespace split**: in v4, `RestoreAction` and `RestoreBulkAction` live at `Filament\Actions\{RestoreAction, RestoreBulkAction}`; `Tables\Actions\{ViewAction, EditAction, DeleteAction}` stay in `Tables\Actions`. Update imports.
+- **Dashboard base class**: `Filament\Pages\Dashboard` still exists; `$routePath` is now nullable, default `/` is implicit — drop the property override.
+- **StatsOverviewWidget + Stat**: still works; `Filament\Widgets\StatsOverviewWidget as BaseWidget` + `Filament\Widgets\StatsOverviewWidget\Stat` are unchanged in v4.
+- **ChartWidget**: unchanged signature (`getData()` returns `['labels' => [...], 'datasets' => [...]]`, `getType()` returns string).
+- **Removed APIs**: `\Filament\Forms\Forms::renderHeader()` does NOT exist in v4. `\Filament\Support\Facades\FilamentView::getRenderHooks('footer')` was renamed to `FilamentView::renderHook(...)` with different signature. Replace report-page filter form rendering with a livewire-bound form embedded directly in the Blade view (e.g. `<form wire:submit="export">` + Filament input components).
+- **`.fi-*` CSS class selectors**: v4 reorganized the DOM. Many v3 selectors will not match. Generate the theme via `make:filament-theme`, then re-inspect rendered DOM and remap selectors as needed.
+- **CSS variable naming**: `@theme` tokens in v4 still use `--color-primary-*` and `--color-gray-*`, but `make:filament-theme` generates the file — let it do so, then override Sand+Coral values inline.
+- **Theme registration (CORRECTION, 2026-08-24)**: `make:filament-theme` actually outputs `->viteTheme('resources/css/filament/admin/theme.css')` on the panel provider — it does NOT register a string identifier in `config/filament.php`. There is no `config/filament.php` published. Use `->viteTheme()` with the CSS path; the preamble's `->theme('sand-coral')` is wrong.
+- **User must implement `FilamentUser`**: v4's built-in `Authenticate` middleware 403s in non-local environments unless `App\Models\User` implements `FilamentUser` with `canAccessPanel(Panel $panel): bool`. The simplest implementation returns `true` and lets `EnsureAdmin` (added separately) do the role gating. Add `use Filament\User as FilamentUser;` + `implements FilamentUser` + the method.
+- **`EnsureAdmin` middleware already exists** in `app/Http/Middleware/EnsureAdmin.php` from earlier work — its shape is `redirect()->guest(route('login'))` for HTML-anonymous + `abort(403)` for HTML-non-admin + JSON 401/403 for API requests. Reuse it.
+- **Resource generator output structure**: `make:filament-resource` creates `app/Filament/Resources/<PluralName>/` with a sub-tree: `UserResource.php` + `Schemas/UserForm.php` + `Schemas/UserInfolist.php` + `Tables/<Plural>Table.php` + `Pages/{List,Create,Edit,View}<Name>.php`. NOT the v3 flat `app/Filament/Resources/UserResource.php` shape.
+- **`Section` component location**: `Filament\Schemas\Components\Section` (v4). NOT `Filament\Forms\Components\Section`. `Select`, `TextInput`, `FileUpload` etc. stay in `Filament\Forms\Components\`.
+- **Action namespace**: ALL actions in v4 live at `Filament\Actions\` (top-level): `Filament\Actions\{ViewAction, EditAction, DeleteAction, RestoreAction, RestoreBulkAction, BulkActionGroup}`. NOT `Filament\Tables\Actions\*`.
+- **Table methods**: `recordActions()` (per-row) and `toolbarActions()` (header/bulk) in v4. NOT `actions()` / `bulkActions()` from v3.
+- **`$navigationGroup` type**: must be `protected static string|UnitEnum|null $navigationGroup` — `?string` will fatal. Pint may strip `UnitEnum` import after the load; that's fine.
+- **Tests MUST use Livewire**: `Livewire::actingAs($admin)->test(ListUsers::class)->callTableAction('delete', $target->id)`. The HTTP `DELETE /admin/users/{id}` and `PATCH /admin/users/{id}/restore` URLs the plan writes do NOT exist in v4 — only 4 GET routes (`index`, `create`, `view`, `edit`) are mounted for each resource. Use Livewire for all create/edit/delete/restore assertions.
+- **Use Livewire for create/edit too**: `Livewire::actingAs($admin)->test(CreateUser::class)->fillForm([...])->call('create')->assertHasNoFormErrors()` and `->test(EditUser::class, ['record' => $id])->fillForm([...])->call('save')`.
+- **Plain CRUD assertions**: `assertDatabaseHas`, `assertSoftDeleted`, `assertNull($record->fresh()->deleted_at)` work as usual.
+
+**Goal:** Stand up the Filament v4 admin panel at `/admin`, themed to match the Sand + Coral brutalist design system. Build 13 Resources (full CRUD) + 15 custom Report Pages + a KPI dashboard, gated exclusively to `role='admin'`.
+
+**Architecture:** Filament v4 with a single panel (`AdminPanelProvider`). Resources and Pages query Eloquent directly through Filament's auto-generated table and form components. Reports are custom Filament Pages that instantiate a `Report` class from Phase 2 and render either a Table or a chart widget.
+
+**Tech Stack:** Filament v4, Filament Spatie Media Library plugin (NOT used — we use the custom `Media` model), Filament Shield (NOT used — `User::isAdmin()` only), Filament Charts via `flowframe/laravel-trend`, custom Tailwind 4 theme overrides.
 
 **Phase boundary:** This phase touches **no public Blade UI** (Phase 3) and **no API controllers** (Phase 2). It consumes both but modifies neither. The only overlap: `app/Providers/Filament/AdminPanelProvider.php` is a new file.
 
@@ -979,6 +1006,15 @@ php artisan test --compact tests/Feature/Filament/Reports/
 git add app/Filament/Pages/Reports resources/views/filament/pages/reports tests/Feature/Filament/Reports
 git commit -m "feat(admin): 15 report pages with CSV export + Sand+Coral table"
 ```
+
+### Outcome (commit 39a4394)
+
+- **8 admin-scope pages shipped**: `OverviewReport`, `RevenueByDayReport`, `RevenueByDesignerReport`, `RevenueByPrinterReport`, `TopDesignsReport`, `CustomerLtvReport`, `OrderStatusDistributionReport`, `RefundRateReport`.
+- **4 pages intentionally deferred to Phase 5** (designer/printer dashboards, not admin nav): `DesignerPayoutReport`, `PrinterPayoutReport`, `WorkQueueReport`. The designer- and printer-scoped Phase 2 reports (`App\Reports\Designer\*`, `App\Reports\Printer\*`) all `abort_if(! $user->isDesigner())` / `isPrinterProvider()` — they 403 from an admin context, so they belong on the designer/printer dashboards, not the Filament admin panel.
+- **3 Ops pages deferred to Phase 4.5 follow-up**: `CartAbandonmentReport`, `StuckPaymentsReport`, `StuckShipmentsReport` — waiting for the `App\Reports\Ops\` namespace to be built (the Phase 2 builder never created these classes).
+- **1 admin-scope page deferred**: `ConversionFunnelReport` — backing `App\Reports\Admin\ConversionFunnelReport` was never built in Phase 2.
+
+Total: 8 of 15 pages shipped (7 deferred as justified above).
 
 ---
 

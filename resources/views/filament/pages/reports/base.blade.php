@@ -40,9 +40,9 @@
 
         <div class="flex items-end">
             <x-filament::button
+                type="button"
                 color="gray"
-                tag="a"
-                :href="$csvUrl ?? '#'"
+                wire:click="exportCsv"
             >
                 Download CSV
             </x-filament::button>
