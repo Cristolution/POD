@@ -174,4 +174,94 @@
         background-color: var(--color-primary-500) !important;
         color: #ffffff !important;
     }
+
+    /* ==============================================================
+       Phase 5 contrast fix — ensure dark ink on all light surfaces
+       ============================================================== */
+
+    /* Placeholders: readable gray-600, not the default light gray */
+    .fi-input::placeholder,
+    .fi-select-input::placeholder,
+    .fi-textarea-input::placeholder {
+        color: var(--color-gray-600) !important;
+        opacity: 1 !important;
+    }
+
+    /* Form labels: dark ink, slightly bolder */
+    .fi-fo-field-wrp-label,
+    .fi-fo-label,
+    .fi-fo-field-wrp-label label,
+    label.fi-fo-field-wrp-label {
+        color: var(--color-gray-900) !important;
+        font-weight: 600 !important;
+    }
+
+    /* Form help text / descriptions: gray-700, not too light */
+    .fi-fo-field-wrp-hint,
+    .fi-fo-field-wrp-help,
+    .fi-fo-description,
+    .fi-fo-helper-text,
+    [data-helper-text],
+    .fi-fo-field-wrp-description {
+        color: var(--color-gray-700) !important;
+    }
+
+    /* Tables: explicit text colour on cells so dark mode / hover doesn't fade them */
+    .fi-ta-record,
+    .fi-ta-cell,
+    .fi-ta-text,
+    .fi-ta-text-item {
+        color: var(--color-gray-800) !important;
+    }
+
+    /* Stat widget labels + values: ensure readable on coral / gray cards */
+    .fi-wi-stats-overview-stat-label,
+    .fi-wi-stats-overview-stat-value,
+    .fi-wi-stats-overview-stat-description {
+        color: var(--color-gray-800) !important;
+    }
+    .fi-wi-stats-overview-stat-value {
+        color: var(--color-gray-900) !important;
+        font-weight: 700 !important;
+    }
+
+    /* Badges: ensure text is dark enough on light backgrounds */
+    .fi-badge.fi-color-gray {
+        background-color: var(--color-gray-200) !important;
+        color: var(--color-gray-900) !important;
+    }
+    .fi-badge.fi-color-primary {
+        background-color: var(--color-primary-500) !important;
+        color: #ffffff !important;
+    }
+
+    /* Empty state / no-results: dark ink */
+    .fi-ta-empty-state-heading,
+    .fi-ta-empty-state-description,
+    .fi-no-notification,
+    .fi-no-results-message {
+        color: var(--color-gray-800) !important;
+    }
+
+    /* Dashboard widget headings */
+    .fi-wi-widget-heading,
+    .fi-widget-header-heading {
+        color: var(--color-gray-900) !important;
+        font-family: 'Archivo Black', sans-serif !important;
+        text-transform: uppercase;
+    }
+
+    /* Sidebar group labels — reassert (already overridden above) */
+    .fi-sidebar-group-label {
+        color: var(--color-gray-800) !important;
+    }
+
+    /* Global catch-all: ensure default text in any unstyled .fi-* element is dark */
+    .fi-body,
+    .fi-layout,
+    .fi-section,
+    .fi-card,
+    .fi-wi-stats-overview-stat {
+        color: var(--color-gray-800);
+    }
 }

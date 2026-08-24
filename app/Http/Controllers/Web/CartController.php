@@ -50,7 +50,7 @@ class CartController extends Controller
             user: $request->user(),
             mappingId: $data['design_product_mapping_id'],
             variantId: $data['product_variant_id'] ?? null,
-            quantity: $data['quantity'],
+            quantity: (int) $data['quantity'],
         );
 
         return redirect()->route('cart.show')->with('status', 'Added to cart.');
@@ -64,7 +64,7 @@ class CartController extends Controller
             'quantity' => ['required', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $this->updateQty->execute($item, $data['quantity']);
+        $this->updateQty->execute($item, (int) $data['quantity']);
 
         return redirect()->route('cart.show');
     }
