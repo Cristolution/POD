@@ -15,7 +15,6 @@ use App\Http\Controllers\Web\OrderController;
 use App\Http\Controllers\Web\PasswordResetController;
 use App\Http\Controllers\Web\PrinterProviderController;
 use App\Http\Controllers\Web\RegisterController;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use L5Swagger\Http\Controllers\SwaggerController;
 use L5Swagger\Http\Middleware\Config;
@@ -23,19 +22,6 @@ use L5Swagger\L5SwaggerFacade;
 
 Route::middleware(['share.cart'])->group(function (): void {
     Route::get('/', HomeController::class)->name('home');
-
-    // -- Stub named routes (Task 2) ---------------------------------------
-    // Layout components (header/footer/home) reference these named routes
-    // before the corresponding feature tasks add their real handlers.
-    // Each stub returns 404 with a consistent page so the home view renders
-    // cleanly. They are owned by the following tasks and will be replaced:
-    //
-    //   legal.terms / legal.privacy                            -> Task 10
-    //
-    // Each stub uses the placeholder URL the real route will eventually own.
-    // The closure returns a plain 404 response without invoking a view so the
-    // Task 2 home view renders cleanly without any extra templates.
-    $placeholder = static fn (): Response => response('Placeholder — route implementation pending.', 404);
 
     // -- Task 3: browse pages -------------------------------------------
     Route::get('/browse/designs', [BrowseController::class, 'designs'])->name('browse.designs');
@@ -131,8 +117,12 @@ Route::middleware(['share.cart'])->group(function (): void {
         Route::patch('/', [PrinterProviderController::class, 'update'])->name('update');
     });
 
-    Route::get('/legal/terms', $placeholder)->name('legal.terms');
-    Route::get('/legal/privacy', $placeholder)->name('legal.privacy');
+    // -- Task 10: legal pages --------------------------------------------
+    // Render the static Blade templates directly. No controller is needed
+    // because these pages have no business logic — counsel replaces the
+    // text in resources/views/pages/legal/ before public launch.
+    Route::view('/legal/terms', 'pages.legal.terms')->name('legal.terms');
+    Route::view('/legal/privacy', 'pages.legal.privacy')->name('legal.privacy');
 });
 
 // L5-Swagger documentation routes. Mounted identically in all 3 environments so
