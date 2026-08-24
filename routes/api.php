@@ -11,12 +11,15 @@ use App\Http\Controllers\Api\DesignController;
 use App\Http\Controllers\Api\DesignerController;
 use App\Http\Controllers\Api\DesignProductMappingController;
 use App\Http\Controllers\Api\MeController;
+use App\Http\Controllers\Api\MediaController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderItemController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PrinterController;
 use App\Http\Controllers\Api\ProductTemplateController;
 use App\Http\Controllers\Api\ProductVariantController;
+use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\ShipmentController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\UserController;
@@ -186,4 +189,29 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
     Route::post('/admin/delivery-companies', [DeliveryCompanyController::class, 'store'])->name('admin.delivery-companies.store');
     Route::patch('/admin/delivery-companies/{company}', [DeliveryCompanyController::class, 'update'])->name('admin.delivery-companies.update');
     Route::delete('/admin/payments/{payment}', [PaymentController::class, 'destroy'])->name('admin.payments.destroy');
+});
+
+// Media — authenticated.
+Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/media/{media}', [MediaController::class, 'show'])->name('media.show');
+    Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+    Route::post('/media', [MediaController::class, 'store'])->name('media.store');
+
+    // Own notifications.
+    Route::get('/me/notifications', [NotificationController::class, 'index'])->name('me.notifications.index');
+    Route::get('/me/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('me.notifications.unread-count');
+    Route::patch('/me/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('me.notifications.read');
+    Route::post('/me/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('me.notifications.mark-all-read');
+    Route::delete('/me/notifications/{notification}', [NotificationController::class, 'destroy'])->name('me.notifications.destroy');
+});
+
+// Settings — public reads.
+Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+Route::get('/settings/{setting}', [SettingController::class, 'show'])->name('settings.show');
+
+// Admin-only writes.
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
+    Route::post('/admin/notifications', [NotificationController::class, 'store'])->name('admin.notifications.store');
+    Route::post('/admin/settings', [SettingController::class, 'store'])->name('admin.settings.store');
+    Route::patch('/admin/settings/{setting}', [SettingController::class, 'update'])->name('admin.settings.update');
 });

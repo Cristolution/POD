@@ -5,19 +5,25 @@ namespace App\Providers;
 use App\Models\Address;
 use App\Models\DeliveryCompany;
 use App\Models\DesignerProfile;
+use App\Models\Media;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\PrinterProviderProfile;
+use App\Models\Setting;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Policies\AddressPolicy;
 use App\Policies\DeliveryCompanyPolicy;
 use App\Policies\DesignerProfilePolicy;
+use App\Policies\MediaPolicy;
+use App\Policies\NotificationPolicy;
 use App\Policies\OrderItemPolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PrinterProfilePolicy;
+use App\Policies\SettingPolicy;
 use App\Policies\ShipmentPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -41,5 +47,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DeliveryCompany::class, DeliveryCompanyPolicy::class);
         Gate::policy(Shipment::class, ShipmentPolicy::class);
         Gate::policy(Payment::class, PaymentPolicy::class);
+        Gate::policy(Media::class, MediaPolicy::class);
+        Gate::policy(Notification::class, NotificationPolicy::class);
+        Gate::policy(Setting::class, SettingPolicy::class);
     }
 }

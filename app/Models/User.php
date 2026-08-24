@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
@@ -94,7 +95,7 @@ class User extends Authenticatable
     // Notifications
     // ------------------------------------------------------------------
 
-    public function notifications(): HasMany
+    public function notifications(): MorphMany
     {
         return $this->morphMany(DatabaseNotification::class, 'notifiable');
     }
