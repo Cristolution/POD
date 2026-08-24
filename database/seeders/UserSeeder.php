@@ -6,16 +6,31 @@ use App\Models\DesignerProfile;
 use App\Models\PrinterProviderProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // -- Admin --
+        // -- Admin (development) --
         User::factory()->admin()->create([
             'name' => 'Platform Admin',
             'email' => 'admin@podmarketplace.test',
         ]);
+
+        // -- Admin (production-style: ops@pod.local) --
+        // Kept alongside the dev admin so existing Phase 1-3 test logins
+        // remain valid. The prod-style admin's password is overridable
+        // via the SEED_ADMIN_PASSWORD env var in .env.
+        User::updateOrCreate(
+            ['email' => 'ops@pod.local'],
+            [
+                'name' => 'Ops Admin',
+                'role' => 'admin',
+                'password' => Hash::make(env('SEED_ADMIN_PASSWORD', 'ChangeMe!InProd2026')),
+                'email_verified_at' => now(),
+            ]
+        );
 
         // -- Designers (3) --
         $designerData = [
