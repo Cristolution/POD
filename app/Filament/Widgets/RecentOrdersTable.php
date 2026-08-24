@@ -18,7 +18,7 @@ class RecentOrdersTable extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
-            ->query(Order::query()->latest('created_at')->limit(10))
+            ->query(Order::query()->latest('created_at')->take(10))
             ->heading('Recent orders')
             ->columns([
                 Tables\Columns\TextColumn::make('id')

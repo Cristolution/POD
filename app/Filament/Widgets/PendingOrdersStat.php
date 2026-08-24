@@ -14,8 +14,10 @@ class PendingOrdersStat extends BaseWidget
 
     protected function getStats(): array
     {
+        // Anything pre-shipment: paid and processing are already on the books
+        // but have not yet been handed off to a printer.
         $pending = Order::query()
-            ->whereIn('status', ['pending', 'confirmed', 'paid'])
+            ->whereIn('status', ['pending', 'paid', 'processing'])
             ->count();
 
         return [

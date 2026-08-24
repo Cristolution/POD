@@ -27,7 +27,14 @@ class KpiDashboardTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($admin)->get('/admin')->assertOk();
+        $this->actingAs($admin)->get('/admin')->assertOk()->assertSee('POD Admin');
+    }
+
+    public function test_dashboard_is_forbidden_for_non_admin(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+
+        $this->actingAs($customer)->get('/admin')->assertForbidden();
     }
 
     public function test_dashboard_is_routable_as_livewire_component(): void
