@@ -35,7 +35,7 @@
             <div class="card">
                 <h2 class="heading-3 mb-3">Shipping address</h2>
                 <p class="font-mono text-sm">
-                    {{ $order->shipping_line1 }}@if ($order->shippingAddress?->line2), {{ $order->shippingAddress->line2 }}@endif<br>
+                    {{ $order->shipping_line1 }}<br>
                     {{ $order->shipping_city }}, {{ $order->shipping_country }}<br>
                     @if ($order->shipping_phone)
                         {{ $order->shipping_phone }}
