@@ -1,17 +1,17 @@
 <?php
 
 use App\Http\Controllers\Web\BrowseController;
+use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\DesignDetailController;
 use App\Http\Controllers\Web\HomeController;
 use App\Models\DesignerProfile;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use L5Swagger\Http\Controllers\SwaggerController;
 use L5Swagger\Http\Middleware\Config;
 use L5Swagger\L5SwaggerFacade;
 
-Route::middleware(['share.unread'])->group(function (): void {
+Route::middleware(['share.cart'])->group(function (): void {
     Route::get('/', HomeController::class)->name('home');
 
     // -- Stub named routes (Task 2) ---------------------------------------
@@ -20,7 +20,6 @@ Route::middleware(['share.unread'])->group(function (): void {
     // Each stub returns 404 with a consistent page so the home view renders
     // cleanly. They are owned by the following tasks and will be replaced:
     //
-    //   cart.show                                              -> Task 5
     //   login / register / web.logout                          -> Task 7
     //   account.dashboard / account.orders / account.notifications -> Task 8
     //   legal.terms / legal.privacy                            -> Task 10
@@ -38,15 +37,19 @@ Route::middleware(['share.unread'])->group(function (): void {
     // -- Task 4: real design detail page ---------------------------------
     Route::get('/designs/{design}', [DesignDetailController::class, 'show'])->name('design.show');
 
-    // -- Task 5 placeholder: replaced by Web\CartController@store --------
-    Route::post('/cart/items', static fn (Request $r) => response()->json(['message' => 'Add-to-cart placeholder — Task 5 will wire real handler.'], 501)
-    )->name('cart.items.store');
+    // -- Task 5: real cart routes ----------------------------------------
+    Route::middleware('auth')->group(function (): void {
+        Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
+        Route::post('/cart/items', [CartController::class, 'store'])->name('cart.items.store');
+        Route::patch('/cart/items/{item}', [CartController::class, 'update'])->name('cart.items.update');
+        Route::delete('/cart/items/{item}', [CartController::class, 'destroy'])->name('cart.items.destroy');
+        Route::delete('/cart', [CartController::class, 'clearAll'])->name('cart.clear');
+    });
 
     // -- Future task stub: replaced by DesignerProfileController --------
     Route::get('/designers/{designer}', static fn (DesignerProfile $designer): Response => response("Designer profile placeholder for #{$designer->id}", 404))
         ->name('designer.show');
 
-    Route::get('/cart', $placeholder)->name('cart.show');
     Route::get('/login', $placeholder)->name('login');
     Route::get('/register', $placeholder)->name('register');
     Route::post('/logout', $placeholder)->name('web.logout');

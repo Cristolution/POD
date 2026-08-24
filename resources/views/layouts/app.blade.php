@@ -23,6 +23,8 @@
 
     <x-layout.footer />
 
+    <x-ui.cart-drawer />
+
     @stack('scripts')
 </body>
 </html>

@@ -1,0 +1,89 @@
+@extends('layouts.app', ['title' => 'Your cart'])
+
+@section('content')
+    @php
+        use Illuminate\Support\Facades\Storage;
+    @endphp
+
+    <section class="max-w-5xl mx-auto px-6 py-12">
+        <x-layout.breadcrumbs :items="[
+            'Home' => route('home'),
+            'Cart' => route('cart.show'),
+        ]" />
+
+        <h1 class="heading-1 mb-8">Your cart<span class="text-coral-500">.</span></h1>
+
+        @if ($items->isEmpty())
+            <div class="card-featured text-center">
+                <p class="font-mono mb-6">Your cart is empty.</p>
+                <a href="{{ route('browse.designs') }}" class="btn">Browse designs</a>
+            </div>
+        @else
+            <div class="space-y-4">
+                @foreach ($items as $item)
+                    @php
+                        $mapping = $item->designProductMapping;
+                        $design = $mapping?->design;
+                        $media = $design?->media->first();
+                        $imageUrl = $media ? Storage::disk('public')->url($media->file_path) : null;
+                        $variantLabel = $item->productVariant?->label();
+                    @endphp
+                    <div class="card flex items-center gap-6">
+                        <div class="w-24 h-24 bg-sand-200 border-3 border-ink-800 overflow-hidden flex-shrink-0">
+                            @if ($imageUrl)
+                                <img src="{{ $imageUrl }}" alt="" class="w-full h-full object-cover">
+                            @endif
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            @if ($design)
+                                <a href="{{ route('design.show', $design) }}" class="heading-3 hover:text-coral-500 block truncate">
+                                    {{ $design->title }}
+                                </a>
+                            @endif
+                            <div class="font-mono text-sm text-ink-700 mt-1">
+                                {{ $mapping?->productTemplate?->name ?? 'Product' }}
+                                @if ($variantLabel)
+                                    — {{ $variantLabel }}
+                                @endif
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ route('cart.items.update', $item) }}"
+                              class="flex items-center gap-2">
+                            @csrf
+                            @method('PATCH')
+                            <input type="number" name="quantity" value="{{ $item->quantity }}"
+                                   min="1" max="100" class="input w-20 text-center">
+                            <button class="btn btn-secondary text-xs">Update</button>
+                        </form>
+                        <div class="font-display text-lg w-24 text-right">
+                            ${{ number_format((float) $item->lineTotal(), 2) }}
+                        </div>
+                        <form method="POST" action="{{ route('cart.items.destroy', $item) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-secondary text-xs">Remove</button>
+                        </form>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="mt-8 border-t-5 border-ink-800 pt-6 flex items-center justify-between">
+                <form method="POST" action="{{ route('cart.clear') }}">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-secondary">Clear cart</button>
+                </form>
+                <div class="text-right">
+                    <div class="font-mono text-xs uppercase tracking-wider">Total</div>
+                    <div class="font-display text-4xl">${{ number_format((float) $grandTotal, 2) }}</div>
+                </div>
+            </div>
+
+            @if (\Illuminate\Support\Facades\Route::has('checkout.show'))
+                <div class="mt-8 text-right">
+                    <a href="{{ route('checkout.show') }}" class="btn-coral text-lg">Proceed to checkout →</a>
+                </div>
+            @endif
+        @endif
+    </section>
+@endsection
