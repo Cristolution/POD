@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Web\BrowseController;
 use App\Http\Controllers\Web\HomeController;
+use App\Models\Design;
+use App\Models\DesignerProfile;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use L5Swagger\Http\Controllers\SwaggerController;
@@ -16,7 +19,6 @@ Route::middleware(['share.unread'])->group(function (): void {
     // Each stub returns 404 with a consistent page so the home view renders
     // cleanly. They are owned by the following tasks and will be replaced:
     //
-    //   browse.designs / browse.categories / browse.designers -> Task 3
     //   cart.show                                              -> Task 5
     //   login / register / web.logout                          -> Task 7
     //   account.dashboard / account.orders / account.notifications -> Task 8
@@ -27,9 +29,19 @@ Route::middleware(['share.unread'])->group(function (): void {
     // Task 2 home view renders cleanly without any extra templates.
     $placeholder = static fn (): Response => response('Placeholder — route implementation pending.', 404);
 
-    Route::get('/browse/designs', $placeholder)->name('browse.designs');
-    Route::get('/browse/categories', $placeholder)->name('browse.categories');
-    Route::get('/browse/designers', $placeholder)->name('browse.designers');
+    // -- Task 3: browse pages -------------------------------------------
+    Route::get('/browse/designs', [BrowseController::class, 'designs'])->name('browse.designs');
+    Route::get('/browse/categories', [BrowseController::class, 'categories'])->name('browse.categories');
+    Route::get('/browse/designers', [BrowseController::class, 'designers'])->name('browse.designers');
+
+    // -- Task 4 stub: replaced by DesignDetailController ----------------
+    Route::get('/designs/{design}', static fn (Design $design): Response => response("Design detail placeholder for #{$design->id}", 404))
+        ->name('design.show');
+
+    // -- Future task stub: replaced by DesignerProfileController --------
+    Route::get('/designers/{designer}', static fn (DesignerProfile $designer): Response => response("Designer profile placeholder for #{$designer->id}", 404))
+        ->name('designer.show');
+
     Route::get('/cart', $placeholder)->name('cart.show');
     Route::get('/login', $placeholder)->name('login');
     Route::get('/register', $placeholder)->name('register');
