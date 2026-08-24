@@ -7,13 +7,14 @@ use App\Http\Controllers\Web\BrowseController;
 use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\DesignDetailController;
+use App\Http\Controllers\Web\DesignerProfileController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LoginController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\OrderController;
 use App\Http\Controllers\Web\PasswordResetController;
+use App\Http\Controllers\Web\PrinterProviderController;
 use App\Http\Controllers\Web\RegisterController;
-use App\Models\DesignerProfile;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use L5Swagger\Http\Controllers\SwaggerController;
@@ -107,9 +108,28 @@ Route::middleware(['share.cart'])->group(function (): void {
         Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     });
 
-    // -- Future task stub: replaced by DesignerProfileController --------
-    Route::get('/designers/{designer}', static fn (DesignerProfile $designer): Response => response("Designer profile placeholder for #{$designer->id}", 404))
-        ->name('designer.show');
+    // -- Task 9: public designer / printer profiles ---------------------
+    // Anonymous, route-model-bound. Sidebar / edit pages for designers
+    // and printers live behind auth + role middleware (see below).
+    Route::get('/designers/{designer}', [DesignerProfileController::class, 'show'])->name('designer.show');
+    Route::get('/printers/{printer}', [PrinterProviderController::class, 'show'])->name('printer.show');
+
+    // -- Task 9: designer self-service ---------------------------------
+    // Session-authenticated designers only. Profile-edit form posts to
+    // designer.update (PATCH) so the form is CSRF-protected by the
+    // default VerifyCsrfToken middleware.
+    Route::middleware(['auth', 'role:designer'])->prefix('designer')->name('designer.')->group(function (): void {
+        Route::get('/', [DesignerProfileController::class, 'dashboard'])->name('dashboard');
+        Route::get('/edit', [DesignerProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [DesignerProfileController::class, 'update'])->name('update');
+    });
+
+    // -- Task 9: printer self-service -----------------------------------
+    Route::middleware(['auth', 'role:printer_provider'])->prefix('printer')->name('printer.')->group(function (): void {
+        Route::get('/', [PrinterProviderController::class, 'dashboard'])->name('dashboard');
+        Route::get('/edit', [PrinterProviderController::class, 'edit'])->name('edit');
+        Route::patch('/', [PrinterProviderController::class, 'update'])->name('update');
+    });
 
     Route::get('/legal/terms', $placeholder)->name('legal.terms');
     Route::get('/legal/privacy', $placeholder)->name('legal.privacy');
