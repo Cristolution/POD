@@ -5,7 +5,10 @@ use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\DesignDetailController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\LoginController;
 use App\Http\Controllers\Web\OrderController;
+use App\Http\Controllers\Web\PasswordResetController;
+use App\Http\Controllers\Web\RegisterController;
 use App\Models\DesignerProfile;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
@@ -22,7 +25,6 @@ Route::middleware(['share.cart'])->group(function (): void {
     // Each stub returns 404 with a consistent page so the home view renders
     // cleanly. They are owned by the following tasks and will be replaced:
     //
-    //   login / register / web.logout                          -> Task 7
     //   account.dashboard / account.orders / account.notifications -> Task 8
     //   legal.terms / legal.privacy                            -> Task 10
     //
@@ -38,6 +40,25 @@ Route::middleware(['share.cart'])->group(function (): void {
 
     // -- Task 4: real design detail page ---------------------------------
     Route::get('/designs/{design}', [DesignDetailController::class, 'show'])->name('design.show');
+
+    // -- Task 7: web auth (login / register / password reset) ------------
+    // Uses Laravel's session guard ('web'), not Sanctum. The 'guest'
+    // middleware bounces already-authenticated visitors back home so they
+    // don't see the login form. The 'auth' middleware on /logout ensures
+    // anonymous POSTs redirect to login (handled by the
+    // Illuminate\Auth\Middleware\Authenticate middleware default).
+    Route::middleware('guest')->group(function (): void {
+        Route::get('/login', [LoginController::class, 'create'])->name('login');
+        Route::post('/login', [LoginController::class, 'store']);
+
+        Route::get('/register', [RegisterController::class, 'create'])->name('register');
+        Route::post('/register', [RegisterController::class, 'store']);
+
+        Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+        Route::post('/forgot-password', [PasswordResetController::class, 'email'])->name('password.email');
+        Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+        Route::post('/reset-password', [PasswordResetController::class, 'update'])->name('password.store');
+    });
 
     // -- Task 5: real cart routes ----------------------------------------
     Route::middleware('auth')->group(function (): void {
@@ -55,15 +76,15 @@ Route::middleware(['share.cart'])->group(function (): void {
         // but uses `orders.confirmation` so the named route resolves to the
         // session-auth web handler, not the API resource.
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.confirmation');
+
+        // -- Task 7: web logout (auth only) ------------------------------
+        Route::post('/logout', [LoginController::class, 'destroy'])->name('web.logout');
     });
 
     // -- Future task stub: replaced by DesignerProfileController --------
     Route::get('/designers/{designer}', static fn (DesignerProfile $designer): Response => response("Designer profile placeholder for #{$designer->id}", 404))
         ->name('designer.show');
 
-    Route::get('/login', $placeholder)->name('login');
-    Route::get('/register', $placeholder)->name('register');
-    Route::post('/logout', $placeholder)->name('web.logout');
     Route::get('/account', $placeholder)->name('account.dashboard');
     Route::get('/account/orders', $placeholder)->name('account.orders');
     Route::get('/account/notifications', $placeholder)->name('account.notifications');
