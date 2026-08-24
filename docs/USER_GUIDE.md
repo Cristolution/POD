@@ -20,6 +20,39 @@ Roles are **not exclusive**: a designer can still browse, buy, and view their ac
 
 ---
 
+## 🔑 Seeded test accounts
+
+After `php artisan migrate:fresh --seed`, the following accounts are created. **All accounts use the password `password`** unless noted — change them before any non-local deployment.
+
+### Admin accounts (login at `/admin/login`)
+
+| Email | Password | Notes |
+|-------|----------|-------|
+| `ops@pod.local` | value of `SEED_ADMIN_PASSWORD` env var (default `ChangeMe!InProd2026`) | Production-style admin. **Rotate on first deploy** — see `deploy/PRODUCTION.md`. |
+| `admin@podmarketplace.test` | `password` | Dev-only admin from Phase 1-3 seeders. Kept alongside `ops@pod.local` so existing test logins remain valid. |
+
+### Designer accounts (login at `/login` → role lands on `/designer`)
+
+| Email | Name | Public profile |
+|-------|------|----------------|
+| `lana@designstudio.test` | Lana Rivera | `/designers/{id}` |
+| `kenji@inkcraft.test` | Kenji Tanaka | `/designers/{id}` |
+| `maya@artisan.test` | Maya Hassan | `/designers/{id}` |
+
+### Printer accounts (login at `/login` → role lands on `/printer`)
+
+| Email | Company | Public profile |
+|-------|---------|----------------|
+| `owner@printhub.test` | PrintHub Co. | `/printers/{id}` |
+| `press@artisanpress.test` | Artisan Press Ltd. | `/printers/{id}` |
+| `workshop@pixel.test` | Pixel Workshop Inc. | `/printers/{id}` |
+
+### Customer accounts (login at `/login` → role lands on `/account`)
+
+`alice@example.test`, `bob@example.test`, `carla@example.test`, `diego@example.test`, `emma@example.test`, `felix@example.test`, `grace@example.test`, `hiro@example.test`, `ines@example.test`, `jonas@example.test` — all with password `password`.
+
+---
+
 ## 🟡 Anonymous (no login)
 
 | URL | Page | Purpose |
@@ -111,7 +144,7 @@ All customer pages, **plus**:
 
 The Filament v4 admin panel mounts at `/admin` and is themed with the same Sand + Coral brutalist palette as the rest of the app. Login at `/admin/login`. Anonymous users hitting any `/admin/*` route are redirected to `/admin/login`; non-admin roles get HTTP 403.
 
-**Seeded admin credentials:** `ops@pod.local` / password from `SEED_ADMIN_PASSWORD` env (default `ChangeMe!InProd2026`). Rotate immediately after the first deploy — see the production runbook for the rotation policy.
+**Seeded admin credentials:** see the 🔑 Seeded test accounts section above for full table — short version: `ops@pod.local` (password from `SEED_ADMIN_PASSWORD` env, default `ChangeMe!InProd2026`) or `admin@podmarketplace.test` (`password`). Rotate `ops@pod.local` immediately after the first deploy — see the production runbook for the rotation policy.
 
 ### Dashboard
 | URL | Purpose |
