@@ -63,14 +63,18 @@ class CartTest extends TestCase
             ->assertSessionHas('status', 'Cart cleared.');
     }
 
-    public function test_header_shows_user_name_when_authenticated(): void
+    public function test_header_renders_for_authenticated_user_with_cart_items(): void
     {
         $user = User::factory()->create(['name' => 'Cart Tester']);
         CartItem::factory()->create(['user_id' => $user->id]);
 
-        $this->actingAs($user)
+        $response = $this->actingAs($user)
             ->get('/')
-            ->assertOk()
-            ->assertSeeInOrder(['Cart Tester', 'Cart']);
+            ->assertOk();
+
+        $response->assertSeeInOrder(['Cart Tester', 'Cart']);
+        // View::share() of cartCount is interpolated server-side into the
+        // Alpine x-data attribute on the header cart badge.
+        $response->assertSee('count: 1', escape: false);
     }
 }
