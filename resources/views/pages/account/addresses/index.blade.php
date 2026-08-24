@@ -16,24 +16,24 @@
             <x-layout.account-sidebar />
 
             <div>
+                @if (session('status'))
+                    <div class="card mb-6 border-coral-500">
+                        <p class="font-display uppercase text-coral-500">{{ session('status') }}</p>
+                    </div>
+                @endif
+
+                @if ($errors->has('address'))
+                    <div class="card mb-6 border-coral-500">
+                        <p class="font-mono text-sm text-coral-500">{{ $errors->first('address') }}</p>
+                    </div>
+                @endif
+
                 @if ($addresses->isEmpty())
                     <div class="card-featured text-center">
                         <p class="font-mono mb-6">You have no saved addresses yet.</p>
                         <a href="{{ route('account.addresses.create') }}" class="btn">Add your first address</a>
                     </div>
                 @else
-                    @if (session('status'))
-                        <div class="card mb-6 border-coral-500">
-                            <p class="font-display uppercase text-coral-500">{{ session('status') }}</p>
-                        </div>
-                    @endif
-
-                    @if ($errors->has('address'))
-                        <div class="card mb-6 border-coral-500">
-                            <p class="font-mono text-sm text-coral-500">{{ $errors->first('address') }}</p>
-                        </div>
-                    @endif
-
                     <table class="table-pod">
                         <thead>
                             <tr>

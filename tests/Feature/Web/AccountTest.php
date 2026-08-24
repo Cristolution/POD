@@ -263,6 +263,25 @@ class AccountTest extends TestCase
         $this->assertDatabaseMissing('addresses', ['id' => $address->id]);
     }
 
+    public function test_delete_last_address_still_shows_flash_on_empty_index(): void
+    {
+        // Regression: the status flash was previously nested inside the
+        // @else (non-empty) branch, so deleting the final address rendered
+        // an empty page without the success message.
+        $user = User::factory()->create();
+        $address = Address::factory()->for($user)->create();
+
+        $this->actingAs($user)
+            ->delete(route('account.addresses.destroy', $address))
+            ->assertRedirect(route('account.addresses.index'))
+            ->assertSessionHas('status', 'Address removed.');
+
+        $this->actingAs($user)
+            ->get(route('account.addresses.index'))
+            ->assertOk()
+            ->assertSee('Address removed.', escape: false);
+    }
+
     public function test_delete_address_refused_if_used_by_order(): void
     {
         $user = User::factory()->create();
