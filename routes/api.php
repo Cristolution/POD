@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\AddressController;
+use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CategoryController;
@@ -214,4 +215,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function (): void {
     Route::post('/admin/notifications', [NotificationController::class, 'store'])->name('admin.notifications.store');
     Route::post('/admin/settings', [SettingController::class, 'store'])->name('admin.settings.store');
     Route::patch('/admin/settings/{setting}', [SettingController::class, 'update'])->name('admin.settings.update');
+});
+
+// Admin dashboard + integrity audit endpoints.
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function (): void {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/audit/deleted', [AdminController::class, 'auditDeleted'])->name('admin.audit.deleted');
+    Route::get('/integrity/profile-mismatches', [AdminController::class, 'profileMismatches'])->name('admin.integrity.profile-mismatches');
+    Route::get('/integrity/orphaned-media', [AdminController::class, 'orphanedMedia'])->name('admin.integrity.orphaned-media');
+    Route::get('/integrity/items-without-shipment', [AdminController::class, 'itemsWithoutShipment'])->name('admin.integrity.items-without-shipment');
+    Route::get('/integrity/stuck-cart-items', [AdminController::class, 'stuckCartItems'])->name('admin.integrity.stuck-cart-items');
 });
