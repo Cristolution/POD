@@ -68,8 +68,12 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute(10)->by($request->ip())->response(function () {
-                return response()->json(['message' => 'Too many auth attempts.'], 429);
+            return Limit::perMinute(10)->by($request->ip())->response(function (Request $request) {
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Too many auth attempts.'], 429);
+                }
+
+                return back()->withErrors(['email' => 'Too many attempts. Please try again in a minute.']);
             });
         });
 

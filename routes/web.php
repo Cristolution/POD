@@ -49,15 +49,15 @@ Route::middleware(['share.cart'])->group(function (): void {
     // Illuminate\Auth\Middleware\Authenticate middleware default).
     Route::middleware('guest')->group(function (): void {
         Route::get('/login', [LoginController::class, 'create'])->name('login');
-        Route::post('/login', [LoginController::class, 'store']);
+        Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:auth');
 
         Route::get('/register', [RegisterController::class, 'create'])->name('register');
-        Route::post('/register', [RegisterController::class, 'store']);
+        Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:auth');
 
         Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
-        Route::post('/forgot-password', [PasswordResetController::class, 'email'])->name('password.email');
+        Route::post('/forgot-password', [PasswordResetController::class, 'email'])->name('password.email')->middleware('throttle:auth');
         Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
-        Route::post('/reset-password', [PasswordResetController::class, 'update'])->name('password.store');
+        Route::post('/reset-password', [PasswordResetController::class, 'update'])->name('password.store')->middleware('throttle:auth');
     });
 
     // -- Task 5: real cart routes ----------------------------------------
