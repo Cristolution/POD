@@ -1,12 +1,44 @@
 <?php
 
+use App\Http\Controllers\Web\HomeController;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use L5Swagger\Http\Controllers\SwaggerController;
 use L5Swagger\Http\Middleware\Config;
 use L5Swagger\L5SwaggerFacade;
 
-Route::get('/', function () {
-    return response()->json(['app' => config('app.name'), 'env' => config('app.env')]);
+Route::middleware(['share.unread'])->group(function (): void {
+    Route::get('/', HomeController::class)->name('home');
+
+    // -- Stub named routes (Task 2) ---------------------------------------
+    // Layout components (header/footer/home) reference these named routes
+    // before the corresponding feature tasks add their real handlers.
+    // Each stub returns 404 with a consistent page so the home view renders
+    // cleanly. They are owned by the following tasks and will be replaced:
+    //
+    //   browse.designs / browse.categories / browse.designers -> Task 3
+    //   cart.show                                              -> Task 5
+    //   login / register / web.logout                          -> Task 7
+    //   account.dashboard / account.orders / account.notifications -> Task 8
+    //   legal.terms / legal.privacy                            -> Task 10
+    //
+    // Each stub uses the placeholder URL the real route will eventually own.
+    // The closure returns a plain 404 response without invoking a view so the
+    // Task 2 home view renders cleanly without any extra templates.
+    $placeholder = static fn (): Response => response('Placeholder — route implementation pending.', 404);
+
+    Route::get('/browse/designs', $placeholder)->name('browse.designs');
+    Route::get('/browse/categories', $placeholder)->name('browse.categories');
+    Route::get('/browse/designers', $placeholder)->name('browse.designers');
+    Route::get('/cart', $placeholder)->name('cart.show');
+    Route::get('/login', $placeholder)->name('login');
+    Route::get('/register', $placeholder)->name('register');
+    Route::post('/logout', $placeholder)->name('web.logout');
+    Route::get('/account', $placeholder)->name('account.dashboard');
+    Route::get('/account/orders', $placeholder)->name('account.orders');
+    Route::get('/account/notifications', $placeholder)->name('account.notifications');
+    Route::get('/legal/terms', $placeholder)->name('legal.terms');
+    Route::get('/legal/privacy', $placeholder)->name('legal.privacy');
 });
 
 // L5-Swagger documentation routes. Mounted identically in all 3 environments so

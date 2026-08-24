@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureOwnership;
 use App\Http\Middleware\EnsureUserRole;
+use App\Http\Middleware\ShareUnreadCount;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureAdmin::class,
             'role' => EnsureUserRole::class,
             'owner' => EnsureOwnership::class,
+            'share.unread' => ShareUnreadCount::class,
         ]);
 
         $middleware->statefulApi();
