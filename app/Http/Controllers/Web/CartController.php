@@ -41,8 +41,8 @@ class CartController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'design_product_mapping_id' => ['required', 'string', 'exists:design_product_mappings,id'],
-            'product_variant_id' => ['nullable', 'string', 'exists:product_variants,id'],
+            'design_product_mapping_id' => ['required', 'uuid', 'exists:design_product_mappings,id'],
+            'product_variant_id' => ['nullable', 'uuid', 'exists:product_variants,id'],
             'quantity' => ['required', 'integer', 'min:1', 'max:100'],
         ]);
 

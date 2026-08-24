@@ -79,10 +79,11 @@ class CartItem extends Model
 
     /**
      * Application-layer upsert: merge quantities on the existing line
-     * rather than failing on the unique constraint.
+     * rather than failing on the unique constraint. Caps the result at
+     * 100 so repeated add-to-cart clicks can't overflow the per-line limit.
      */
     public function mergeQuantity(int $additional): void
     {
-        $this->increment('quantity', $additional);
+        $this->update(['quantity' => min($this->quantity + $additional, 100)]);
     }
 }

@@ -77,4 +77,37 @@ class CartTest extends TestCase
         // Alpine x-data attribute on the header cart badge.
         $response->assertSee('count: 1', escape: false);
     }
+
+    public function test_adding_quantity_over_existing_line_caps_at_100(): void
+    {
+        $user = User::factory()->create();
+        $existing = CartItem::factory()->create([
+            'user_id' => $user->id,
+            'quantity' => 95,
+        ]);
+        $mappingId = $existing->design_product_mapping_id;
+        $variantId = $existing->product_variant_id;
+
+        $this->actingAs($user)->post(route('cart.items.store'), [
+            'design_product_mapping_id' => $mappingId,
+            'product_variant_id' => $variantId,
+            'quantity' => 10,
+        ])->assertRedirect(route('cart.show'));
+
+        $this->assertDatabaseHas('cart_items', [
+            'id' => $existing->id,
+            'quantity' => 100,
+        ]);
+    }
+
+    public function test_store_rejects_non_uuid_mapping_id(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('cart.items.store'), [
+            'design_product_mapping_id' => 'not-a-uuid',
+            'product_variant_id' => null,
+            'quantity' => 1,
+        ])->assertSessionHasErrors('design_product_mapping_id');
+    }
 }
