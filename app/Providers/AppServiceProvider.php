@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Address;
 use App\Models\DeliveryCompany;
+use App\Models\Design;
 use App\Models\DesignerProfile;
 use App\Models\Media;
 use App\Models\Notification;
@@ -14,6 +15,7 @@ use App\Models\PrinterProviderProfile;
 use App\Models\Setting;
 use App\Models\Shipment;
 use App\Models\User;
+use App\Observers\AuditAdminActions;
 use App\Policies\AddressPolicy;
 use App\Policies\DeliveryCompanyPolicy;
 use App\Policies\DesignerProfilePolicy;
@@ -53,6 +55,21 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Media::class, MediaPolicy::class);
         Gate::policy(Notification::class, NotificationPolicy::class);
         Gate::policy(Setting::class, SettingPolicy::class);
+
+        // Audit admin actions on these models to a dedicated log channel.
+        $auditableModels = [
+            User::class,
+            Design::class,
+            Order::class,
+            OrderItem::class,
+            Payment::class,
+            Shipment::class,
+            Setting::class,
+        ];
+
+        foreach ($auditableModels as $class) {
+            $class::observe(AuditAdminActions::class);
+        }
 
         $this->registerRateLimiters();
     }
