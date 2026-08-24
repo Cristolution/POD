@@ -13,10 +13,12 @@
         variantId: @js($firstVariant?->id),
         quantity: 1,
         unitPrice: @js($defaultPrice),
+        basePrice: @js((float) $mapping->final_price),
         onVariantChange(event) {
             const opt = event.target.selectedOptions[0];
+            this.variantId = opt.value || null;
             const delta = parseFloat(opt.dataset.delta || 0);
-            this.unitPrice = @js((float) $mapping->final_price) + delta;
+            this.unitPrice = this.basePrice + delta;
         }
     }"
     class="card-featured"
@@ -30,10 +32,9 @@
     @if ($variants->count() > 0)
         <label class="label">Variant</label>
         <select name="variant_choice" @change="onVariantChange($event)" class="input mb-4">
-            <option value="">No variant</option>
             @foreach ($variants as $variant)
                 <option value="{{ $variant->id }}"
-                        data-delta="{{ (float) $variant->price_delta }}">
+                        data-delta="{{ number_format((float) $variant->price_delta, 2, '.', '') }}">
                     {{ $variant->label() }}
                     @if ((float) $variant->price_delta != 0)
                         ({{ $variant->price_delta > 0 ? '+' : '' }}${{ number_format((float) $variant->price_delta, 2) }})
