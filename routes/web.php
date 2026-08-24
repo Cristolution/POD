@@ -1,11 +1,15 @@
 <?php
 
+use App\Http\Controllers\Web\AccountController;
+use App\Http\Controllers\Web\AccountOrderController;
+use App\Http\Controllers\Web\AddressController;
 use App\Http\Controllers\Web\BrowseController;
 use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\DesignDetailController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LoginController;
+use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\OrderController;
 use App\Http\Controllers\Web\PasswordResetController;
 use App\Http\Controllers\Web\RegisterController;
@@ -25,7 +29,6 @@ Route::middleware(['share.cart'])->group(function (): void {
     // Each stub returns 404 with a consistent page so the home view renders
     // cleanly. They are owned by the following tasks and will be replaced:
     //
-    //   account.dashboard / account.orders / account.notifications -> Task 8
     //   legal.terms / legal.privacy                            -> Task 10
     //
     // Each stub uses the placeholder URL the real route will eventually own.
@@ -81,13 +84,33 @@ Route::middleware(['share.cart'])->group(function (): void {
         Route::post('/logout', [LoginController::class, 'destroy'])->name('web.logout');
     });
 
+    // -- Task 8: account dashboard + addresses + orders + notifications --
+    // Session-authenticated. Sidebar component renders links to all four
+    // account pages. Form handlers live on PATCH/POST/DELETE so they
+    // remain CSRF-protected by the default VerifyCsrfToken middleware.
+    Route::middleware('auth')->prefix('account')->name('account.')->group(function (): void {
+        Route::get('/', [AccountController::class, 'dashboard'])->name('dashboard');
+        Route::patch('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+        Route::patch('/password', [AccountController::class, 'updatePassword'])->name('password.update');
+
+        Route::get('/addresses', [AddressController::class, 'index'])->name('addresses.index');
+        Route::get('/addresses/new', [AddressController::class, 'create'])->name('addresses.create');
+        Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+        Route::get('/addresses/{address}/edit', [AddressController::class, 'edit'])->name('addresses.edit');
+        Route::patch('/addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
+        Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+
+        Route::get('/orders', [AccountOrderController::class, 'index'])->name('orders');
+
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+        Route::patch('/notifications/{notification}', [NotificationController::class, 'markRead'])->name('notifications.read');
+        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    });
+
     // -- Future task stub: replaced by DesignerProfileController --------
     Route::get('/designers/{designer}', static fn (DesignerProfile $designer): Response => response("Designer profile placeholder for #{$designer->id}", 404))
         ->name('designer.show');
 
-    Route::get('/account', $placeholder)->name('account.dashboard');
-    Route::get('/account/orders', $placeholder)->name('account.orders');
-    Route::get('/account/notifications', $placeholder)->name('account.notifications');
     Route::get('/legal/terms', $placeholder)->name('legal.terms');
     Route::get('/legal/privacy', $placeholder)->name('legal.privacy');
 });
