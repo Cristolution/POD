@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
-use App\Filament\Widgets\AbandonedCartStat;
-use App\Filament\Widgets\PendingOrdersStat;
+use App\Filament\Widgets\ActionQueueStat;
 use App\Filament\Widgets\RecentOrdersTable;
 use App\Filament\Widgets\RevenueChart;
-use App\Filament\Widgets\RevenueTodayStat;
+use App\Filament\Widgets\SalesTodayStat;
 use App\Filament\Widgets\TotalCustomersStat;
 use Filament\Pages\Dashboard;
 
@@ -16,8 +15,13 @@ use Filament\Pages\Dashboard;
  * KPI dashboard — replaces the default `Filament\Pages\Dashboard` at `/admin`.
  *
  * Layout (v4 `Filament\Pages\Dashboard`):
- *   header widgets → 4 stat widgets (customers, revenue today, pending orders, abandoned cart)
+ *   header widgets → 3 multi-stat widgets (users, sales today, action queue)
  *   footer widgets → revenue chart + recent orders table
+ *
+ * Each header widget tells a distinct story:
+ *   - TotalCustomersStat: WHO uses the platform
+ *   - SalesTodayStat:     HOW MUCH money today (with deltas, AOV, refund rate)
+ *   - ActionQueueStat:    WHAT needs admin attention (with revenue impact)
  */
 class KpiDashboard extends Dashboard
 {
@@ -27,9 +31,8 @@ class KpiDashboard extends Dashboard
     {
         return [
             TotalCustomersStat::class,
-            RevenueTodayStat::class,
-            PendingOrdersStat::class,
-            AbandonedCartStat::class,
+            SalesTodayStat::class,
+            ActionQueueStat::class,
         ];
     }
 

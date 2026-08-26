@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace Tests\Feature\Filament;
 
 use App\Filament\Pages\KpiDashboard;
-use App\Filament\Widgets\AbandonedCartStat;
-use App\Filament\Widgets\PendingOrdersStat;
+use App\Filament\Widgets\ActionQueueStat;
 use App\Filament\Widgets\RecentOrdersTable;
 use App\Filament\Widgets\RevenueChart;
-use App\Filament\Widgets\RevenueTodayStat;
+use App\Filament\Widgets\SalesTodayStat;
 use App\Filament\Widgets\TotalCustomersStat;
 use App\Models\CartItem;
+use App\Models\Design;
+use App\Models\DesignerProfile;
+use App\Models\DesignProductMapping;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -46,7 +50,7 @@ class KpiDashboardTest extends TestCase
             ->assertSuccessful();
     }
 
-    public function test_dashboard_lists_all_six_widgets_in_header_and_footer(): void
+    public function test_dashboard_lists_five_widgets_across_header_and_footer(): void
     {
         $page = new KpiDashboard;
         $reflection = new \ReflectionMethod($page, 'getHeaderWidgets');
@@ -55,9 +59,8 @@ class KpiDashboardTest extends TestCase
         $this->assertSame(
             [
                 TotalCustomersStat::class,
-                RevenueTodayStat::class,
-                PendingOrdersStat::class,
-                AbandonedCartStat::class,
+                SalesTodayStat::class,
+                ActionQueueStat::class,
             ],
             $reflection->invoke($page),
         );
@@ -86,19 +89,7 @@ class KpiDashboardTest extends TestCase
             ->assertSee('4');  // Printers count
     }
 
-    public function test_pending_orders_stat_counts_pending_and_paid_statuses(): void
-    {
-        Order::factory()->count(3)->create(['status' => 'pending']);
-        Order::factory()->count(2)->create(['status' => 'paid']);
-        Order::factory()->count(5)->create(['status' => 'shipped']);
-        Order::factory()->count(1)->create(['status' => 'cancelled']);
-
-        Livewire::test(PendingOrdersStat::class)
-            ->assertSee('5')   // pending + paid
-            ->assertSee('Pending orders');
-    }
-
-    public function test_revenue_today_stat_renders_confirmed_payment_only(): void
+    public function test_sales_today_stat_renders_confirmed_payment_revenue(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $customer = User::factory()->create(['role' => 'customer']);
@@ -122,12 +113,75 @@ class KpiDashboardTest extends TestCase
             'confirmed_at' => null,
         ]);
 
-        Livewire::test(RevenueTodayStat::class)
+        Livewire::test(SalesTodayStat::class)
             ->assertSee('$42.50')
             ->assertDontSee('$999.99');
     }
 
-    public function test_abandoned_cart_stat_counts_only_items_older_than_24h(): void
+    public function test_sales_today_stat_renders_average_order_value(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $customer = User::factory()->create(['role' => 'customer']);
+
+        // 2 confirmed orders today totalling $200 → AOV $100.
+        foreach ([100.00, 100.00] as $amount) {
+            $order = Order::factory()->forCustomer($customer)->create([
+                'status' => 'paid',
+                'total_amount' => $amount,
+            ]);
+            Payment::factory()->confirmed($admin)->create([
+                'order_id' => $order->id,
+                'confirmed_at' => now(),
+            ]);
+        }
+
+        Livewire::test(SalesTodayStat::class)
+            ->assertSee('Avg order value')
+            ->assertSee('$100.00');
+    }
+
+    public function test_sales_today_stat_renders_refund_rate(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+
+        // 9 orders last 7 days, 3 cancelled → 33.3% refund rate
+        Order::factory()->count(6)->forCustomer($customer)->create(['status' => 'paid']);
+        Order::factory()->count(3)->forCustomer($customer)->create(['status' => 'cancelled']);
+
+        Livewire::test(SalesTodayStat::class)
+            ->assertSee('Refund rate')
+            ->assertSee('33.3%');
+    }
+
+    public function test_action_queue_stat_counts_pending_orders_and_payments(): void
+    {
+        Order::factory()->count(3)->create(['status' => 'pending']);
+        Order::factory()->count(2)->create(['status' => 'paid']);
+        Order::factory()->count(5)->create(['status' => 'shipped']);
+        Order::factory()->count(1)->create(['status' => 'cancelled']);
+
+        Payment::factory()->count(4)->create(['status' => 'pending']);
+
+        Livewire::test(ActionQueueStat::class)
+            ->assertSee('5')        // pending + paid orders
+            ->assertSee('Pending orders')
+            ->assertSee('4')        // pending payments
+            ->assertSee('Pending payments');
+    }
+
+    public function test_action_queue_stat_counts_in_flight_shipments(): void
+    {
+        OrderItem::factory()->count(2)->create(['status' => 'printing']);
+        OrderItem::factory()->count(3)->create(['status' => 'printed']);
+        OrderItem::factory()->count(1)->create(['status' => 'handed_off']);
+        OrderItem::factory()->count(1)->create(['status' => 'cancelled']);
+
+        Livewire::test(ActionQueueStat::class)
+            ->assertSee('In-flight shipments')
+            ->assertSee('6'); // printing + printed + handed_off
+    }
+
+    public function test_action_queue_stat_counts_only_items_older_than_24h(): void
     {
         $customer = User::factory()->create(['role' => 'customer']);
 
@@ -140,9 +194,45 @@ class KpiDashboardTest extends TestCase
             'updated_at' => now()->subHours(2),
         ]);
 
-        Livewire::test(AbandonedCartStat::class)
+        Livewire::test(ActionQueueStat::class)
             ->assertSee('Abandoned carts')
             ->assertSee('2');
+    }
+
+    public function test_action_queue_stat_estimates_revenue_at_risk(): void
+    {
+        $customer = User::factory()->create(['role' => 'customer']);
+        $designer = User::factory()->create(['role' => 'designer']);
+        $designerProfile = DesignerProfile::factory()->create(['user_id' => $designer->id]);
+        $design = Design::factory()->create([
+            'designer_id' => $designerProfile->id,
+            'status' => 'published',
+        ]);
+
+        $mapping = DesignProductMapping::factory()->create([
+            'design_id' => $design->id,
+            'final_price' => 25.00,
+        ]);
+        $variant = ProductVariant::factory()->create([
+            'product_template_id' => $mapping->product_template_id,
+            'price_delta' => 5.00,
+        ]);
+
+        // 1 abandoned item × quantity 2 × (25 + 5) = $60 at risk. We can't
+        // create a second row with the same (user, mapping, variant) triple
+        // because of the cart_items_unique_line constraint.
+        CartItem::factory()->create([
+            'user_id' => $customer->id,
+            'design_product_mapping_id' => $mapping->id,
+            'product_variant_id' => $variant->id,
+            'quantity' => 2,
+            'created_at' => now()->subHours(48),
+            'updated_at' => now()->subHours(48),
+        ]);
+
+        Livewire::test(ActionQueueStat::class)
+            ->assertSee('Abandoned carts')
+            ->assertSee('$60');
     }
 
     public function test_revenue_chart_renders_with_confirmed_payment_data(): void
