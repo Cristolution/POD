@@ -93,26 +93,29 @@
     .fi-header-heading,
     h1.fi-header-heading,
     h2.fi-section-heading,
-    h3.fi-section-heading {
+    h3.fi-section-heading,
+    h2.fi-section-header-heading,
+    h3.fi-section-header-heading {
         font-family: 'Archivo Black', sans-serif !important;
         text-transform: uppercase;
         letter-spacing: 0.02em;
     }
 
-    /* Links: coral */
+    /* Links: coral — primary-700 keeps contrast >= 4.5:1 on white/sand
+       (primary-600 was 3.33 against sand-50, failing WCAG AA). */
     .fi-link {
-        color: var(--color-primary-600) !important;
-    }
-    .fi-link:hover {
         color: var(--color-primary-700) !important;
     }
+    .fi-link:hover {
+        color: var(--color-primary-800) !important;
+    }
 
-    /* Primary buttons: solid coral with ink border */
+    /* Primary buttons: deep coral so white text clears WCAG AA (4.96:1) */
     .fi-btn-color-primary,
     .fi-btn.fi-color-primary {
-        background-color: var(--color-primary-500) !important;
+        background-color: var(--color-primary-700) !important;
         color: #ffffff !important;
-        border: 3px solid var(--color-primary-700) !important;
+        border: 3px solid var(--color-primary-800) !important;
         border-radius: 0 !important;
         box-shadow: none !important;
         text-transform: uppercase;
@@ -121,7 +124,7 @@
     }
     .fi-btn-color-primary:hover,
     .fi-btn.fi-color-primary:hover {
-        background-color: var(--color-primary-600) !important;
+        background-color: var(--color-primary-800) !important;
     }
 
     /* Danger: deep coral */
@@ -167,11 +170,13 @@
         letter-spacing: 0.06em;
         color: var(--color-gray-800) !important;
     }
-    .fi-sidebar-item-button:hover {
+    .fi-sidebar-item-button:hover,
+    .fi-sidebar-item-btn:hover {
         background-color: var(--color-gray-200) !important;
     }
-    .fi-sidebar-item-active .fi-sidebar-item-button {
-        background-color: var(--color-primary-500) !important;
+    .fi-sidebar-item-active .fi-sidebar-item-button,
+    .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+        background-color: var(--color-primary-700) !important;
         color: #ffffff !important;
     }
 
@@ -214,6 +219,63 @@
         color: var(--color-gray-800) !important;
     }
 
+    /* Chart widgets (ApexCharts / Chart.js driven): force dark ink on all
+       SVG labels, tooltip text, legend text — Filament's defaults render
+       in gray-500 which fails WCAG AA against the sand-100 body. */
+    .apexcharts-text,
+    .apexcharts-tooltip,
+    .apexcharts-tooltip-title,
+    .apexcharts-xaxistooltip,
+    .apexcharts-yaxistooltip,
+    .apexcharts-legend-text,
+    .apexcharts-datalabels,
+    .apexcharts-pie-label,
+    .fi-wi-chart text {
+        fill: var(--color-gray-800) !important;
+        color: var(--color-gray-800) !important;
+        stroke: transparent !important;
+    }
+    .apexcharts-gridline,
+    .apexcharts-grid line {
+        stroke: var(--color-gray-300) !important;
+    }
+    .apexcharts-tooltip,
+    .apexcharts-xaxistooltip-bottom,
+    .apexcharts-yaxistooltip-right {
+        background-color: #ffffff !important;
+        border: 3px solid var(--color-gray-800) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    .apexcharts-legend-series[rel="0"] .apexcharts-legend-marker {
+        /* Brutalist: square legend swatch on the coral series */
+        border-radius: 0 !important;
+    }
+
+    /* Chart widget frame — Filament's `.fi-color-primary` modifier paints the
+       entire frame coral by default. We want the data line drawn in primary-700
+       (coral) on the canvas, but the WIDGET FRAME itself must read as white on
+       sand, with an ink-800 brutalist border matching the rest of the panel. */
+    .fi-wi-chart-frame,
+    .fi-color.fi-color-primary.fi-wi-chart-frame,
+    .fi-color-primary.fi-wi-chart-frame {
+        background-color: #ffffff !important;
+        border: 3px solid var(--color-gray-800) !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        --color: var(--color-gray-800) !important;
+    }
+    .fi-wi-chart-header {
+        border-bottom: 3px solid var(--color-gray-800) !important;
+        background-color: var(--color-gray-200) !important;
+    }
+    /* Drop the coral ring around the canvas inside the frame */
+    .fi-wi-chart-canvas-ctn,
+    .fi-wi-chart-canvas-ctn > div {
+        background-color: #ffffff !important;
+        border: 0 !important;
+    }
+
     /* Stat widget labels + values: ensure readable on coral / gray cards */
     .fi-wi-stats-overview-stat-label,
     .fi-wi-stats-overview-stat-value,
@@ -230,8 +292,9 @@
         background-color: var(--color-gray-200) !important;
         color: var(--color-gray-900) !important;
     }
-    .fi-badge.fi-color-primary {
-        background-color: var(--color-primary-500) !important;
+    .fi-badge.fi-color-primary,
+    [class*="fi-color-primary"]:not([class*="fi-text"]) {
+        background-color: var(--color-primary-700) !important;
         color: #ffffff !important;
     }
 
@@ -263,5 +326,91 @@
     .fi-card,
     .fi-wi-stats-overview-stat {
         color: var(--color-gray-800);
+    }
+
+    /* ==============================================================
+       Phase 5.1 — login, sidebar, and table contrast pass
+       ============================================================== */
+
+    /* Login / auth layout inputs: explicit dark ink on white background.
+       The -webkit-text-fill-color override keeps text dark after browser
+       autofill paints the field yellow/blue. */
+    .fi-simple-layout .fi-input,
+    .fi-simple-layout .fi-select-input,
+    .fi-simple-layout .fi-textarea-input,
+    .fi-fo-page .fi-input,
+    .fi-fo-page .fi-select-input,
+    .fi-fo-page .fi-textarea-input {
+        color: var(--color-gray-800) !important;
+        -webkit-text-fill-color: var(--color-gray-800) !important;
+    }
+
+    /* Sidebar nav: dark ink on sand background. The active item keeps
+       white text because it sits on the coral-500 background. */
+    .fi-sidebar,
+    .fi-sidebar-nav,
+    .fi-sidebar-item,
+    .fi-sidebar-item-button,
+    .fi-sidebar-item-icon,
+    .fi-sidebar-item-label,
+    .fi-sidebar-group,
+    .fi-sidebar-group-label {
+        color: var(--color-gray-800) !important;
+    }
+    .fi-sidebar-item-button:hover {
+        color: var(--color-gray-900) !important;
+    }
+    .fi-sidebar-item-active .fi-sidebar-item-button,
+    .fi-sidebar-item-active .fi-sidebar-item-icon,
+    .fi-sidebar-item-active .fi-sidebar-item-label,
+    .fi-sidebar-item.fi-active .fi-sidebar-item-btn,
+    .fi-sidebar-item.fi-active .fi-sidebar-item-icon,
+    .fi-sidebar-item.fi-active .fi-sidebar-item-label {
+        color: #ffffff !important;
+    }
+    /* (sidebar active background moved up into the original rule — duplicated line removed) */
+
+    /* Breadcrumbs: dark ink on sand body — Filament v4 default is gray-500
+       which fails WCAG contrast against the gray-100 body background. */
+    .fi-breadcrumbs-item-link,
+    .fi-breadcrumbs-item-label,
+    .fi-breadcrumbs a,
+    [class*="fi-breadcrumb"] a {
+        color: var(--color-gray-800) !important;
+    }
+    .fi-breadcrumbs-item-link:hover,
+    [class*="fi-breadcrumb"] a:hover {
+        color: var(--color-primary-700) !important;
+    }
+    .fi-breadcrumbs-item-separator {
+        color: var(--color-gray-600) !important;
+    }
+
+    /* Dashboard view link (header action): match secondary button look */
+    a.fi-link.fi-btn,
+    .fi-page-header-actions a.fi-btn,
+    .fi-page-header-actions a.fi-link {
+        color: var(--color-gray-800) !important;
+    }
+
+    /* All Filament tables: white background, dark text, no row stripes.
+       Mirrors the reports-base Blade table look (resources/views/filament/pages/reports/base.blade.php).
+       Cell text already forced to gray-800 by the rule above at lines 209-215. */
+    .fi-ta-ctn,
+    .fi-ta,
+    .fi-ta-table-wrapper,
+    .fi-ta-content,
+    .fi-ta-record,
+    .fi-ta-row,
+    .fi-ta-cell-row {
+        background-color: #ffffff !important;
+    }
+    .fi-ta-row:nth-child(even),
+    .fi-ta-record:nth-child(even) {
+        background-color: #ffffff !important;
+    }
+    .fi-ta-row:hover,
+    .fi-ta-record:hover {
+        background-color: var(--color-gray-50) !important;
     }
 }

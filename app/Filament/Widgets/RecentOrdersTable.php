@@ -11,6 +11,10 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class RecentOrdersTable extends BaseWidget
 {
+    /** Render immediately (no lazy placeholder) — keeps the dashboard chart-with-table layout
+     *  from triggering Livewire\Exceptions\MethodNotFoundException __lazyLoad on hydration. */
+    protected static bool $isLazy = false;
+
     protected static ?int $sort = 6;
 
     protected int|string|array $columnSpan = 'full';
