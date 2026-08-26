@@ -34,6 +34,27 @@
                        class="input" autocomplete="new-password">
             </div>
 
+            <fieldset>
+                <legend class="label mb-2">I want to sign up as</legend>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="card cursor-pointer has-checked:bg-coral-500 has-checked:text-white has-checked:border-coral-500 transition-colors">
+                        <input type="radio" name="role" value="customer"
+                               {{ old('role', 'customer') === 'customer' ? 'checked' : '' }}
+                               class="sr-only">
+                        <span class="font-display uppercase tracking-wider text-sm">Customer</span>
+                        <span class="font-mono text-xs block mt-1 opacity-80">Browse and buy designs</span>
+                    </label>
+                    <label class="card cursor-pointer has-checked:bg-coral-500 has-checked:text-white has-checked:border-coral-500 transition-colors">
+                        <input type="radio" name="role" value="designer"
+                               {{ old('role', 'customer') === 'designer' ? 'checked' : '' }}
+                               class="sr-only">
+                        <span class="font-display uppercase tracking-wider text-sm">Designer</span>
+                        <span class="font-mono text-xs block mt-1 opacity-80">Upload and sell designs</span>
+                    </label>
+                </div>
+                @error('role') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
+            </fieldset>
+
             <button type="submit" class="btn-coral w-full">Create account</button>
 
             <p class="text-center font-mono text-sm">

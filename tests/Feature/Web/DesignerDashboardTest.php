@@ -205,4 +205,67 @@ class DesignerDashboardTest extends TestCase
         $profile->refresh();
         $this->assertNull($profile->bio);
     }
+
+    // ------------------------------------------------------------------
+    // Verification badge / pending-review banner
+    // ------------------------------------------------------------------
+
+    public function test_dashboard_shows_unverified_banner_for_unverified_designer(): void
+    {
+        $user = User::factory()->designer()->create();
+        DesignerProfile::factory()->for($user)->unverified()->create();
+
+        $this->actingAs($user)
+            ->get(route('designer.dashboard'))
+            ->assertOk()
+            ->assertSee('Pending admin review')
+            ->assertSee('pending admin verification');
+    }
+
+    public function test_dashboard_hides_banner_for_verified_designer(): void
+    {
+        $user = User::factory()->designer()->create();
+        DesignerProfile::factory()->for($user)->create(); // default is_verified = true
+
+        $this->actingAs($user)
+            ->get(route('designer.dashboard'))
+            ->assertOk()
+            ->assertDontSee('Pending admin review');
+    }
+
+    public function test_edit_page_also_shows_unverified_banner(): void
+    {
+        $user = User::factory()->designer()->create();
+        DesignerProfile::factory()->for($user)->unverified()->create();
+
+        $this->actingAs($user)
+            ->get(route('designer.edit'))
+            ->assertOk()
+            ->assertSee('Pending admin review');
+    }
+
+    public function test_public_profile_shows_verified_badge_for_verified_designer(): void
+    {
+        $designer = DesignerProfile::factory()
+            ->for(User::factory()->designer()->create(['name' => 'Verified Ada']))
+            ->create(); // is_verified defaults to true
+
+        $this->get(route('designer.show', $designer))
+            ->assertOk()
+            ->assertSee('Verified Ada')
+            ->assertSee('Verified');
+    }
+
+    public function test_public_profile_hides_verified_badge_for_unverified_designer(): void
+    {
+        $designer = DesignerProfile::factory()
+            ->for(User::factory()->designer()->create(['name' => 'Pending Pat']))
+            ->unverified()
+            ->create();
+
+        $this->get(route('designer.show', $designer))
+            ->assertOk()
+            ->assertSee('Pending Pat')
+            ->assertDontSee('>Verified</span>');
+    }
 }

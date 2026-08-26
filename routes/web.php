@@ -7,6 +7,9 @@ use App\Http\Controllers\Web\BrowseController;
 use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CheckoutController;
 use App\Http\Controllers\Web\DesignDetailController;
+use App\Http\Controllers\Web\DesignerDesignController;
+use App\Http\Controllers\Web\DesignerMappingController;
+use App\Http\Controllers\Web\DesignerOrderController;
 use App\Http\Controllers\Web\DesignerProfileController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LoginController;
@@ -108,6 +111,27 @@ Route::middleware(['share.cart'])->group(function (): void {
         Route::get('/', [DesignerProfileController::class, 'dashboard'])->name('dashboard');
         Route::get('/edit', [DesignerProfileController::class, 'edit'])->name('edit');
         Route::patch('/', [DesignerProfileController::class, 'update'])->name('update');
+
+        // Design CRUD — controllers land in Step 5.
+        Route::get('/designs/create', [DesignerDesignController::class, 'create'])->name('designs.create');
+        Route::post('/designs', [DesignerDesignController::class, 'store'])->name('designs.store');
+        Route::get('/designs/{design}', [DesignerDesignController::class, 'show'])->name('designs.show');
+        Route::get('/designs/{design}/edit', [DesignerDesignController::class, 'edit'])->name('designs.edit');
+        Route::patch('/designs/{design}', [DesignerDesignController::class, 'update'])->name('designs.update');
+        Route::delete('/designs/{design}', [DesignerDesignController::class, 'destroy'])->name('designs.destroy');
+
+        // Order + mapping indexes — controllers land in Step 6.
+        Route::get('/orders', [DesignerOrderController::class, 'index'])->name('orders');
+        Route::get('/mappings', [DesignerMappingController::class, 'index'])->name('mappings');
+
+        // Designer self-service mapping CRUD. Static /mappings/create must be
+        // declared before any /mappings/{mapping} route so the literal path
+        // matches first.
+        Route::get('/mappings/create', [DesignerMappingController::class, 'create'])->name('mappings.create');
+        Route::post('/mappings', [DesignerMappingController::class, 'store'])->name('mappings.store');
+        Route::get('/mappings/{mapping}/edit', [DesignerMappingController::class, 'edit'])->name('mappings.edit');
+        Route::patch('/mappings/{mapping}', [DesignerMappingController::class, 'update'])->name('mappings.update');
+        Route::delete('/mappings/{mapping}', [DesignerMappingController::class, 'destroy'])->name('mappings.destroy');
     });
 
     // -- Task 9: printer self-service -----------------------------------

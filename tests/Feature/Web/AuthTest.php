@@ -75,6 +75,23 @@ class AuthTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_post_login_as_designer_redirects_to_designer_dashboard(): void
+    {
+        $designer = User::factory()->designer()->create([
+            'email' => 'designer@example.com',
+            'password' => Hash::make('SecretPass1!'),
+        ]);
+        // Designer must have a profile to reach /designer.
+        $designer->designerProfile()->firstOrCreate([]);
+
+        $this->post(route('login'), [
+            'email' => 'designer@example.com',
+            'password' => 'SecretPass1!',
+        ])->assertRedirect(route('designer.dashboard'));
+
+        $this->assertAuthenticatedAs($designer);
+    }
+
     // ------------------------------------------------------------------
     // Register
     // ------------------------------------------------------------------
