@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages\Reports;
 
+use App\Filament\Widgets\Reports\RevenueByPrinterChart;
 use BackedEnum;
 
 class RevenueByPrinterReport extends BaseReportPage
@@ -19,5 +20,13 @@ class RevenueByPrinterReport extends BaseReportPage
     public function reportClass(): string
     {
         return \App\Reports\Admin\RevenueByPrinterReport::class;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function chartWidgets(): array
+    {
+        return [RevenueByPrinterChart::class];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages\Reports;
 
+use App\Filament\Widgets\Reports\TopDesignsChart;
 use BackedEnum;
 
 class TopDesignsReport extends BaseReportPage
@@ -19,5 +20,13 @@ class TopDesignsReport extends BaseReportPage
     public function reportClass(): string
     {
         return \App\Reports\Admin\TopDesignsReport::class;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function chartWidgets(): array
+    {
+        return [TopDesignsChart::class];
     }
 }

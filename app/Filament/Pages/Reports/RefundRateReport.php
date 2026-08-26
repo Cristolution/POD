@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages\Reports;
 
+use App\Filament\Widgets\Reports\RefundRateChart;
 use App\Reports\Admin\RefundCancellationRateReport;
 use BackedEnum;
 
@@ -20,5 +21,13 @@ class RefundRateReport extends BaseReportPage
     public function reportClass(): string
     {
         return RefundCancellationRateReport::class;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function chartWidgets(): array
+    {
+        return [RefundRateChart::class];
     }
 }

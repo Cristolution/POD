@@ -7,6 +7,7 @@ namespace App\Filament\Pages\Reports;
 use App\Reports\Contracts\Report;
 use App\Reports\CsvExporter;
 use Filament\Pages\Page;
+use Filament\Widgets\ChartWidget;
 use Illuminate\Http\Request;
 use UnitEnum;
 
@@ -63,6 +64,23 @@ abstract class BaseReportPage extends Page
     }
 
     /**
+     * Chart widgets to render above the table on this Report page.
+     *
+     * Subclasses return an array of widget class-strings (each extends
+     * {@see ChartWidget}). The base Blade renders them via
+     * `<livewire>` and passes the page's `$data` filter values through to
+     * any widget that accepts a `from` / `to` mount parameter.
+     *
+     * Override this in subclasses to opt into charting. Default: no charts.
+     *
+     * @return array<int, string>
+     */
+    protected function chartWidgets(): array
+    {
+        return [];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function getViewData(): array
@@ -79,6 +97,7 @@ abstract class BaseReportPage extends Page
 
         return [
             'rows' => $normalised,
+            'chartWidgets' => $this->chartWidgets(),
         ];
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages\Reports;
 
+use App\Filament\Widgets\Reports\CustomerLtvChart;
 use BackedEnum;
 
 class CustomerLtvReport extends BaseReportPage
@@ -19,5 +20,13 @@ class CustomerLtvReport extends BaseReportPage
     public function reportClass(): string
     {
         return \App\Reports\Admin\CustomerLtvReport::class;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function chartWidgets(): array
+    {
+        return [CustomerLtvChart::class];
     }
 }

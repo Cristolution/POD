@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages\Reports;
 
+use App\Filament\Widgets\Reports\RevenueByDayChart;
 use BackedEnum;
 
 class RevenueByDayReport extends BaseReportPage
@@ -19,5 +20,13 @@ class RevenueByDayReport extends BaseReportPage
     public function reportClass(): string
     {
         return \App\Reports\Admin\RevenueByDayReport::class;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function chartWidgets(): array
+    {
+        return [RevenueByDayChart::class];
     }
 }

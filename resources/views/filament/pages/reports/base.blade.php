@@ -49,6 +49,19 @@
         </div>
     </form>
 
+    {{-- Chart widgets, one per opt-in report page. Rendered eagerly via
+         <livewire> so the chart redraws when the date inputs above change. --}}
+    @if (!empty($chartWidgets))
+        <div class="grid grid-cols-1 gap-6 mb-6">
+            @foreach ($chartWidgets as $widgetClass)
+                @livewire($widgetClass, [
+                    'from' => $data['from'] ?? null,
+                    'to' => $data['to'] ?? null,
+                ], key($widgetClass))
+            @endforeach
+        </div>
+    @endif
+
     {{-- Report rows rendered as a brutalist table. --}}
     <div class="overflow-x-auto border-3 border-gray-800 bg-white">
         <table class="fi-ta-table w-full">
