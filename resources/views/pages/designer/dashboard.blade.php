@@ -22,16 +22,25 @@
             </div>
         @endif
 
+        @unless ($profile->is_verified)
+            <div class="card mb-6 border-coral-500 bg-sand-50">
+                <p class="font-display uppercase text-coral-500 text-sm">Pending admin review</p>
+                <p class="font-mono text-xs text-ink-700 mt-2">
+                    Your designer account is pending admin verification. You can keep using the platform, but admins will review your profile before publicly verifying it.
+                </p>
+            </div>
+        @endunless
+
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
             <h1 class="heading-1">Designer<span class="text-coral-500">.</span></h1>
-            <a href="{{ route('designer.edit') }}" class="btn-coral">Edit profile</a>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="{{ route('designer.designs.create') }}" class="btn-coral">+ Create design</a>
+                <a href="{{ route('designer.edit') }}" class="btn btn-secondary">Edit profile</a>
+            </div>
         </div>
 
         <div class="grid md:grid-cols-[240px_1fr] gap-8">
-            <x-layout.dashboard-sidebar :links="[
-                'Dashboard' => route('designer.dashboard'),
-                'Edit profile' => route('designer.edit'),
-            ]" :active="request()->url()" />
+            @include('partials.designer-sidebar', ['active' => request()->url()])
 
             <div class="space-y-8">
                 {{-- Summary card --}}

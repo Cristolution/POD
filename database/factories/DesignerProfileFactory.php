@@ -18,6 +18,12 @@ class DesignerProfileFactory extends Factory
         return [
             'user_id' => User::factory()->designer(),
             'bio' => fake()->paragraph(),
+            'is_verified' => true,
         ];
+    }
+
+    public function unverified(): static
+    {
+        return $this->state(fn (): array => ['is_verified' => false]);
     }
 }

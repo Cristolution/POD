@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'bio'])]
+#[Fillable(['user_id', 'bio', 'is_verified'])]
 class DesignerProfile extends Model
 {
     /** @use HasFactory<DesignerProfileFactory> */
@@ -22,6 +22,11 @@ class DesignerProfile extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    protected function casts(): array
+    {
+        return ['is_verified' => 'boolean'];
     }
 
     // ------------------------------------------------------------------

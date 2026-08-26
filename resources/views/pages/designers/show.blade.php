@@ -24,7 +24,12 @@
             </div>
 
             <div class="flex-1 min-w-0">
-                <h1 class="heading-1 mb-2">{{ $name }}</h1>
+                <h1 class="heading-1 mb-2 flex flex-wrap items-center gap-3">
+                    <span>{{ $name }}</span>
+                    @if ($designer->is_verified)
+                        <span class="badge badge-coral font-display uppercase text-xs tracking-wider">Verified</span>
+                    @endif
+                </h1>
                 <p class="font-mono text-xs uppercase tracking-wider text-ink-700">
                     {{ $designer->published_designs_count }} published
                     / {{ $designer->designs_count }} total designs

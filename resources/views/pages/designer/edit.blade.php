@@ -16,11 +16,17 @@
             </div>
         @endif
 
+        @unless ($profile->is_verified)
+            <div class="card mb-6 border-coral-500 bg-sand-50">
+                <p class="font-display uppercase text-coral-500 text-sm">Pending admin review</p>
+                <p class="font-mono text-xs text-ink-700 mt-2">
+                    Your designer account is pending admin verification. You can keep using the platform, but admins will review your profile before publicly verifying it.
+                </p>
+            </div>
+        @endunless
+
         <div class="grid md:grid-cols-[240px_1fr] gap-8">
-            <x-layout.dashboard-sidebar :links="[
-                'Dashboard' => route('designer.dashboard'),
-                'Edit profile' => route('designer.edit'),
-            ]" :active="request()->url()" />
+            @include('partials.designer-sidebar', ['active' => request()->url()])
 
             <form method="POST" action="{{ route('designer.update') }}" class="card space-y-4">
                 @csrf
