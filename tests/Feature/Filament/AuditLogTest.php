@@ -68,7 +68,7 @@ class AuditLogTest extends TestCase
                 'name' => 'New Customer',
                 'email' => 'new@example.com',
                 'password' => 'SecretPass1!',
-                'passwordConfirmation' => 'SecretPass1!',
+                'password_confirmation' => 'SecretPass1!',
                 'role' => 'customer',
             ])
             ->call('create')

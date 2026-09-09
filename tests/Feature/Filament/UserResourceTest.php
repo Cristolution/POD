@@ -34,7 +34,7 @@ class UserResourceTest extends TestCase
                 'name' => 'New User',
                 'email' => 'new@example.com',
                 'password' => 'SecretPass1!',
-                'passwordConfirmation' => 'SecretPass1!',
+                'password_confirmation' => 'SecretPass1!',
                 'role' => 'customer',
                 'phone' => '+15555550100',
             ])

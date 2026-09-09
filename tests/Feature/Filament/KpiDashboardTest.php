@@ -77,6 +77,18 @@ class KpiDashboardTest extends TestCase
         );
     }
 
+    public function test_dashboard_content_slot_is_empty_so_widgets_appear_only_once(): void
+    {
+        // Filament v4's `Dashboard::content()` renders `getWidgets()` between the
+        // header and footer widget grids. The parent default is `Filament::getWidgets()`
+        // — i.e. every panel-registered widget — which would duplicate the header
+        // and footer widgets AND leak the `Reports/*Chart` widgets onto the admin
+        // home. The override must keep the content slot empty.
+        $page = new KpiDashboard;
+
+        $this->assertSame([], $page->getWidgets());
+    }
+
     public function test_total_customers_stat_renders_with_correct_counts(): void
     {
         User::factory()->count(7)->create(['role' => 'customer']);

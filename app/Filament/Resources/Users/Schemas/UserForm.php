@@ -15,7 +15,8 @@ class UserForm
     {
         return $schema
             ->components([
-                Section::make()
+                Section::make('Profile')
+                    ->description('Identity and contact details for this account.')
                     ->columns(2)
                     ->schema([
                         TextInput::make('name')
@@ -36,13 +37,31 @@ class UserForm
                                 'printer_provider' => 'Printer',
                                 'customer' => 'Customer',
                             ])
-                            ->disabled(fn ($record) => $record?->id === auth()->id()),
+                            ->disabled(fn ($record) => $record?->id === auth()->id())
+                            ->helperText(fn ($record): ?string => $record?->id === auth()->id()
+                                ? 'You cannot change your own role.'
+                                : null),
+                    ]),
+                Section::make('Security')
+                    ->description('Set or rotate the account password. Leave blank to keep the current password.')
+                    ->columns(1)
+                    ->schema([
                         TextInput::make('password')
                             ->password()
                             ->revealable()
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $context): bool => $context === 'create')
-                            ->minLength(8),
+                            ->minLength(8)
+                            ->confirmed()
+                            ->autocomplete('new-password'),
+                        TextInput::make('password_confirmation')
+                            ->label('Confirm password')
+                            ->password()
+                            ->revealable()
+                            ->dehydrated(false)
+                            ->requiredWith('password')
+                            ->minLength(8)
+                            ->autocomplete('new-password'),
                     ]),
             ]);
     }

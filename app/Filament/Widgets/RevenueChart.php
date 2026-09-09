@@ -19,6 +19,9 @@ class RevenueChart extends ChartWidget
 
     protected ?string $heading = 'Revenue (last 30 days)';
 
+    /** Span the full footer row so the 30-day trend has room to breathe. */
+    protected int|string|array $columnSpan = 'full';
+
     protected function getData(): array
     {
         // Revenue = sum of `orders.total_amount` for orders with at least one

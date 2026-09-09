@@ -10,6 +10,7 @@ use App\Filament\Widgets\RevenueChart;
 use App\Filament\Widgets\SalesTodayStat;
 use App\Filament\Widgets\TotalCustomersStat;
 use Filament\Pages\Dashboard;
+use Filament\Widgets\Widget;
 
 /**
  * KPI dashboard — replaces the default `Filament\Pages\Dashboard` at `/admin`.
@@ -42,5 +43,19 @@ class KpiDashboard extends Dashboard
             RevenueChart::class,
             RecentOrdersTable::class,
         ];
+    }
+
+    /**
+     * Suppress the parent `Filament\Pages\Dashboard::getWidgets()`, which defaults
+     * to `Filament::getWidgets()` and would re-render every auto-discovered
+     * widget from `app/Filament/Widgets/` in the content slot — duplicating the
+     * header/footer widgets and dragging in the `Reports/*Chart` widgets that
+     * belong on their dedicated report pages, not the admin home.
+     *
+     * @return array<int, class-string<Widget>>
+     */
+    public function getWidgets(): array
+    {
+        return [];
     }
 }
