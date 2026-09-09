@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature\Web;
 
 use App\Models\Address;
+use App\Models\Design;
+use App\Models\DesignerProfile;
 use App\Models\Notification;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\PrinterProviderProfile;
+use App\Models\ProductTemplate;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -59,6 +64,80 @@ class AccountTest extends TestCase
             ->assertSee('Orders')
             ->assertSee('Notifications')
             ->assertSee('pending');
+    }
+
+    // ------------------------------------------------------------------
+    // Role-aware dashboard: /account renders the right view per role so the
+    // header's user-name link lands designers and printers back on their
+    // role-specific dashboard from anywhere in the app.
+    // ------------------------------------------------------------------
+
+    public function test_account_dashboard_renders_designer_view_for_designer(): void
+    {
+        $user = User::factory()->designer()->create(['name' => 'Grace Hopper']);
+        $profile = DesignerProfile::factory()->for($user)->create();
+        Design::factory()->forDesigner($profile)->published()->create(['title' => 'Neon Bloom']);
+
+        $this->actingAs($user)
+            ->get(route('account.dashboard'))
+            ->assertOk()
+            ->assertSee('Designer<span class="text-coral-500">.</span>', escape: false)
+            ->assertSee('Grace Hopper')
+            ->assertSee('Your designs')
+            ->assertSee('Neon Bloom')
+            ->assertSee('Orders', escape: false); // designer sidebar link
+    }
+
+    public function test_account_dashboard_renders_printer_view_for_printer(): void
+    {
+        $user = User::factory()->printerProvider()->create(['name' => 'Patti Plates']);
+        $profile = PrinterProviderProfile::factory()->for($user)->create(['company_name' => 'Printy Co']);
+        ProductTemplate::factory()->for($profile, 'printerProvider')->create(['name' => 'Classic Mug']);
+
+        $this->actingAs($user)
+            ->get(route('account.dashboard'))
+            ->assertOk()
+            ->assertSee('Printer<span class="text-coral-500">.</span>', escape: false)
+            ->assertSee('Printy Co')
+            ->assertSee('Your templates')
+            ->assertSee('Classic Mug')
+            ->assertSee('Recent order items');
+    }
+
+    public function test_account_dashboard_renders_customer_view_for_customer(): void
+    {
+        $user = User::factory()->customer()->create(['name' => 'Pat Customer']);
+
+        $this->actingAs($user)
+            ->get(route('account.dashboard'))
+            ->assertOk()
+            ->assertSee('Account<span class="text-coral-500">.</span>', escape: false)
+            ->assertSee('Pat Customer')
+            ->assertSee('Profile')
+            ->assertSee('Change password')
+            ->assertDontSee('Your designs')
+            ->assertDontSee('Your templates');
+    }
+
+    public function test_account_dashboard_renders_printer_view_lists_printer_order_items(): void
+    {
+        $user = User::factory()->printerProvider()->create();
+        $profile = PrinterProviderProfile::factory()->for($user)->create();
+
+        OrderItem::factory()
+            ->for(Order::factory())
+            ->create([
+                'printer_provider_id' => $profile->id,
+                'status' => 'pending',
+                'quantity' => 3,
+                'unit_price' => 10.00,
+            ]);
+
+        $this->actingAs($user)
+            ->get(route('account.dashboard'))
+            ->assertOk()
+            ->assertSee('pending')
+            ->assertSee('30.00'); // 3 * 10.00
     }
 
     // ------------------------------------------------------------------
