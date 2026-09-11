@@ -29,8 +29,8 @@
                                 <th>{{ __('designer_orders_column_design') }}</th>
                                 <th>{{ __('designer_orders_column_variant') }}</th>
                                 <th>{{ __('designer_orders_column_printer') }}</th>
-                                <th class="text-right">{{ __('designer_orders_column_qty') }}</th>
-                                <th class="text-right">{{ __('designer_orders_column_unit_price') }}</th>
+                                <th class="text-end">{{ __('designer_orders_column_qty') }}</th>
+                                <th class="text-end">{{ __('designer_orders_column_unit_price') }}</th>
                                 <th>{{ __('account_order_status') }}</th>
                                 <th>{{ __('designer_orders_column_placed') }}</th>
                             </tr>
@@ -44,8 +44,8 @@
                                     </td>
                                     <td class="font-mono text-sm">{{ $item->productVariant?->name ?? '—' }}</td>
                                     <td class="font-mono text-sm">{{ $item->printerProvider?->user?->name ?? '—' }}</td>
-                                    <td class="font-mono text-sm text-right">{{ $item->quantity }}</td>
-                                    <td class="font-mono text-sm text-right">
+                                    <td class="font-mono text-sm text-end">{{ $item->quantity }}</td>
+                                    <td class="font-mono text-sm text-end">
                                         ${{ number_format((float) $item->unit_price, 2) }}
                                     </td>
                                     <td><span class="badge">{{ $item->status }}</span></td>

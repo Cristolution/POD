@@ -34,9 +34,9 @@
                                 <th>{{ __('designer_column_design') }}</th>
                                 <th>{{ __('designer_column_product_template') }}</th>
                                 <th>{{ __('designer_column_preferred_printer') }}</th>
-                                <th class="text-right">{{ __('designer_column_final_price') }}</th>
+                                <th class="text-end">{{ __('designer_column_final_price') }}</th>
                                 <th>{{ __('designer_column_created') }}</th>
-                                <th class="text-right">{{ __('designer_column_actions') }}</th>
+                                <th class="text-end">{{ __('designer_column_actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -49,11 +49,11 @@
                                     </td>
                                     <td class="font-mono text-sm">{{ $mapping->productTemplate?->type ?? '—' }}</td>
                                     <td class="font-mono text-sm">{{ $mapping->preferredPrinter?->user?->name ?? '—' }}</td>
-                                    <td class="font-mono text-sm text-right">
+                                    <td class="font-mono text-sm text-end">
                                         ${{ number_format((float) $mapping->final_price, 2) }}
                                     </td>
                                     <td class="font-mono text-sm">{{ $mapping->created_at?->format('Y-m-d') }}</td>
-                                    <td class="font-mono text-sm text-right">
+                                    <td class="font-mono text-sm text-end">
                                         <div class="inline-flex items-center gap-2 justify-end">
                                             <a href="{{ route('designer.mappings.edit', $mapping) }}" class="text-coral-500 hover:underline">
                                                 {{ __('designer_action_edit') }}

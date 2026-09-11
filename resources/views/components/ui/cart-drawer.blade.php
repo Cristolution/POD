@@ -16,7 +16,7 @@
     <div
         x-show="open"
         x-transition
-        class="absolute top-0 right-0 h-full w-full max-w-md bg-surface border-l-5 border-ink-800 overflow-y-auto"
+        class="absolute top-0 right-0 h-full w-full max-w-md bg-surface border-s-5 border-ink-800 overflow-y-auto"
     >
         <div class="p-6 border-b-3 border-ink-800 flex items-center justify-between">
             <h2 class="heading-3">{{ __('nav_cart') }}</h2>

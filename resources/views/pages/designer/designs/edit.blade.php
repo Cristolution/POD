@@ -13,7 +13,7 @@
         @if ($errors->any())
             <div class="card mb-6 border-coral-500">
                 <p class="font-display uppercase text-coral-500 text-sm">{{ __('form_errors_heading') }}</p>
-                <ul class="font-mono text-xs text-ink-700 mt-2 list-disc pl-5 space-y-1">
+                <ul class="font-mono text-xs text-ink-700 mt-2 list-disc ps-5 space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -106,7 +106,7 @@
                     <div>
                         <label class="label" for="mockup">{{ __('designer_replace_mockup_optional') }}</label>
                         <input id="mockup" name="mockup" type="file" accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                               class="input file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-sand-200 file:font-mono file:text-ink-800">
+                               class="input file:me-4 file:py-2 file:px-4 file:border-0 file:bg-sand-200 file:font-mono file:text-ink-800">
                         <p class="font-mono text-xs text-ink-700 mt-1">{{ __('designer_replace_mockup_helper') }}</p>
                         @error('mockup') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -114,7 +114,7 @@
                     <div>
                         <label class="label" for="print_file">{{ __('designer_replace_print_file_optional') }}</label>
                         <input id="print_file" name="print_file" type="file" accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                               class="input file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-sand-200 file:font-mono file:text-ink-800">
+                               class="input file:me-4 file:py-2 file:px-4 file:border-0 file:bg-sand-200 file:font-mono file:text-ink-800">
                         <p class="font-mono text-xs text-ink-700 mt-1">{{ __('designer_replace_print_file_helper') }}</p>
                         @error('print_file') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -122,7 +122,7 @@
                     <div class="flex flex-wrap items-center gap-3 pt-2">
                         <button type="submit" class="btn-coral">{{ __('designer_save_changes') }}</button>
                         <a href="{{ route('designer.designs.show', $design) }}" class="btn btn-secondary">{{ __('cancel') }}</a>
-                        <button type="submit" form="delete-design-form" class="btn btn-secondary ml-auto"
+                        <button type="submit" form="delete-design-form" class="btn btn-secondary ms-auto"
                                 onclick="return confirm('{{ __('designer_confirm_delete_design') }}');">
                             {{ __('designer_delete_design') }}
                         </button>

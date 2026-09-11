@@ -171,3 +171,5 @@
 @media (prefers-reduced-motion: reduce) {
   [data-cx] > span { animation: none !important; }
 }
+
+@import './rtl.css';

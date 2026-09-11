@@ -118,7 +118,7 @@
 
         {{-- Footer band --}}
         <div class="grid grid-cols-2 border-t-3 border-ink-800 font-mono text-xs uppercase tracking-widest">
-            <div class="px-2 py-1.5 border-r-3 border-ink-800 text-center">
+            <div class="px-2 py-1.5 border-e-3 border-ink-800 text-center">
                 <span class="font-display text-sm">{{ $design->mappings_count }}</span>
                 <span class="block text-[9px] opacity-70">{{ \Illuminate\Support\Str::plural('product', $design->mappings_count) }}</span>
             </div>

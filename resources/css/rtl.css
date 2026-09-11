@@ -1,0 +1,17 @@
+/* RTL overrides for Arabic.
+   Tailwind v4 logical properties (ms-*, me-*, ps-*, pe-*, border-s-*, border-e-*,
+   text-start, text-end) auto-flip when <html dir="rtl"> is set, so most layout
+   just works. This file is for the few cases that need an explicit override. */
+
+/* Flip arrow icons / chevrons that point in a fixed direction. */
+[dir="rtl"] .rtl-flip {
+    transform: scaleX(-1);
+}
+
+/* Brutalist cards: the thick 5px accent border lives on the "left" in LTR.
+   In RTL we move it to the logical start (right) so the visual weight
+   remains anchored to the start edge of the card. */
+[dir="rtl"] .brutalist-card {
+    border-left-width: 0;
+    border-right-width: 5px;
+}

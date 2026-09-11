@@ -82,7 +82,7 @@
                                     <th>{{ __('designer_column_title') }}</th>
                                     <th>{{ __('account_order_status') }}</th>
                                     <th>{{ __('designer_column_category') }}</th>
-                                    <th class="text-right">{{ __('designer_column_mappings') }}</th>
+                                    <th class="text-end">{{ __('designer_column_mappings') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -102,7 +102,7 @@
                                         <td class="font-mono text-sm">
                                             {{ $design->category?->name ?? '—' }}
                                         </td>
-                                        <td class="font-mono text-sm text-right">
+                                        <td class="font-mono text-sm text-end">
                                             {{ $design->mappings_count }}
                                         </td>
                                     </tr>

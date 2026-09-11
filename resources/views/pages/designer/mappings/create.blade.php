@@ -14,7 +14,7 @@
         @if ($errors->any())
             <div class="card mb-6 border-coral-500">
                 <p class="font-display uppercase text-coral-500 text-sm">{{ __('form_errors_heading') }}</p>
-                <ul class="font-mono text-xs text-ink-700 mt-2 list-disc pl-5 space-y-1">
+                <ul class="font-mono text-xs text-ink-700 mt-2 list-disc ps-5 space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach

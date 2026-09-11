@@ -55,7 +55,7 @@
                                    min="1" max="100" class="input w-20 text-center">
                             <button class="btn btn-secondary text-xs">{{ __('cart_update') }}</button>
                         </form>
-                        <div class="font-display text-lg sm:w-24 sm:text-right shrink-0">
+                        <div class="font-display text-lg sm:w-24 sm:text-end shrink-0">
                             ${{ number_format((float) $item->lineTotal(), 2) }}
                         </div>
                         <form method="POST" action="{{ route('cart.items.destroy', $item) }}" class="shrink-0">
@@ -73,13 +73,13 @@
                     @method('DELETE')
                     <button class="btn btn-secondary w-full sm:w-auto">{{ __('cart_clear') }}</button>
                 </form>
-                <div class="sm:text-right">
+                <div class="sm:text-end">
                     <div class="font-mono text-xs uppercase tracking-wider">{{ __('total') }}</div>
                     <div class="font-display text-3xl sm:text-4xl break-all">${{ number_format((float) $grandTotal, 2) }}</div>
                 </div>
             </div>
 
-            <div class="mt-8 text-center sm:text-right">
+            <div class="mt-8 text-center sm:text-end">
                 <a href="{{ route('checkout.show') }}" class="btn btn-coral text-lg w-full sm:w-auto">{{ __('cart_proceed_checkout') }}</a>
             </div>
         @endif

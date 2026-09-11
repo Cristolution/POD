@@ -72,9 +72,9 @@
                                 <tr>
                                     <th>{{ __('printer_column_name') }}</th>
                                     <th>{{ __('printer_column_type') }}</th>
-                                    <th class="text-right">{{ __('printer_column_base_cost') }}</th>
-                                    <th class="text-right">{{ __('printer_column_variants') }}</th>
-                                    <th class="text-right">{{ __('printer_column_mappings') }}</th>
+                                    <th class="text-end">{{ __('printer_column_base_cost') }}</th>
+                                    <th class="text-end">{{ __('printer_column_variants') }}</th>
+                                    <th class="text-end">{{ __('printer_column_mappings') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -84,11 +84,11 @@
                                         <td>
                                             <span class="badge">{{ $template->type }}</span>
                                         </td>
-                                        <td class="font-mono text-sm text-right">
+                                        <td class="font-mono text-sm text-end">
                                             ${{ number_format((float) $template->base_cost, 2) }}
                                         </td>
-                                        <td class="font-mono text-sm text-right">{{ $template->variants_count }}</td>
-                                        <td class="font-mono text-sm text-right">{{ $template->design_product_mappings_count }}</td>
+                                        <td class="font-mono text-sm text-end">{{ $template->variants_count }}</td>
+                                        <td class="font-mono text-sm text-end">{{ $template->design_product_mappings_count }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -108,8 +108,8 @@
                                 <tr>
                                     <th>{{ __('account_order_number') }}</th>
                                     <th>{{ __('printer_column_variant') }}</th>
-                                    <th class="text-right">{{ __('printer_column_qty') }}</th>
-                                    <th class="text-right">{{ __('printer_column_line_total') }}</th>
+                                    <th class="text-end">{{ __('printer_column_qty') }}</th>
+                                    <th class="text-end">{{ __('printer_column_line_total') }}</th>
                                     <th>{{ __('account_order_status') }}</th>
                                 </tr>
                             </thead>
@@ -129,8 +129,8 @@
                                         <td class="font-mono text-sm">
                                             {{ $item->productVariant?->name ?? '—' }}
                                         </td>
-                                        <td class="font-mono text-sm text-right">{{ $item->quantity }}</td>
-                                        <td class="font-display text-right">
+                                        <td class="font-mono text-sm text-end">{{ $item->quantity }}</td>
+                                        <td class="font-display text-end">
                                             ${{ number_format($item->lineTotal(), 2) }}
                                         </td>
                                         <td>

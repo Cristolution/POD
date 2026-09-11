@@ -58,10 +58,10 @@
                                     <th>{{ __('account_order_number') }}</th>
                                     <th>{{ __('printer_fulfilment_column_product') }}</th>
                                     <th>{{ __('printer_fulfilment_column_variant') }}</th>
-                                    <th class="text-right">{{ __('printer_fulfilment_column_qty') }}</th>
-                                    <th class="text-right">{{ __('printer_fulfilment_column_unit') }}</th>
+                                    <th class="text-end">{{ __('printer_fulfilment_column_qty') }}</th>
+                                    <th class="text-end">{{ __('printer_fulfilment_column_unit') }}</th>
                                     <th>{{ __('account_order_status') }}</th>
-                                    <th class="text-right">{{ __('printer_fulfilment_column_action') }}</th>
+                                    <th class="text-end">{{ __('printer_fulfilment_column_action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,14 +88,14 @@
                                         </td>
                                         <td class="font-mono text-sm">{{ ucwords(str_replace('-', ' ', $item->designProductMapping?->productTemplate?->type ?? '?')) }}</td>
                                         <td class="font-mono text-sm">{{ $item->productVariant?->label() ?? '—' }}</td>
-                                        <td class="font-mono text-sm text-right">{{ $item->quantity }}</td>
-                                        <td class="font-mono text-sm text-right">${{ number_format((float) $item->unit_price, 2) }}</td>
+                                        <td class="font-mono text-sm text-end">{{ $item->quantity }}</td>
+                                        <td class="font-mono text-sm text-end">${{ number_format((float) $item->unit_price, 2) }}</td>
                                         <td>
                                             <span class="badge bg-{{ $badgeColor === 'gray' ? 'sand-200' : $badgeColor }}-500 text-{{ $badgeColor === 'gray' ? 'ink-800' : 'white' }}">
                                                 {{ $statusLabel }}
                                             </span>
                                         </td>
-                                        <td class="font-mono text-sm text-right">
+                                        <td class="font-mono text-sm text-end">
                                             @if ($next)
                                                 <form method="POST" action="{{ route('printer.fulfilment.advance', $item) }}" class="inline">
                                                     @csrf

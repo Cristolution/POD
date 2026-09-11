@@ -87,13 +87,13 @@
                         <div class="flex-1 relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono">$</span>
                             <input type="number" name="price_min" value="{{ $priceMin }}" min="0" step="1" placeholder="{{ __('facets_min') }}"
-                                   class="input w-full pl-7 font-mono text-sm py-2">
+                                   class="input w-full ps-7 font-mono text-sm py-2">
                         </div>
                         <span class="font-display">→</span>
                         <div class="flex-1 relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono">$</span>
                             <input type="number" name="price_max" value="{{ $priceMax }}" min="0" step="1" placeholder="{{ __('facets_max') }}"
-                                   class="input w-full pl-7 font-mono text-sm py-2">
+                                   class="input w-full ps-7 font-mono text-sm py-2">
                         </div>
                     </div>
                     <div class="grid grid-cols-4 gap-1.5 mt-2">
@@ -140,7 +140,7 @@
 {{-- ============================================================
      Desktop sidebar (lg+) — minimal, no boxy sections
      ============================================================ --}}
-<aside class="hidden lg:block w-1/5 shrink-0 pr-6">
+<aside class="hidden lg:block w-1/5 shrink-0 pe-6">
     <form method="GET" action="{{ route('browse.designs') }}" id="facets-form" class="space-y-5 lg:sticky lg:top-20">
         @if (request('q'))
             <input type="hidden" name="q" value="{{ request('q') }}">
@@ -176,7 +176,7 @@
                             <span class="text-[10px] opacity-60">{{ $root->designs_count }}</span>
                         </a>
                         @if ($root->children->isNotEmpty() && $isActiveRoot)
-                            <ul class="pl-3 mt-1 space-y-1 border-l-3 border-ink-800 ml-1">
+                            <ul class="ps-3 mt-1 space-y-1 border-s-3 border-ink-800 ms-1">
                                 @foreach ($root->children as $child)
                                     <li>
                                         <a href="{{ route('browse.designs', array_merge(request()->except(['page','category']), ['category' => $child->id])) }}"
@@ -201,13 +201,13 @@
                 <div class="relative flex-1">
                     <span class="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-700">$</span>
                     <input type="number" name="price_min" value="{{ $priceMin }}" min="0" step="1" placeholder="{{ __('facets_min') }}"
-                           class="input w-full pl-6 font-mono text-xs py-1.5">
+                           class="input w-full ps-6 font-mono text-xs py-1.5">
                 </div>
                 <span class="font-mono text-xs">–</span>
                 <div class="relative flex-1">
                     <span class="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-700">$</span>
                     <input type="number" name="price_max" value="{{ $priceMax }}" min="0" step="1" placeholder="{{ __('facets_max') }}"
-                           class="input w-full pl-6 font-mono text-xs py-1.5">
+                           class="input w-full ps-6 font-mono text-xs py-1.5">
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-1 mt-2 font-mono text-[10px] uppercase tracking-widest">

@@ -69,7 +69,7 @@
                 <tr>
                     @if (count($rows) > 0)
                         @foreach (array_keys((array) $rows[0]) as $col)
-                            <th class="fi-ta-header-cell text-left px-4 py-2 uppercase tracking-wider text-xs border-b-3 border-gray-800">
+                            <th class="fi-ta-header-cell text-start px-4 py-2 uppercase tracking-wider text-xs border-b-3 border-gray-800">
                                 {{ ucwords(str_replace('_', ' ', (string) $col)) }}
                             </th>
                         @endforeach

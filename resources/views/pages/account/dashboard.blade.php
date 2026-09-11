@@ -103,7 +103,7 @@
                                     <th>{{ __('account_order_number') }}</th>
                                     <th>{{ __('account_order_date') }}</th>
                                     <th>{{ __('account_order_status') }}</th>
-                                    <th class="text-right">{{ __('total') }}</th>
+                                    <th class="text-end">{{ __('total') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -121,7 +121,7 @@
                                         <td>
                                             <span class="badge">{{ $order->status }}</span>
                                         </td>
-                                        <td class="font-display text-right">
+                                        <td class="font-display text-end">
                                             ${{ number_format((float) $order->total_amount, 2) }}
                                         </td>
                                     </tr>

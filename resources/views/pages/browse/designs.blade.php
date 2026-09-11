@@ -89,13 +89,13 @@
                         @foreach ($chips as $chip)
                             @php $params = request()->except(['page', $chip['param']]); @endphp
                             <a href="{{ route('browse.designs', $params) }}"
-                               class="group inline-flex items-center gap-1.5 bg-coral-500 text-white border-3 border-ink-800 pl-2.5 pr-1 py-0.5 font-mono text-[10px] uppercase tracking-widest hover:bg-coral-600 transition-colors">
+                               class="group inline-flex items-center gap-1.5 bg-coral-500 text-white border-3 border-ink-800 ps-2.5 pe-1 py-0.5 font-mono text-[10px] uppercase tracking-widest hover:bg-coral-600 transition-colors">
                                 <span>{{ $chip['label'] }}</span>
                                 <span class="bg-ink-800 text-sand-100 w-4 h-4 flex items-center justify-center text-xs leading-none group-hover:bg-coral-700">×</span>
                             </a>
                         @endforeach
                         <a href="{{ route('browse.designs', request()->except(['category','designer','price_min','price_max','page'])) }}"
-                           class="ml-auto font-mono text-[10px] uppercase tracking-widest underline text-ink-700 hover:text-coral-500 shrink-0">
+                           class="ms-auto font-mono text-[10px] uppercase tracking-widest underline text-ink-700 hover:text-coral-500 shrink-0">
                             {{ __('browse_clear_all') }}
                         </a>
                     </div>

@@ -39,7 +39,7 @@
                             <tr>
                                 <th>{{ __('addresses_column_address') }}</th>
                                 <th>{{ __('auth_phone') }}</th>
-                                <th class="text-right">{{ __('addresses_column_actions') }}</th>
+                                <th class="text-end">{{ __('addresses_column_actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,7 +54,7 @@
                                     <td class="font-mono text-sm">
                                         {{ $address->phone ?? '—' }}
                                     </td>
-                                    <td class="text-right">
+                                    <td class="text-end">
                                         <div class="inline-flex gap-2">
                                             <a href="{{ route('account.addresses.edit', $address) }}"
                                                class="btn btn-secondary text-xs">{{ __('addresses_edit') }}</a>

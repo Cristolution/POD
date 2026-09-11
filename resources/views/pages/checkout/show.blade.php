@@ -62,7 +62,7 @@
                     <p class="font-mono text-sm">
                         {{ __('checkout_delivery_intro') }}
                     </p>
-                    <ul class="font-mono text-sm mt-2 list-disc pl-6">
+                    <ul class="font-mono text-sm mt-2 list-disc ps-6">
                         @forelse ($deliveryCompanies as $dc)
                             <li>{{ $dc->name }}</li>
                         @empty

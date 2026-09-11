@@ -6,7 +6,7 @@
         <h1 class="heading-1 mb-4">{{ __('error_500_heading') }}</h1>
         <p class="font-mono mb-8">{{ __('error_500_body') }}</p>
         @if (app()->environment('local') && isset($exception))
-            <div class="card-featured text-left font-mono text-xs">
+            <div class="card-featured text-start font-mono text-xs">
                 {{ $exception->getMessage() ?? __('error_no_exception_details') }}
             </div>
         @endif

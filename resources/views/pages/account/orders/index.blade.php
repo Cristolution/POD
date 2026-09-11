@@ -26,7 +26,7 @@
                                 <th>{{ __('account_order_date') }}</th>
                                 <th>{{ __('account_order_status') }}</th>
                                 <th>{{ __('orders_payment_column') }}</th>
-                                <th class="text-right">{{ __('total') }}</th>
+                                <th class="text-end">{{ __('total') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,7 +53,7 @@
                                             <span class="font-mono text-xs text-ink-700">—</span>
                                         @endif
                                     </td>
-                                    <td class="font-display text-right">
+                                    <td class="font-display text-end">
                                         ${{ number_format((float) $order->total_amount, 2) }}
                                     </td>
                                 </tr>

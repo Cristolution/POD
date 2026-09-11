@@ -88,8 +88,8 @@
                                 <tr>
                                     <th>{{ __('designer_column_product_template') }}</th>
                                     <th>{{ __('designer_column_preferred_printer') }}</th>
-                                    <th class="text-right">{{ __('designer_column_final_price') }}</th>
-                                    <th class="text-right">{{ __('designer_column_actions') }}</th>
+                                    <th class="text-end">{{ __('designer_column_final_price') }}</th>
+                                    <th class="text-end">{{ __('designer_column_actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -97,10 +97,10 @@
                                     <tr>
                                         <td class="font-mono text-sm">{{ $mapping->productTemplate?->type ?? '—' }}</td>
                                         <td class="font-mono text-sm">{{ $mapping->preferredPrinter?->user?->name ?? '—' }}</td>
-                                        <td class="font-mono text-sm text-right">
+                                        <td class="font-mono text-sm text-end">
                                             ${{ number_format((float) $mapping->final_price, 2) }}
                                         </td>
-                                        <td class="font-mono text-sm text-right">
+                                        <td class="font-mono text-sm text-end">
                                             <div class="inline-flex items-center gap-2 justify-end">
                                                 <a href="{{ route('designer.mappings.edit', $mapping) }}" class="text-coral-500 hover:underline">
                                                     {{ __('designer_action_edit') }}
@@ -134,8 +134,8 @@
                                     <th>{{ __('account_order_number') }}</th>
                                     <th>{{ __('designer_orders_column_variant') }}</th>
                                     <th>{{ __('designer_orders_column_printer') }}</th>
-                                    <th class="text-right">{{ __('designer_orders_column_qty') }}</th>
-                                    <th class="text-right">{{ __('designer_orders_column_unit_price') }}</th>
+                                    <th class="text-end">{{ __('designer_orders_column_qty') }}</th>
+                                    <th class="text-end">{{ __('designer_orders_column_unit_price') }}</th>
                                     <th>{{ __('account_order_status') }}</th>
                                     <th>{{ __('designer_orders_column_placed') }}</th>
                                 </tr>
@@ -146,8 +146,8 @@
                                         <td class="font-mono text-sm">{{ Str::limit($item->order_id, 8, '') }}</td>
                                         <td class="font-mono text-sm">{{ $item->productVariant?->label() ?? '—' }}</td>
                                         <td class="font-mono text-sm">{{ $item->printerProvider?->user?->name ?? '—' }}</td>
-                                        <td class="font-mono text-sm text-right">{{ $item->quantity }}</td>
-                                        <td class="font-mono text-sm text-right">
+                                        <td class="font-mono text-sm text-end">{{ $item->quantity }}</td>
+                                        <td class="font-mono text-sm text-end">
                                             ${{ number_format((float) $item->unit_price, 2) }}
                                         </td>
                                         <td><span class="badge">{{ $item->status }}</span></td>
