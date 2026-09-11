@@ -32,36 +32,12 @@
             : '$'.number_format((float) $minPrice, 2).' – $'.number_format((float) $maxPrice, 2));
 @endphp
 
-{{-- Card wrapper. The <a> wraps the visual content (image + body + footer);
-     the heart form is rendered OUTSIDE the link with absolute positioning
-     so nested-form HTML is avoided. The link still receives clicks anywhere
-     except on the heart. --}}
-<div class="relative bg-surface border-3 border-ink-800 hover:border-coral-500 transition-colors duration-150 group">
+{{-- Card wrapper. The <a> wraps the image + body. The footer band is
+     separate from the <a> so the heart button can sit in its own cell
+     and not be hijacked by the link's click target. --}}
+<div class="relative bg-surface border-3 border-ink-800 hover:border-coral-500 transition-colors duration-150 group flex flex-col">
 
-    {{-- Favourite (heart) button — absolute over the image, separate from the <a> --}}
-    @auth
-        <form method="POST" action="{{ $isFavourited ? route('design.wishlist.destroy', $design) : route('design.wishlist.store', $design) }}"
-              class="absolute bottom-3 right-3 z-10"
-              onclick="event.stopPropagation();">
-            @csrf
-            @if ($isFavourited)
-                @method('DELETE')
-                <button type="submit"
-                        class="bg-surface border-3 border-ink-800 w-10 h-10 flex items-center justify-center hover:bg-coral-500 hover:text-white transition-colors text-coral-500"
-                        title="{{ __('design_card_remove_wishlist') }}" aria-label="{{ __('design_card_remove_wishlist') }}">
-                    ♥
-                </button>
-            @else
-                <button type="submit"
-                        class="bg-surface border-3 border-ink-800 w-10 h-10 flex items-center justify-center hover:bg-coral-500 hover:text-white transition-colors"
-                        title="{{ __('design_card_save_wishlist') }}" aria-label="{{ __('design_card_save_wishlist') }}">
-                    ♡
-                </button>
-            @endif
-        </form>
-    @endauth
-
-    <a href="{{ route('design.show', $design) }}" class="block">
+    <a href="{{ route('design.show', $design) }}" class="block flex-1">
 
         {{-- Image --}}
         <div class="design-card-image">
@@ -115,17 +91,41 @@
                 </div>
             @endif
         </div>
-
-        {{-- Footer band --}}
-        <div class="grid grid-cols-2 border-t-3 border-ink-800 font-mono text-xs uppercase tracking-widest">
-            <div class="px-2 py-1.5 border-e-3 border-ink-800 text-center">
-                <span class="font-display text-sm">{{ $design->mappings_count }}</span>
-                <span class="block text-[9px] opacity-70">{{ \Illuminate\Support\Str::plural('product', $design->mappings_count) }}</span>
-            </div>
-            <div class="px-2 py-1.5 text-center">
-                <span class="font-display text-sm">{{ $variantCount }}</span>
-                <span class="block text-[9px] opacity-70">{{ \Illuminate\Support\Str::plural('variant', $variantCount) }}</span>
-            </div>
-        </div>
     </a>
+
+    {{-- Footer band — sits below the <a>. Two stat cells (linked to the
+         design page) + a heart cell for the wishlist toggle. The heart
+         lives inside a form so its own POST/DELETE submits without
+         being hijacked by the surrounding link. --}}
+    <div class="grid grid-cols-[1fr_1fr_auto] border-t-3 border-ink-800 font-mono text-xs uppercase tracking-widest mt-auto">
+        <a href="{{ route('design.show', $design) }}" class="px-2 py-1.5 border-e-3 border-ink-800 text-center block">
+            <span class="font-display text-sm">{{ $design->mappings_count }}</span>
+            <span class="block text-[9px] opacity-70">{{ \Illuminate\Support\Str::plural('product', $design->mappings_count) }}</span>
+        </a>
+        <a href="{{ route('design.show', $design) }}" class="px-2 py-1.5 border-e-3 border-ink-800 text-center block">
+            <span class="font-display text-sm">{{ $variantCount }}</span>
+            <span class="block text-[9px] opacity-70">{{ \Illuminate\Support\Str::plural('variant', $variantCount) }}</span>
+        </a>
+        @auth
+            <form method="POST"
+                  action="{{ $isFavourited ? route('design.wishlist.destroy', $design) : route('design.wishlist.store', $design) }}"
+                  class="m-0">
+                @csrf
+                @if ($isFavourited)
+                    @method('DELETE')
+                @endif
+                <button type="submit"
+                        class="border-0 px-3 h-full w-full flex items-center justify-center text-base hover:bg-coral-500 hover:text-white transition-colors {{ $isFavourited ? 'text-coral-500' : 'text-ink-700' }}"
+                        title="{{ $isFavourited ? __('design_card_remove_wishlist') : __('design_card_save_wishlist') }}"
+                        aria-label="{{ $isFavourited ? __('design_card_remove_wishlist') : __('design_card_save_wishlist') }}">
+                    {{ $isFavourited ? '♥' : '♡' }}
+                </button>
+            </form>
+        @else
+            <a href="{{ route('login') }}" class="border-0 px-3 h-full w-full flex items-center justify-center text-base text-ink-700 hover:bg-coral-500 hover:text-white transition-colors"
+               title="{{ __('design_card_save_wishlist') }}" aria-label="{{ __('design_card_save_wishlist') }}">
+                ♡
+            </a>
+        @endauth
+    </div>
 </div>
