@@ -2,6 +2,26 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **⚠ PHPUnit, not Pest (SDD ruling 2026-09-11):** Project uses PHPUnit 12 (`phpunit/phpunit ^12.5.12` in `composer.json`; CLAUDE.md confirms: "All tests must be written as PHPUnit classes"). The test code blocks below were written in Pest syntax for compactness and MUST be converted to PHPUnit syntax by the implementer. Read this table BEFORE writing any test:
+
+| Pest (in plan) | PHPUnit (write this) |
+|---|---|
+| `it('does X', function () { ... })` | `public function test_it_does_x(): void { ... }` inside `class XxxTest extends TestCase` |
+| `expect($a)->toBe($b)` | `$this->assertSame($b, $a)` |
+| `expect($a)->toEqual($b)` | `$this->assertEquals($b, $a)` |
+| `expect($a)->toBeArray()` | `$this->assertIsArray($a)` |
+| `expect($a)->toBeEmpty()` | `$this->assertEmpty($a)` |
+| `expect($a)->not->toBeEmpty()` | `$this->assertNotEmpty($a)` |
+| `expect($a)->toContain('x')` | `$this->assertStringContainsString('x', $a)` |
+| `expect($a)->toMatch('/regex/')` | `$this->assertMatchesRegularExpression('/regex/', $a)` |
+| `expect($a)->toBeIn([...])` | `$this->assertContains($a, [...])` |
+| `beforeEach(function () { ... })` | `protected function setUp(): void { parent::setUp(); ... }` |
+| `Blade::render('<x-ui.foo />')` | `view('components.ui.foo')->render()` |
+| `$this->get('/...')->assertOk()` | Same — Laravel test methods work in PHPUnit |
+| `expect(true)->toBeTrue()` | `$this->assertTrue(true)` |
+
+Class naming: `tests/Feature/Middleware/LocalizeRequestsTest.php` → `class LocalizeRequestsTest extends TestCase`. Namespaces: `Tests\Feature\Middleware`.
+
 **Goal:** Add English (default, unprefixed), Arabic (`/ar/...`), and Turkish (`/tr/...`) locale support to the POD public website and Filament admin panel. Full RTL flip for Arabic. Cookie persistence. Filament chrome translation. No DB-content translation.
 
 **Architecture:** Wrap public routes in `Route::prefix('{locale?}')` group. Single `LocalizeRequests` middleware resolves locale from URL → cookie → Accept-Language → default. `localize()` helper rewrites the current route into another locale. New `I18nServiceProvider` overrides `route()` URL generation so `route('cart.show')` on an Arabic page returns `/ar/cart` automatically. Filament admin uses an independent `admin_locale` cookie + matching middleware. Translations live in `lang/{locale}/...` PHP files (per-page) and `lang/vendor/filament/{locale}/...` for admin chrome. Hreflang + canonical in layouts.
@@ -405,58 +425,50 @@ git commit -m "feat(i18n): localize() helper for cross-locale URL rewriting"
 // tests/Feature/Routing/RouteLocaleAwareTest.php
 <?php
 
+namespace Tests\Feature\Routing;
+
 use Illuminate\Support\Facades\Route;
+use Tests\TestCase;
 
-beforeEach(function () {
-    Route::middleware(['localize'])->prefix('{locale?}')->where(['locale' => '(en|ar|tr)'])->group(function () {
-        Route::get('/cart', fn () => '')->name('cart.show');
-    });
-});
+class RouteLocaleAwareTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Route::middleware(['localize'])
+            ->prefix('{locale?}')
+            ->where(['locale' => '(en|ar|tr)'])
+            ->group(function (): void {
+                Route::get('/cart', fn () => '')->name('cart.show');
+            });
+    }
 
-it('returns unprefixed URL when locale is en', function () {
-    app()->setLocale('en');
-    expect(route('cart.show'))->toBe(url('/cart'));
-});
+    public function test_returns_unprefixed_url_when_locale_is_en(): void
+    {
+        app()->setLocale('en');
+        $this->assertSame(url('/cart'), \App\Support\LocalizedUrl::route('cart.show'));
+    }
 
-it('returns prefixed URL when locale is ar', function () {
-    app()->setLocale('ar');
-    expect(route('cart.show'))->toBe(url('/ar/cart'));
-});
+    public function test_returns_prefixed_url_when_locale_is_ar(): void
+    {
+        app()->setLocale('ar');
+        $this->assertSame(url('/ar/cart'), \App\Support\LocalizedUrl::route('cart.show'));
+    }
 
-it('returns prefixed URL when locale is tr', function () {
-    app()->setLocale('tr');
-    expect(route('cart.show'))->toBe(url('/tr/cart'));
-});
+    public function test_returns_prefixed_url_when_locale_is_tr(): void
+    {
+        app()->setLocale('tr');
+        $this->assertSame(url('/tr/cart'), \App\Support\LocalizedUrl::route('cart.show'));
+    }
+}
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run: `php artisan test --compact tests/Feature/Routing/RouteLocaleAwareTest.php`
-Expected: FAIL — current `route()` doesn't prepend locale.
+Expected: FAIL — `\App\Support\LocalizedUrl` class doesn't exist.
 
-- [ ] **Step 3: Add URL override in I18nServiceProvider::boot()**
-
-Extend `boot()` to register a `Route::macro` or URL generator override. In Laravel 13, the URL generator is registered as a singleton. The cleanest mechanism is a `Resolving` callback on the `url` binding:
-
-```php
-// app/Providers/I18nServiceProvider.php — add to boot()
-public function boot(): void
-{
-    $this->registerLocalizeHelper();
-
-    $this->app->resolving('url', function ($url, $app) {
-        $url->macro('localizedRoute', function (string $name, array $parameters = [], bool $absolute = true) use ($app) {
-            $locale = $app->getLocale();
-            if ($locale !== 'en') {
-                $parameters['locale'] = $locale;
-            }
-            return $this->route($name, $parameters, $absolute);
-        });
-    });
-}
-```
-
-Then create a small wrapper class `App\Support\LocalizedUrl` that wraps `route()`:
+- [ ] **Step 3: Add `App\Support\LocalizedUrl` class**
 
 ```php
 // app/Support/LocalizedUrl.php
@@ -479,30 +491,21 @@ class LocalizedUrl
 
 - [ ] **Step 4: Document in I18nServiceProvider that Blade templates should use `LocalizedUrl::route()`**
 
-Add to `boot()` docblock:
+Add to `app/Providers/I18nServiceProvider.php` `boot()` docblock:
+
 > Note: existing `route()` calls in Blade continue to work, but they will NOT automatically prepend the locale. Replace `route('foo')` with `App\Support\LocalizedUrl::route('foo')` for new code. (Phase B will do a project-wide find/replace.)
 
-For the test, add a helper:
-
-```php
-// tests/TestCase.php — add helper
-protected function localizedRoute(string $name, array $parameters = []): string
-{
-    return \App\Support\LocalizedUrl::route($name, $parameters);
-}
-```
-
-Then update the test to assert against `localizedRoute()` not `route()`.
+No changes to `I18nServiceProvider` body needed (the `localize()` helper from Task A2 stays as-is).
 
 - [ ] **Step 5: Run tests to verify they pass**
 
 Run: `php artisan test --compact tests/Feature/Routing/RouteLocaleAwareTest.php`
-Expected: PASS.
+Expected: PASS (3/3).
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add app/Providers/I18nServiceProvider.php app/Support/LocalizedUrl.php tests/Feature/Routing/RouteLocaleAwareTest.php tests/TestCase.php
+git add app/Providers/I18nServiceProvider.php app/Support/LocalizedUrl.php tests/Feature/Routing/RouteLocaleAwareTest.php
 git commit -m "feat(i18n): LocalizedUrl::route() prepends current locale prefix"
 ```
 
