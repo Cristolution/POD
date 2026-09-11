@@ -46,7 +46,7 @@ Total: **~55 files modified**, **2 files created**, **138 lang files deleted**.
 
 ---
 
-## Task S1: Consolidate lang files into flat per-locale files
+## Task 1: Consolidate lang files into flat per-locale files
 
 **Files:**
 - Create: `lang/en.php`, `lang/ar.php`, `lang/tr.php`
@@ -127,7 +127,7 @@ git commit -m "refactor(i18n): consolidate 69 lang/en/ files into single flat la
 
 ---
 
-## Task S2: Mechanical Blade sweep — wrap hardcoded strings in `__()`
+## Task 2: Mechanical Blade sweep — wrap hardcoded strings in `__()`
 
 **Files:**
 - Modify: ~50 Blade files under `resources/views/`
@@ -195,7 +195,7 @@ git commit -m "feat(i18n): wrap Blade strings in __() — site now ready for tra
 
 ---
 
-## Task S3: Logical CSS + RTL for Arabic
+## Task 3: Logical CSS + RTL for Arabic
 
 **Files:**
 - Modify: all Blade files (CSS class refactor)
@@ -270,7 +270,7 @@ git commit -m "refactor(i18n): directional CSS → logical properties + RTL styl
 
 ---
 
-## Task S4: Translate `lang/ar.php`
+## Task 4: Translate `lang/ar.php`
 
 **Files:**
 - Modify: `lang/ar.php`
@@ -311,7 +311,7 @@ git commit -m "feat(i18n): translate lang/ar.php to Arabic"
 
 ---
 
-## Task S5: Translate `lang/tr.php`
+## Task 5: Translate `lang/tr.php`
 
 Same as S4 but for Turkish.
 
@@ -333,7 +333,7 @@ git commit -m "feat(i18n): translate lang/tr.php to Turkish"
 
 ---
 
-## Task S6 (final): Tag + ship
+## Task 6: Tag + ship
 
 - [ ] **Step 1: Run full test suite (chunked)**
 
