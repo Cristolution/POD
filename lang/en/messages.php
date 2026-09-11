@@ -37,13 +37,13 @@ return [
     'mapping_deleted' => 'Mapping deleted.',
 
     // DesignerProfileController
-    'designer_profile_updated' => 'Profile updated.',
+    // (uses same key as AccountController — flash message is identical)
 
     // NotificationController
     'notification_removed' => 'Notification removed.',
 
     // PrinterProviderController
-    'printer_profile_updated' => 'Profile updated.',
+    // (uses same key as AccountController — flash message is identical)
     'order_status_moved' => "Item moved to ':next'.",
 
     // RegisterController

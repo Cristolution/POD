@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 return [
     'title' => 'Forbidden',
-    'heading' => '403',
+    'code' => '403',
+    'h1' => 'Access denied',
     'message' => "You don't have permission to view this resource.",
     'back' => 'Take me home',
 ];

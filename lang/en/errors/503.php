@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 return [
     'title' => 'Service unavailable',
-    'heading' => '503',
+    'code' => '503',
+    'h1' => 'Down for maintenance',
     'message' => "We'll be right back. We're working on making things better.",
     'back' => 'Try again',
 ];

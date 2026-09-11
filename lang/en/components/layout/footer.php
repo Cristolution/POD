@@ -12,6 +12,8 @@ return [
     'dashboard' => 'Dashboard',
     'orders' => 'Orders',
     'notifications' => 'Notifications',
+    'login' => 'Login',
+    'register' => 'Register',
     'legal_heading' => 'Legal',
     'terms' => 'Terms',
     'privacy' => 'Privacy',
