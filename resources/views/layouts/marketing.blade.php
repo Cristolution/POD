@@ -6,6 +6,30 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? config('app.name') }}</title>
 
+    {{-- Hreflang alternates + canonical for en/ar/tr. The canonical always
+         points at the English unprefixed URL via localize(null), so search
+         engines consolidate ranking signals onto a single preferred page.
+         `localize($locale)` handles the .localized sibling swap, preserves
+         route parameters (except locale), and falls back to url('/') when
+         no current route is bound.
+
+         Guarded by the two-route convention: only emit hreflang when the
+         current route has a `.localized` sibling (or is itself one). --}}
+    @php
+        $currentRoute = request()->route();
+        $currentRouteName = $currentRoute?->getName();
+        $hasLocalizedRoute = $currentRouteName !== null && (
+            str_ends_with($currentRouteName, '.localized')
+            || \Illuminate\Support\Facades\Route::getRoutes()->getByName($currentRouteName.'.localized') !== null
+        );
+    @endphp
+    @if ($hasLocalizedRoute)
+        @foreach (['en', 'ar', 'tr'] as $hreflangLocale)
+            <link rel="alternate" hreflang="{{ $hreflangLocale }}" href="{{ localize($hreflangLocale) }}" />
+        @endforeach
+        <link rel="canonical" href="{{ localize(null) }}">
+    @endif
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('head')
