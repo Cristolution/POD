@@ -33,7 +33,7 @@ class DesignerMappingCrudTest extends TestCase
             ->for(Category::factory())
             ->create(['title' => 'My Design']);
 
-        $template = ProductTemplate::factory()->create(['name' => 'Classic Tee']);
+        $template = ProductTemplate::factory()->create(['type' => 't-shirt']);
         $printer = PrinterProviderProfile::factory()->create();
 
         return [$user, $profile, $design, $template, $printer];

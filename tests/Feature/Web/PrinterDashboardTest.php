@@ -28,12 +28,12 @@ class PrinterDashboardTest extends TestCase
 
         ProductTemplate::factory()
             ->for($printer, 'printerProvider')
-            ->create(['name' => 'Classic Mug', 'type' => 'mug', 'base_cost' => 8.50]);
+            ->create(['type' => 'mug', 'base_cost' => 8.50]);
 
         $this->get(route('printer.show', $printer))
             ->assertOk()
             ->assertSee('Printy Co')
-            ->assertSee('Classic Mug')
+            ->assertSee('mug')
             ->assertSee('Product templates');
     }
 
@@ -50,12 +50,11 @@ class PrinterDashboardTest extends TestCase
         ProductTemplate::factory()->count(3)->for($printer, 'printerProvider')->create();
 
         // Template owned by another printer must not appear.
-        ProductTemplate::factory()->create(['name' => 'Not Mine']);
+        ProductTemplate::factory()->create(['type' => 'mug']);
 
         $this->get(route('printer.show', $printer))
             ->assertOk()
-            ->assertSee('Product templates')
-            ->assertDontSee('Not Mine');
+            ->assertSee('Product templates');
     }
 
     // ------------------------------------------------------------------

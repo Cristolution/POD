@@ -28,7 +28,7 @@ class DesignerMappingIndexTest extends TestCase
             ->for(Category::factory())
             ->create(['title' => 'My Design']);
 
-        $template = ProductTemplate::factory()->create(['name' => 'Classic Tee']);
+        $template = ProductTemplate::factory()->create(['type' => 't-shirt']);
         $printer = PrinterProviderProfile::factory()->create();
 
         DesignProductMapping::factory()->create([
@@ -70,7 +70,7 @@ class DesignerMappingIndexTest extends TestCase
             ->get(route('designer.mappings'))
             ->assertOk()
             ->assertSee('My Design')
-            ->assertSee('Classic Tee');
+            ->assertSee('t-shirt');
     }
 
     public function test_mappings_index_excludes_other_designers_mappings(): void
@@ -81,7 +81,7 @@ class DesignerMappingIndexTest extends TestCase
         $this->actingAs($designer)
             ->get(route('designer.mappings'))
             ->assertOk()
-            ->assertSee('Classic Tee');
+            ->assertSee('t-shirt');
 
         $this->assertSame(2, DesignProductMapping::query()->count(), 'Both mappings should exist in DB.');
         // The other designer's product template has a unique random name, so the

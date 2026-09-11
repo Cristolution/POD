@@ -92,7 +92,7 @@ class AccountTest extends TestCase
     {
         $user = User::factory()->printerProvider()->create(['name' => 'Patti Plates']);
         $profile = PrinterProviderProfile::factory()->for($user)->create(['company_name' => 'Printy Co']);
-        ProductTemplate::factory()->for($profile, 'printerProvider')->create(['name' => 'Classic Mug']);
+        ProductTemplate::factory()->for($profile, 'printerProvider')->create(['type' => 'mug']);
 
         $this->actingAs($user)
             ->get(route('account.dashboard'))
@@ -100,7 +100,7 @@ class AccountTest extends TestCase
             ->assertSee('Printer<span class="text-coral-500">.</span>', escape: false)
             ->assertSee('Printy Co')
             ->assertSee('Your templates')
-            ->assertSee('Classic Mug')
+            ->assertSee('mug')
             ->assertSee('Recent order items');
     }
 

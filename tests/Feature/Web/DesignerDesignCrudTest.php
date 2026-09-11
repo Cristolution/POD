@@ -259,7 +259,7 @@ class DesignerDesignCrudTest extends TestCase
         [$user, $profile] = $this->designerUser();
         $design = Design::factory()->forDesigner($profile)->create(['title' => 'My Map Host']);
 
-        $template = ProductTemplate::factory()->create(['name' => 'Classic Tee']);
+        $template = ProductTemplate::factory()->create(['type' => 't-shirt']);
         $printer = PrinterProviderProfile::factory()->create();
         $mapping = DesignProductMapping::factory()->create([
             'design_id' => $design->id,
@@ -272,7 +272,7 @@ class DesignerDesignCrudTest extends TestCase
             ->get(route('designer.designs.show', $design));
 
         $response->assertOk()
-            ->assertSee('Classic Tee')
+            ->assertSee('t-shirt')
             ->assertSee(route('designer.mappings.create', ['design_id' => $design->id]), false)
             ->assertSee(route('designer.mappings.edit', $mapping), false)
             ->assertSee(route('designer.mappings.destroy', $mapping), false);
