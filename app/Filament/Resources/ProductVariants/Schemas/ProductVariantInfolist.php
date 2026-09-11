@@ -41,7 +41,7 @@ class ProductVariantInfolist
                                 ->icon(Heroicon::OutlinedQrCode)
                                 ->copyable()
                                 ->columnSpan(1),
-                            TextEntry::make('productTemplate.name')
+                            TextEntry::make('productTemplate.type')
                                 ->label('Product template')
                                 ->placeholder('— orphaned —')
                                 ->icon(Heroicon::OutlinedCube)

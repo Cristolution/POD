@@ -30,10 +30,6 @@ class ProductTemplateForm
                             ->required()
                             ->maxLength(255)
                             ->helperText('Free text — printer-managed (e.g. "mug", "tshirt").'),
-                        TextInput::make('name')
-                            ->required()
-                            ->maxLength(255)
-                            ->columnSpanFull(),
                     ]),
                 Section::make('Pricing')
                     ->columns(1)

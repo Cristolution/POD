@@ -16,7 +16,6 @@ class StoreProductTemplateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:160'],
             'type' => ['required', 'string', 'max:60'],
             'base_cost' => ['required', 'numeric', 'min:0'],
             'specs' => ['nullable', 'array'],

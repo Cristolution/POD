@@ -67,9 +67,13 @@ class DesignProductMappingResource extends Resource
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
+        // Reach trashed mapping rows AND mappings whose design has been
+        // soft-deleted, so admins can restore or clean them up.
         return parent::getRecordRouteBindingEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+                'withDesign',
+            ])
+            ->withTrashedDesigns();
     }
 }

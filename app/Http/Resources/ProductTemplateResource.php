@@ -19,7 +19,6 @@ class ProductTemplateResource extends JsonResource
         return [
             'id' => $this->id,
             'printer_provider_id' => $this->printer_provider_id,
-            'name' => $this->name,
             'type' => $this->type,
             'base_cost' => (float) $this->base_cost,
             'specs' => $this->specs,

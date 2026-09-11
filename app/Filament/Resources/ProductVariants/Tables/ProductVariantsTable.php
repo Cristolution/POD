@@ -30,7 +30,7 @@ class ProductVariantsTable
                     ->label('ID')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('productTemplate.name')
+                TextColumn::make('productTemplate.type')
                     ->label('Template')
                     ->searchable()
                     ->sortable()
@@ -66,7 +66,7 @@ class ProductVariantsTable
                     ]),
                 SelectFilter::make('product_template_id')
                     ->label('Template')
-                    ->relationship('productTemplate', 'name'),
+                    ->relationship('productTemplate', 'type'),
                 TrashedFilter::make(),
             ])
             ->recordActions([

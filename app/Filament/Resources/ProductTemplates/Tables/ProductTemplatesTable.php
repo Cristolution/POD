@@ -29,13 +29,10 @@ class ProductTemplatesTable
                     ->label('ID')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('name')
+                TextColumn::make('type')
                     ->searchable()
                     ->sortable()
                     ->wrap(),
-                TextColumn::make('type')
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('printerProvider.company_name')
                     ->label('Printer')
                     ->searchable()

@@ -15,7 +15,7 @@ use Filament\Support\Icons\Heroicon;
  * Detail-page infolist for a {@see ProductTemplate}.
  *
  * Six sections:
- *   1. Identity   — UUID, name, type
+ *   1. Identity   — UUID, type
  *   2. Printer    — fulfiller and company
  *   3. Pricing    — base cost
  *   4. Specs      — JSON `specs` rendered as key/value lines
@@ -29,25 +29,20 @@ class ProductTemplateInfolist
         return $schema
             ->components([
                 Section::make('Identity')
-                    ->description('Name and product type.')
+                    ->description('Product type and template UUID.')
                     ->icon(Heroicon::OutlinedCube)
                     ->schema([
                         Grid::make(2)->schema([
-                            TextEntry::make('name')
-                                ->weight('bold')
-                                ->size('lg')
-                                ->columnSpan(1),
                             TextEntry::make('type')
                                 ->badge()
                                 ->color('info')
                                 ->icon(Heroicon::OutlinedSwatch)
-                                ->placeholder('— unspecified —')
-                                ->columnSpan(1),
+                                ->placeholder('— unspecified —'),
+                            TextEntry::make('id')
+                                ->label('Template ID')
+                                ->icon(Heroicon::OutlinedHashtag)
+                                ->copyable(),
                         ]),
-                        TextEntry::make('id')
-                            ->label('Template ID')
-                            ->icon(Heroicon::OutlinedHashtag)
-                            ->copyable(),
                     ]),
 
                 Section::make('Printer')

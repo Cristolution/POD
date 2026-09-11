@@ -19,7 +19,6 @@ class ProductTemplateFactory extends Factory
 
         return [
             'printer_provider_id' => PrinterProviderProfile::factory(),
-            'name' => fake()->words(2, true),
             'type' => fake()->randomElement($types),
             'base_cost' => fake()->randomFloat(2, 5, 50),
             'specs' => [

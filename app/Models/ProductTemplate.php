@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['printer_provider_id', 'name', 'type', 'base_cost', 'specs'])]
+#[Fillable(['printer_provider_id', 'type', 'base_cost', 'specs'])]
 class ProductTemplate extends Model
 {
     /** @use HasFactory<ProductTemplateFactory> */

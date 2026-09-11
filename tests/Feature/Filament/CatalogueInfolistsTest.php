@@ -228,7 +228,6 @@ class CatalogueInfolistsTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $template = self::makeProductTemplateFixture([
-            'name' => 'A4 Poster Print',
             'base_cost' => 12.50,
             'specs' => ['material' => 'matte', 'dpi' => 300],
         ]);
@@ -237,7 +236,7 @@ class CatalogueInfolistsTest extends TestCase
             ->get('/admin/product-templates/'.$template->id)
             ->assertOk()
             ->assertSee('Identity')
-            ->assertSee('A4 Poster Print')
+            ->assertSee('poster')
             ->assertSee('Printer')
             ->assertSee('Pricing')
             ->assertSee('$12.50')
@@ -339,7 +338,6 @@ class CatalogueInfolistsTest extends TestCase
 
         return ProductTemplate::factory()->create(array_merge([
             'printer_provider_id' => $printer->id,
-            'name' => 'A4 Poster Print',
             'type' => 'poster',
             'base_cost' => 15.00,
             'specs' => ['material' => 'matte', 'dpi' => 300],

@@ -16,6 +16,7 @@ use App\Models\Setting;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Observers\AuditAdminActions;
+use App\Observers\PrinterProviderProfileObserver;
 use App\Policies\AddressPolicy;
 use App\Policies\DeliveryCompanyPolicy;
 use App\Policies\DesignerProfilePolicy;
@@ -70,6 +71,11 @@ class AppServiceProvider extends ServiceProvider
         foreach ($auditableModels as $class) {
             $class::observe(AuditAdminActions::class);
         }
+
+        // Preserve design ↔ product mappings when a printer is removed and
+        // notify the affected designers to pick a new fulfiller. See
+        // {@see PrinterProviderProfileObserver} for the exact flow.
+        PrinterProviderProfile::observe(PrinterProviderProfileObserver::class);
 
         $this->registerRateLimiters();
     }

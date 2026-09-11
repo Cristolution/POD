@@ -26,7 +26,7 @@ class DesignProductMappingForm
                             ->required(),
                         Select::make('product_template_id')
                             ->label('Product template')
-                            ->relationship('productTemplate', 'name')
+                            ->relationship('productTemplate', 'type')
                             ->searchable()
                             ->preload()
                             ->required(),

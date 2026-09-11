@@ -188,7 +188,6 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'id', type: 'string', format: 'uuid'),
         new OA\Property(property: 'printer_provider_id', type: 'string', format: 'uuid'),
-        new OA\Property(property: 'name', type: 'string'),
         new OA\Property(property: 'type', type: 'string'),
         new OA\Property(property: 'base_cost', type: 'number', format: 'float'),
         new OA\Property(property: 'specs', type: 'object', additionalProperties: new OA\AdditionalProperties, nullable: true),
@@ -196,7 +195,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
         new OA\Property(property: 'updated_at', type: 'string', format: 'date-time'),
     ],
-    required: ['id', 'printer_provider_id', 'name', 'type', 'base_cost'],
+    required: ['id', 'printer_provider_id', 'type', 'base_cost'],
 )]
 #[OA\Schema(
     schema: 'ProductVariant',

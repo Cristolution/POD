@@ -119,15 +119,15 @@ class ReportChartsTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $customer = User::factory()->create(['role' => 'customer']);
 
-        // 2 confirmed orders → 2 confirmed payments → 2 days of revenue.
-        foreach ([100.00, 50.00] as $amount) {
+        // 2 confirmed orders → 2 confirmed payments on different days → 2 labels.
+        foreach ([100.00, 50.00] as $i => $amount) {
             $order = Order::factory()->forCustomer($customer)->create([
                 'status' => 'paid',
                 'total_amount' => $amount,
             ]);
             Payment::factory()->confirmed($admin)->create([
                 'order_id' => $order->id,
-                'confirmed_at' => now()->subDays(rand(1, 10)),
+                'confirmed_at' => now()->subDays($i + 1),  // 1 day ago, 2 days ago — never collide
             ]);
         }
 

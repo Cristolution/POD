@@ -19,7 +19,6 @@ class CrudTest extends TestCase
     public function test_anonymous_is_rejected_on_store(): void
     {
         $this->postJson('/api/me/templates', [
-            'name' => 'Mug',
             'type' => 'mug',
             'base_cost' => 9.99,
         ])->assertStatus(401);
@@ -31,7 +30,6 @@ class CrudTest extends TestCase
 
         $this->actingAs($customer, 'sanctum')
             ->postJson('/api/me/templates', [
-                'name' => 'Mug',
                 'type' => 'mug',
                 'base_cost' => 9.99,
             ])
@@ -44,17 +42,15 @@ class CrudTest extends TestCase
 
         $this->actingAs($printer, 'sanctum')
             ->postJson('/api/me/templates', [
-                'name' => 'Classic Mug',
                 'type' => 'mug',
                 'base_cost' => 12.50,
                 'specs' => ['material' => 'ceramic'],
             ])
             ->assertCreated()
-            ->assertJsonPath('data.name', 'Classic Mug')
+            ->assertJsonPath('data.type', 'mug')
             ->assertJsonPath('data.base_cost', 12.50);
 
         $this->assertDatabaseHas('product_templates', [
-            'name' => 'Classic Mug',
             'type' => 'mug',
             'base_cost' => 12.50,
         ]);
@@ -68,14 +64,12 @@ class CrudTest extends TestCase
 
         $this->actingAs($printer, 'sanctum')
             ->patchJson("/api/me/templates/{$template->id}", [
-                'name' => 'Renamed Mug',
                 'base_cost' => 14.50,
             ])
             ->assertOk()
-            ->assertJsonPath('data.name', 'Renamed Mug')
             ->assertJsonPath('data.base_cost', 14.50);
 
-        $this->assertSame('Renamed Mug', $template->fresh()->name);
+        $this->assertSame(14.50, (float) $template->fresh()->base_cost);
     }
 
     public function test_printer_cannot_update_other_printers_template(): void
@@ -88,7 +82,7 @@ class CrudTest extends TestCase
 
         $this->actingAs($other, 'sanctum')
             ->patchJson("/api/me/templates/{$template->id}", [
-                'name' => 'Hijacked',
+                'base_cost' => 99.99,
             ])
             ->assertForbidden();
     }
@@ -103,7 +97,7 @@ class CrudTest extends TestCase
 
         $this->actingAs($designer, 'sanctum')
             ->patchJson("/api/me/templates/{$template->id}", [
-                'name' => 'Designer Override',
+                'base_cost' => 99.99,
             ])
             ->assertForbidden();
     }

@@ -16,7 +16,6 @@ class UpdateProductTemplateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:160'],
             'type' => ['sometimes', 'required', 'string', 'max:60'],
             'base_cost' => ['sometimes', 'required', 'numeric', 'min:0'],
             'specs' => ['sometimes', 'nullable', 'array'],

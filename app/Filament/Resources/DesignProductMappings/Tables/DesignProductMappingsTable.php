@@ -14,8 +14,10 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DesignProductMappingsTable
 {
@@ -61,6 +63,10 @@ class DesignProductMappingsTable
             ])
             ->filters([
                 TrashedFilter::make(),
+                Filter::make('include_trashed_designs')
+                    ->label('Include mappings whose design is deleted')
+                    ->toggle()
+                    ->query(fn (Builder $query) => $query->withTrashedDesigns()),
             ])
             ->recordActions([
                 ViewAction::make(),

@@ -50,7 +50,7 @@ class DesignerMappingController extends Controller
 
         return view('pages.designer.mappings.create', [
             'designs' => $profile->designs()->orderBy('title')->get(['id', 'title']),
-            'templates' => ProductTemplate::query()->orderBy('name')->get(['id', 'name', 'type', 'base_cost']),
+            'templates' => ProductTemplate::query()->orderBy('type')->get(['id', 'type', 'base_cost']),
             'printers' => PrinterProviderProfile::query()
                 ->with('user')
                 ->orderBy('company_name')

@@ -36,7 +36,6 @@ class ProductTemplateResourceTest extends TestCase
             ->test(CreateProductTemplate::class)
             ->fillForm([
                 'printer_provider_id' => (string) $printer->id,
-                'name' => 'Ceramic Mug 11oz',
                 'type' => 'mug',
                 'base_cost' => 6.50,
                 'specs' => [
@@ -48,7 +47,6 @@ class ProductTemplateResourceTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertDatabaseHas('product_templates', [
-            'name' => 'Ceramic Mug 11oz',
             'type' => 'mug',
         ]);
     }

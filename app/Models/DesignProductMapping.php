@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Database\Factories\DesignProductMappingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +29,26 @@ class DesignProductMapping extends Model
         return [
             'final_price' => 'decimal:2',
         ];
+    }
+
+    /**
+     * Hide mappings whose design has been soft-deleted so they don't pollute
+     * the default catalog/admin queries. Use {@see withTrashedDesigns()} to
+     * surface them (e.g. for restore flows). A mapping whose design is
+     * force-deleted is removed at the Eloquent layer via
+     * {@see Design::booted()} and never appears here.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('withDesign', function (Builder $builder): void {
+            $builder->whereHas('design');
+        });
+    }
+
+    #[Scope]
+    protected function withTrashedDesigns(Builder $query): Builder
+    {
+        return $query->withoutGlobalScope('withDesign');
     }
 
     // ------------------------------------------------------------------
