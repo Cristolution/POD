@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('shipments', function (Blueprint $table) {
             $table->id();
-            $table->uuid('order_id')
+            $table->foreignUuid('order_id')
                 ->constrained('orders')->cascadeOnDelete();
-            $table->uuid('printer_provider_id')
+            $table->foreignUuid('printer_provider_id')
                 ->constrained('printer_provider_profiles')->restrictOnDelete();
             $table->foreignId('delivery_company_id')
                 ->constrained('delivery_companies')->restrictOnDelete();

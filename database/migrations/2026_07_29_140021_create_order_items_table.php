@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->uuid('order_id')
+            $table->foreignUuid('order_id')
                 ->constrained('orders')->cascadeOnDelete();
-            $table->uuid('design_product_mapping_id')
+            $table->foreignUuid('design_product_mapping_id')
                 ->constrained('design_product_mappings')->restrictOnDelete();
-            $table->uuid('product_variant_id')->nullable()
+            $table->foreignUuid('product_variant_id')->nullable()
                 ->constrained('product_variants')->nullOnDelete();
-            $table->uuid('printer_provider_id')
+            $table->foreignUuid('printer_provider_id')
                 ->constrained('printer_provider_profiles')->restrictOnDelete();
 
             $table->enum('status', [

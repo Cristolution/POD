@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('design_product_mappings', function (Blueprint $table) {
             $table->uuid('id')->primary(); // public-facing PK (Pattern A)
-            $table->uuid('design_id')
+            $table->foreignUuid('design_id')
                 ->constrained('designs')->cascadeOnDelete();
-            $table->uuid('product_template_id')
+            $table->foreignUuid('product_template_id')
                 ->constrained('product_templates')->cascadeOnDelete();
-            $table->uuid('preferred_printer_id')
+            $table->foreignUuid('preferred_printer_id')
                 ->constrained('printer_provider_profiles')->cascadeOnDelete();
             $table->decimal('final_price', 10, 2);
             $table->timestamps();

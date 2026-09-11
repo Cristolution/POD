@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('designs', function (Blueprint $table) {
             $table->uuid('id')->primary(); // public-facing PK (Pattern A)
-            $table->uuid('designer_id')
+            $table->foreignUuid('designer_id')
                 ->constrained('designer_profiles')->cascadeOnDelete();
             $table->foreignId('category_id')
                 ->constrained('categories')->restrictOnDelete();

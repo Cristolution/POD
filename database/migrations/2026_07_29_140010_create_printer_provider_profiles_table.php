@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('printer_provider_profiles', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Pattern A: PK is UUID (public-facing at /printers/{id})
-            $table->uuid('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('company_name');
             $table->timestamps();
 

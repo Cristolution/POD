@@ -10,14 +10,14 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->uuid('id')->primary(); // public-facing PK (Pattern A)
-            $table->uuid('order_id')
+            $table->foreignUuid('order_id')
                 ->constrained('orders')->cascadeOnDelete();
             $table->enum('method', ['cash_on_delivery', 'bank_transfer', 'card'])
                 ->index();
             $table->enum('status', ['pending', 'confirmed', 'rejected'])
                 ->default('pending')
                 ->index();
-            $table->foreignId('confirmed_by_admin_id')->nullable()
+            $table->foreignUuid('confirmed_by_admin_id')->nullable()
                 ->constrained('users')->nullOnDelete();
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamps();

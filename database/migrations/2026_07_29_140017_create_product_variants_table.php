@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('product_variants', function (Blueprint $table) {
             $table->uuid('id')->primary(); // public-facing PK (Pattern A)
-            $table->uuid('product_template_id')
+            $table->foreignUuid('product_template_id')
                 ->constrained('product_templates')->cascadeOnDelete();
             $table->json('attributes'); // e.g. { "size": "L", "color": "black" }
             $table->decimal('price_delta', 10, 2)->default(0);

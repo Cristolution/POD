@@ -605,7 +605,7 @@ Create `resources/views/components/ui/design-card.blade.php`:
 @props(['design'])
 
 <a href="{{ route('design.show', $design) }}"
-   class="card hover:border-coral-500 transition-colors group block">
+   class="card hover:border-coral-500  p-3  transition-colors group block">
     <div class="aspect-square bg-sand-200 mb-4 overflow-hidden border-3 border-ink-800">
         @if ($design->media->first())
             <img src="{{ \Storage::disk($design->media->first()->disk)->url($design->media->first()->path) }}"
@@ -648,7 +648,7 @@ Create `resources/views/components/ui/design-card.blade.php`:
 @props(['designer'])
 
 <a href="{{ route('designer.show', $designer) }}"
-   class="card hover:border-coral-500 transition-colors block">
+   class="card hover:border-coral-500  p-3  transition-colors block">
     <div class="flex items-center gap-4 mb-3">
         <div class="w-16 h-16 bg-sand-200 border-3 border-ink-800 overflow-hidden">
             @if ($designer->avatar_url)

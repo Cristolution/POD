@@ -10,12 +10,12 @@ return new class extends Migration
     {
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
-            $table->uuid('user_id')
+            $table->foreignUuid('user_id')
                 ->constrained('users')->cascadeOnDelete();
-            $table->uuid('design_product_mapping_id')
+            $table->foreignUuid('design_product_mapping_id')
                 ->constrained('design_product_mappings')->cascadeOnDelete();
-            $table->uuid('product_variant_id')->nullable()
-                ->constrained('product_variants')->nullOnDelete();
+            $table->foreignUuid('product_variant_id')->nullable()
+                ->constrained('product_variants')->restrictOnDelete();
             $table->unsignedInteger('quantity')->default(1);
             $table->timestamps();
 
