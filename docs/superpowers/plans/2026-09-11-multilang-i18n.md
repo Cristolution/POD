@@ -93,7 +93,7 @@ Total: **~180 files created, ~60 modified**.
 
 Phase A delivers the URL prefix, middleware, helper, route() override, lang/ skeleton (English files with verbatim copy of existing strings), cookie handling, and hreflang skeleton. After Phase A, the site still renders entirely in English, but every URL works with `/ar/...` and `/tr/...` prefixes, the cookie persists, and the switcher (in English-only mode) is in place.
 
-### Task A1: Locale config + middleware skeleton
+### Task 1: Locale config + middleware skeleton
 
 **Files:**
 - Modify: `config/app.php` (verify env hooks present)
@@ -259,7 +259,7 @@ git commit -m "feat(i18n): LocalizeRequests middleware with URL > cookie > Accep
 
 ---
 
-### Task A2: `localize()` helper
+### Task 2: `localize()` helper
 
 **Files:**
 - Create: `app/Providers/I18nServiceProvider.php`
@@ -410,7 +410,7 @@ git commit -m "feat(i18n): localize() helper for cross-locale URL rewriting"
 
 ---
 
-### Task A3: `route()` URL generator override
+### Task 3: `route()` URL generator override
 
 **Files:**
 - Modify: `app/Providers/I18nServiceProvider.php`
@@ -511,7 +511,7 @@ git commit -m "feat(i18n): LocalizedUrl::route() prepends current locale prefix"
 
 ---
 
-### Task A4: Wrap web routes in localized group
+### Task 4: Wrap web routes in localized group
 
 **Files:**
 - Modify: `routes/web.php`
@@ -559,7 +559,7 @@ git commit -m "feat(i18n): wrap public routes in {locale?} prefix group with loc
 
 ---
 
-### Task A5: Create lang/en/ skeleton with verbatim English copy
+### Task 5: Create lang/en/ skeleton with verbatim English copy
 
 **Files:**
 - Create: `lang/en/pages/**/*.php` (~40 files, one per page)
@@ -730,7 +730,7 @@ git commit -m "feat(i18n): create lang/en/ skeleton with verbatim English copy"
 
 ---
 
-### Task A6: Locale file consistency test
+### Task 6: Locale file consistency test
 
 **Files:**
 - Create: `tests/Feature/LocaleFilesTest.php`
@@ -766,7 +766,7 @@ git commit -m "test(i18n): every lang/en/ file returns a valid array"
 
 ---
 
-### Task A7: Wire hreflang + canonical into layouts
+### Task 7: Wire hreflang + canonical into layouts
 
 **Files:**
 - Modify: `resources/views/layouts/app.blade.php`
@@ -827,7 +827,7 @@ git commit -m "feat(i18n): hreflang + canonical link tags in both layouts"
 
 ---
 
-### Task A8: Language switcher component (English-only)
+### Task 8: Language switcher component (English-only)
 
 **Files:**
 - Create: `resources/views/components/ui/language-switcher.blade.php`
@@ -924,7 +924,7 @@ git commit -m "feat(i18n): language switcher component in site header"
 
 ---
 
-### Task A9: Phase A verification
+### Task 9: Phase A verification
 
 - [ ] **Step 1: Run the full test suite**
 
@@ -963,7 +963,7 @@ git tag phase-a-infrastructure-complete
 
 Phase B converts every existing English string in Blade files to `__()` calls AND refactors directional CSS classes to logical properties. After Phase B, the site renders identically in English (no visual change) but every string is now translatable and every layout is RTL-ready.
 
-### Task B1: Add `<html dir>` to both layouts
+### Task 10: Add `<html dir>` to both layouts
 
 **Files:**
 - Modify: `resources/views/layouts/app.blade.php`
@@ -997,7 +997,7 @@ git commit -m "feat(i18n): set <html dir> based on locale (rtl for ar)"
 
 ---
 
-### Task B2: Refactor directional CSS classes to logical properties
+### Task 11: Refactor directional CSS classes to logical properties
 
 **Files:**
 - Modify: every `.blade.php` under `resources/views/` (~50 files)
@@ -1078,7 +1078,7 @@ git commit -m "refactor(i18n): directional CSS classes → logical properties (R
 
 ---
 
-### Task B3: Wrap page copy in `__()` (pages/browse/*)
+### Task 12: Wrap page copy in `__()` (pages/browse/*)
 
 **Files:**
 - Modify: `resources/views/pages/browse/categories.blade.php`
@@ -1116,7 +1116,7 @@ git commit -m "feat(i18n): wrap pages/browse/* copy in __()"
 
 ---
 
-### Task B4: Wrap page copy in `__()` (pages/design/*, pages/cart/*, pages/checkout/*, pages/orders/*)
+### Task 13: Wrap page copy in `__()` (pages/design/*, pages/cart/*, pages/checkout/*, pages/orders/*)
 
 **Files:**
 - Modify: `resources/views/pages/design/show.blade.php`
@@ -1142,7 +1142,7 @@ git commit -m "feat(i18n): wrap pages/{design,cart,checkout,orders}/* copy in __
 
 ---
 
-### Task B5: Wrap page copy in `__()` (pages/auth/*, pages/account/*, pages/designer/*, pages/printer/*)
+### Task 14: Wrap page copy in `__()` (pages/auth/*, pages/account/*, pages/designer/*, pages/printer/*)
 
 **Files:**
 - Modify: ~14 Blade files in these subdirectories
@@ -1165,7 +1165,7 @@ git commit -m "feat(i18n): wrap pages/{auth,account,designer,printer}/* copy in 
 
 ---
 
-### Task B6: Wrap page copy in `__()` (pages/home, pages/legal)
+### Task 15: Wrap page copy in `__()` (pages/home, pages/legal)
 
 **Files:**
 - Modify: `resources/views/pages/home.blade.php`
@@ -1183,7 +1183,7 @@ git commit -m "feat(i18n): wrap pages/{home,legal}/* copy in __()"
 
 ---
 
-### Task B7: Wrap component copy in `__()`
+### Task 16: Wrap component copy in `__()`
 
 **Files:**
 - Modify: ~10 Blade files under `resources/views/components/`
@@ -1203,7 +1203,7 @@ git commit -m "feat(i18n): wrap all components/ copy in __()"
 
 ---
 
-### Task B8: Wrap error pages and flash messages in `__()`
+### Task 17: Wrap error pages and flash messages in `__()`
 
 **Files:**
 - Modify: `resources/views/errors/404.blade.php`
@@ -1240,7 +1240,7 @@ git commit -m "feat(i18n): wrap error pages and flash messages in __()"
 
 ---
 
-### Task B9: Mirror all en/ keys to ar/ and tr/ as English placeholders
+### Task 18: Mirror all en/ keys to ar/ and tr/ as English placeholders
 
 **Files:**
 - Create: `lang/ar/**/*.php` (mirror of en/)
@@ -1328,7 +1328,7 @@ git commit -m "feat(i18n): mirror all en/ keys to ar/ and tr/ (English placehold
 
 ---
 
-### Task B10: Add validation translation test
+### Task 19: Add validation translation test
 
 **Files:**
 - Create: `tests/Feature/ValidationTranslationTest.php`
@@ -1364,7 +1364,7 @@ git commit -m "test(i18n): validation messages render in each locale"
 
 ---
 
-### Task B11: Phase B verification
+### Task 20: Phase B verification
 
 - [ ] **Step 1: Run full test suite**
 
@@ -1391,7 +1391,7 @@ git tag phase-b-blade-conversion-complete
 
 Phase C translates every key in `lang/ar/` to Arabic and audits layouts for visual RTL correctness. After Phase C, switching to Arabic produces a fully RTL-flipped, fully translated site. Turkish stays English (Phase D).
 
-### Task C1: Translate lang/ar/errors/, lang/ar/messages.php, lang/ar/validation.php
+### Task 21: Translate lang/ar/errors/, lang/ar/messages.php, lang/ar/validation.php
 
 **Files:**
 - Modify: `lang/ar/errors/*.php`
@@ -1487,7 +1487,7 @@ git commit -m "feat(i18n): translate errors, messages, validation to Arabic"
 
 ---
 
-### Task C2: Translate lang/ar/components/
+### Task 22: Translate lang/ar/components/
 
 **Files:**
 - Modify: ~10 files under `lang/ar/components/`
@@ -1507,7 +1507,7 @@ git commit -m "feat(i18n): translate all components/ to Arabic"
 
 ---
 
-### Task C3: Translate lang/ar/pages/
+### Task 23: Translate lang/ar/pages/
 
 **Files:**
 - Modify: ~40 files under `lang/ar/pages/`
@@ -1525,7 +1525,7 @@ git commit -m "feat(i18n): translate all pages/ to Arabic"
 
 ---
 
-### Task C4: Translate lang/ar/admin/resources/
+### Task 24: Translate lang/ar/admin/resources/
 
 **Files:**
 - Modify: 12 files under `lang/ar/admin/resources/`
@@ -1564,7 +1564,7 @@ git commit -m "feat(i18n): translate all admin/resources/ labels to Arabic"
 
 ---
 
-### Task C5: RTL visual audit
+### Task 25: RTL visual audit
 
 **Files:**
 - Modify: 5-10 Blade files where directional layouts need explicit RTL fixes
@@ -1625,7 +1625,7 @@ git commit -m "fix(i18n): RTL directional icon fixes for Arabic"
 
 ---
 
-### Task C6: Native Arabic speaker review
+### Task 26: Native Arabic speaker review
 
 - [ ] **Step 1: Compile a list of all Arabic strings**
 
@@ -1652,7 +1652,7 @@ git commit -m "fix(i18n): Arabic copy reviewed by native speaker"
 
 ---
 
-### Task C7: RTL + Arabic attribute tests
+### Task 27: RTL + Arabic attribute tests
 
 **Files:**
 - Create: `tests/Feature/Seo/RtlAttributeTest.php`
@@ -1713,7 +1713,7 @@ git commit -m "test(i18n): RTL attribute + localized top routes tests"
 
 ---
 
-### Task C8: Phase C verification
+### Task 28: Phase C verification
 
 - [ ] **Step 1: Run full test suite**
 
@@ -1744,7 +1744,7 @@ git tag phase-c-arabic-complete
 
 Same shape as Phase C but no RTL work — Turkish is LTR.
 
-### Task D1: Translate lang/tr/errors/, lang/tr/messages.php, lang/tr/validation.php
+### Task 29: Translate lang/tr/errors/, lang/tr/messages.php, lang/tr/validation.php
 
 - [ ] **Step 1: Translate errors/*.php to Turkish**
 
@@ -1793,7 +1793,7 @@ git commit -m "feat(i18n): translate errors, messages, validation to Turkish"
 
 ---
 
-### Task D2: Translate lang/tr/components/ and lang/tr/pages/
+### Task 30: Translate lang/tr/components/ and lang/tr/pages/
 
 - [ ] **Step 1: Same pattern as C2/C3 but for tr/**
 
@@ -1806,7 +1806,7 @@ git commit -m "feat(i18n): translate all components/ and pages/ to Turkish"
 
 ---
 
-### Task D3: Translate lang/tr/admin/resources/
+### Task 31: Translate lang/tr/admin/resources/
 
 - [ ] **Step 1: Translate 12 resource files to Turkish**
 
@@ -1819,7 +1819,7 @@ git commit -m "feat(i18n): translate all admin/resources/ labels to Turkish"
 
 ---
 
-### Task D4: Native Turkish speaker review
+### Task 32: Native Turkish speaker review
 
 - [ ] **Step 1: Hand off all Turkish strings to a native speaker for review**
 
@@ -1832,7 +1832,7 @@ git commit -m "fix(i18n): Turkish copy reviewed by native speaker"
 
 ---
 
-### Task D5: Phase D verification
+### Task 33: Phase D verification
 
 - [ ] **Step 1: Run full test suite**
 
@@ -1862,7 +1862,7 @@ git tag phase-d-turkish-complete
 
 Phase E translates Filament's chrome and adds per-resource labels. The admin panel still uses English data (because data isn't translated), but the operator sees everything in their chosen admin locale.
 
-### Task E1: Publish Filament translations
+### Task 34: Publish Filament translations
 
 - [ ] **Step 1: Run the publish command**
 
@@ -1889,7 +1889,7 @@ git commit -m "chore(filament): publish filament translation files"
 
 ---
 
-### Task E2: Translate lang/vendor/filament/ar/
+### Task 35: Translate lang/vendor/filament/ar/
 
 **Files:**
 - Modify: ~30 files under `lang/vendor/filament/ar/`
@@ -1942,7 +1942,7 @@ git commit -m "feat(i18n): translate Filament admin chrome to Arabic"
 
 ---
 
-### Task E3: Translate lang/vendor/filament/tr/
+### Task 36: Translate lang/vendor/filament/tr/
 
 - [ ] **Step 1: Mirror the en/ tree to tr/**
 
@@ -1988,7 +1988,7 @@ git commit -m "feat(i18n): translate Filament admin chrome to Turkish"
 
 ---
 
-### Task E4: Per-resource label overrides
+### Task 37: Per-resource label overrides
 
 **Files:**
 - Modify: 12 Filament Resource files in `app/Filament/Resources/{Name}/{Name}Resource.php`
@@ -2053,7 +2053,7 @@ git commit -m "feat(i18n): per-resource label overrides for Filament admin"
 
 ---
 
-### Task E5: Admin topbar language switcher + LocalizeAdminRequests middleware
+### Task 38: Admin topbar language switcher + LocalizeAdminRequests middleware
 
 **Files:**
 - Create: `app/Http/Middleware/LocalizeAdminRequests.php`
@@ -2177,7 +2177,7 @@ git commit -m "feat(i18n): admin topbar language switcher with localize.admin mi
 
 ---
 
-### Task E6: Phase E verification
+### Task 39: Phase E verification
 
 - [ ] **Step 1: Run full test suite**
 
@@ -2208,7 +2208,7 @@ git tag phase-e-filament-complete
 
 Final polish: hreflang confirmation, sitemap, optional Playwright visual baselines, full test suite green.
 
-### Task F1: Hreflang link test
+### Task 40: Hreflang link test
 
 **Files:**
 - Create: `tests/Feature/Seo/HreflangTest.php`
@@ -2249,7 +2249,7 @@ git commit -m "test(i18n): hreflang links present in all locales"
 
 ---
 
-### Task F2: Canonical test + Sitemap controller update (if exists)
+### Task 41: Canonical test + Sitemap controller update (if exists)
 
 **Files:**
 - Create: `tests/Feature/Seo/CanonicalTest.php`
@@ -2302,7 +2302,7 @@ git commit -m "feat(i18n): canonical test + sitemap hreflang variants"
 
 ---
 
-### Task F3: Optional Playwright visual baselines
+### Task 42: Optional Playwright visual baselines
 
 **Files:**
 - Create: `tests/e2e/visual/homepage-multilang.spec.ts`
@@ -2359,7 +2359,7 @@ git commit -m "test(visual): Playwright baselines for en/ar/tr homepage"
 
 ---
 
-### Task F4: Full test suite + deploy scripts
+### Task 43: Full test suite + deploy scripts
 
 - [ ] **Step 1: Run the full test suite**
 
