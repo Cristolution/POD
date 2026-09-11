@@ -38,7 +38,7 @@ class WishlistController extends Controller
             return response()->json(['favourited' => true]);
         }
 
-        return back()->with('status', 'Saved to wishlist.');
+        return back()->with('status', __('flash_wishlist_added'));
     }
 
     /**
@@ -58,6 +58,6 @@ class WishlistController extends Controller
             return response()->json(['favourited' => false]);
         }
 
-        return back()->with('status', 'Removed from wishlist.');
+        return back()->with('status', __('flash_wishlist_removed'));
     }
 }

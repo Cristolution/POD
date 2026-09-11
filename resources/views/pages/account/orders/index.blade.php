@@ -1,13 +1,13 @@
-@extends('layouts.app', ['title' => 'Orders'])
+@extends('layouts.app', ['title' => __('orders_title')])
 
 @section('content')
     <section class="max-w-6xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Account' => route('account.dashboard'),
-            'Orders' => route('account.orders'),
+            __('breadcrumb_account') => route('account.dashboard'),
+            __('breadcrumb_orders') => route('account.orders'),
         ]" />
 
-        <h1 class="heading-1 mb-8">Orders<span class="text-coral-500">.</span></h1>
+        <h1 class="heading-1 mb-8">{{ __('orders_heading') }}<span class="text-coral-500">.</span></h1>
 
         <div class="grid md:grid-cols-[240px_1fr] gap-8">
             <x-layout.account-sidebar />
@@ -15,18 +15,18 @@
             <div>
                 @if ($orders->isEmpty())
                     <div class="card-featured text-center">
-                        <p class="font-mono mb-6">You haven't placed any orders yet.</p>
-                        <a href="{{ route('browse.designs') }}" class="btn">Browse designs</a>
+                        <p class="font-mono mb-6">{{ __('orders_empty') }}</p>
+                        <a href="{{ route('browse.designs') }}" class="btn">{{ __('cart_browse_designs') }}</a>
                     </div>
                 @else
                     <div class="table-wrap"><table class="table-pod">
                         <thead>
                             <tr>
-                                <th>Order #</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Payment</th>
-                                <th class="text-right">Total</th>
+                                <th>{{ __('account_order_number') }}</th>
+                                <th>{{ __('account_order_date') }}</th>
+                                <th>{{ __('account_order_status') }}</th>
+                                <th>{{ __('orders_payment_column') }}</th>
+                                <th class="text-right">{{ __('total') }}</th>
                             </tr>
                         </thead>
                         <tbody>

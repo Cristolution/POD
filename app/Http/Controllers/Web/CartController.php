@@ -53,7 +53,7 @@ class CartController extends Controller
             quantity: (int) $data['quantity'],
         );
 
-        return redirect()->route('cart.show')->with('status', 'Added to cart.');
+        return redirect()->route('cart.show')->with('status', __('flash_cart_added'));
     }
 
     public function update(Request $request, CartItem $item): RedirectResponse
@@ -75,13 +75,13 @@ class CartController extends Controller
 
         $this->delete->execute($item);
 
-        return redirect()->route('cart.show')->with('status', 'Item removed.');
+        return redirect()->route('cart.show')->with('status', __('flash_cart_item_removed'));
     }
 
     public function clearAll(Request $request): RedirectResponse
     {
         $this->clear->execute($request->user());
 
-        return redirect()->route('cart.show')->with('status', 'Cart cleared.');
+        return redirect()->route('cart.show')->with('status', __('flash_cart_cleared'));
     }
 }

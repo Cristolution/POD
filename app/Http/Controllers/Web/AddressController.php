@@ -36,7 +36,7 @@ class AddressController extends Controller
 
         $request->user()->addresses()->create($data);
 
-        return redirect()->route('account.addresses.index')->with('status', 'Address added.');
+        return redirect()->route('account.addresses.index')->with('status', __('flash_address_added'));
     }
 
     public function edit(Request $request, Address $address): View
@@ -59,7 +59,7 @@ class AddressController extends Controller
 
         $address->update($data);
 
-        return redirect()->route('account.addresses.index')->with('status', 'Address updated.');
+        return redirect()->route('account.addresses.index')->with('status', __('flash_address_updated'));
     }
 
     public function destroy(Request $request, Address $address): RedirectResponse
@@ -68,11 +68,11 @@ class AddressController extends Controller
 
         // Refuse deletion if this address is referenced by an existing order.
         if (Order::where('shipping_address_id', $address->id)->exists()) {
-            return back()->withErrors(['address' => 'Cannot delete: this address is used by an existing order.']);
+            return back()->withErrors(['address' => __('flash_address_cannot_delete_used')]);
         }
 
         $address->delete();
 
-        return redirect()->route('account.addresses.index')->with('status', 'Address removed.');
+        return redirect()->route('account.addresses.index')->with('status', __('flash_address_removed'));
     }
 }

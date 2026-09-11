@@ -79,7 +79,7 @@ class DesignerDesignController extends Controller
 
         return redirect()
             ->route('designer.designs.show', $design)
-            ->with('status', 'Design created.');
+            ->with('status', __('flash_design_created'));
     }
 
     public function show(Request $request, Design $design): View
@@ -146,7 +146,7 @@ class DesignerDesignController extends Controller
 
         return redirect()
             ->route('designer.designs.show', $design)
-            ->with('status', 'Design updated.');
+            ->with('status', __('flash_design_updated'));
     }
 
     public function destroy(Request $request, Design $design, DeleteDesignAction $delete): RedirectResponse
@@ -157,7 +157,7 @@ class DesignerDesignController extends Controller
 
         return redirect()
             ->route('designer.dashboard')
-            ->with('status', 'Design deleted.');
+            ->with('status', __('flash_design_deleted'));
     }
 
     private function replaceMedia(Design $design, string $collection, UploadedFile $file, UploadMediaAction $upload): void

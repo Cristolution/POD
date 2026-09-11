@@ -81,6 +81,6 @@ class DesignerProfileController extends Controller
 
         $profile->update($data);
 
-        return redirect()->route('designer.edit')->with('status', 'Profile updated.');
+        return redirect()->route('designer.edit')->with('status', __('flash_profile_updated'));
     }
 }

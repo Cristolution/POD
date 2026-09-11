@@ -5,7 +5,7 @@
     if ($first = $design->media->first()) {
         $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($first->file_path);
     }
-    $designerName = $design->designer?->user?->name ?? 'Unknown';
+    $designerName = $design->designer?->user?->name ?? __('unknown');
 
     $isFavourited = auth()->check()
         ? (auth()->user()->wishlist?->hasDesign($design->id) ?? false)
@@ -48,13 +48,13 @@
                 @method('DELETE')
                 <button type="submit"
                         class="bg-surface border-3 border-ink-800 w-10 h-10 flex items-center justify-center hover:bg-coral-500 hover:text-white transition-colors text-coral-500"
-                        title="Remove from wishlist" aria-label="Remove from wishlist">
+                        title="{{ __('design_card_remove_wishlist') }}" aria-label="{{ __('design_card_remove_wishlist') }}">
                     ♥
                 </button>
             @else
                 <button type="submit"
                         class="bg-surface border-3 border-ink-800 w-10 h-10 flex items-center justify-center hover:bg-coral-500 hover:text-white transition-colors"
-                        title="Save to wishlist" aria-label="Save to wishlist">
+                        title="{{ __('design_card_save_wishlist') }}" aria-label="{{ __('design_card_save_wishlist') }}">
                     ♡
                 </button>
             @endif
@@ -71,7 +71,7 @@
                      loading="lazy">
             @else
                 <div class="w-full h-full flex items-center justify-center font-display uppercase text-ink-700 tracking-widest">
-                    No preview
+                    {{ __('design_card_no_preview') }}
                 </div>
             @endif
 
@@ -97,7 +97,7 @@
             </h3>
 
             <div class="mt-1 font-mono text-[10px] text-ink-700 uppercase tracking-widest">
-                by <span class="text-ink-800">{{ $designerName }}</span>
+                {{ __('design_card_by') }} <span class="text-ink-800">{{ $designerName }}</span>
             </div>
 
             @if ($visibleTypes->isNotEmpty())

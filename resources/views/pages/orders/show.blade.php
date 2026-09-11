@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Order ' . substr($order->id, 0, 8)])
+@extends('layouts.app', ['title' => __('orders_show_title_prefix') . substr($order->id, 0, 8)])
 
 @section('content')
     @php
@@ -7,14 +7,14 @@
 
     <section class="max-w-4xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Account' => route('account.dashboard'),
-            'Orders' => route('account.orders'),
+            __('breadcrumb_account') => route('account.dashboard'),
+            __('breadcrumb_orders') => route('account.orders'),
             substr($order->id, 0, 8) => route('orders.confirmation', $order),
         ]" />
 
         <header class="mb-8 flex items-center justify-between border-b-5 border-ink-800 pb-6">
             <div>
-                <div class="font-mono text-xs uppercase tracking-wider text-ink-700">Order</div>
+                <div class="font-mono text-xs uppercase tracking-wider text-ink-700">{{ __('order_label') }}</div>
                 <h1 class="heading-1">{{ substr($order->id, 0, 8) }}</h1>
                 <div class="font-mono text-sm text-ink-700 mt-1">
                     {{ $order->created_at?->format('M j, Y') }}
@@ -33,7 +33,7 @@
 
         <div class="grid md:grid-cols-2 gap-8 mb-8">
             <div class="card">
-                <h2 class="heading-3 mb-3">Shipping address</h2>
+                <h2 class="heading-3 mb-3">{{ __('order_shipping_address') }}</h2>
                 <p class="font-mono text-sm">
                     {{ $order->shipping_line1 }}<br>
                     {{ $order->shipping_city }}, {{ $order->shipping_country }}<br>
@@ -43,20 +43,20 @@
                 </p>
             </div>
             <div class="card">
-                <h2 class="heading-3 mb-3">Payment</h2>
+                <h2 class="heading-3 mb-3">{{ __('order_payment_heading') }}</h2>
                 @if ($order->payments->isNotEmpty())
                     @php $payment = $order->payments->first(); @endphp
                     <p class="font-mono text-sm">
-                        Method: <span class="font-display uppercase">{{ str_replace('_', ' ', $payment->method) }}</span><br>
-                        Status: <span class="font-display uppercase">{{ $payment->status }}</span>
+                        {{ __('order_payment_method') }} <span class="font-display uppercase">{{ str_replace('_', ' ', $payment->method) }}</span><br>
+                        {{ __('order_payment_status') }} <span class="font-display uppercase">{{ $payment->status }}</span>
                     </p>
                 @else
-                    <p class="font-mono text-sm">No payment recorded.</p>
+                    <p class="font-mono text-sm">{{ __('order_no_payment') }}</p>
                 @endif
             </div>
         </div>
 
-        <h2 class="heading-2 mb-4">Items</h2>
+        <h2 class="heading-2 mb-4">{{ __('order_items_heading') }}</h2>
         <ul class="space-y-3 mb-6">
             @foreach ($order->items as $item)
                 @php
@@ -74,13 +74,13 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-display uppercase truncate">
-                            {{ $design?->title ?? 'Design' }}
+                            {{ $design?->title ?? __('design') }}
                         </div>
                         <div class="font-mono text-xs text-ink-700">
-                            {{ $mapping?->productTemplate?->type ? ucwords(str_replace('-', ' ', $mapping->productTemplate->type)) : 'Product' }}
+                            {{ $mapping?->productTemplate?->type ? ucwords(str_replace('-', ' ', $mapping->productTemplate->type)) : __('product') }}
                             @if ($variantLabel) — {{ $variantLabel }} @endif
                         </div>
-                        <div class="font-mono text-xs text-ink-700">Quantity: {{ $item->quantity }}</div>
+                        <div class="font-mono text-xs text-ink-700">{{ __('order_quantity', ['count' => $item->quantity]) }}</div>
                     </div>
                     <div class="font-display text-lg">
                         ${{ number_format((float) ($item->unit_price * $item->quantity), 2) }}
@@ -90,12 +90,12 @@
         </ul>
 
         <div class="border-t-5 border-ink-800 pt-4 flex justify-between font-display text-2xl">
-            <span>Total</span>
+            <span>{{ __('total') }}</span>
             <span>${{ number_format((float) $order->total_amount, 2) }}</span>
         </div>
 
         <div class="mt-8">
-            <a href="{{ route('account.orders') }}" class="btn btn-secondary">View all orders</a>
+            <a href="{{ route('account.orders') }}" class="btn btn-secondary">{{ __('order_view_all') }}</a>
         </div>
     </section>
 @endsection

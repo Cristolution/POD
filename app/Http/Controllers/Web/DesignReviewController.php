@@ -21,7 +21,7 @@ class DesignReviewController extends Controller
         if ($design->reviewBy($request->user()) !== null) {
             return redirect()
                 ->route('design.show', $design)
-                ->with('status', 'You already reviewed this design.');
+                ->with('status', __('flash_review_already_submitted'));
         }
 
         Gate::authorize('create', [DesignReview::class, $design]);
@@ -38,7 +38,7 @@ class DesignReviewController extends Controller
 
         return redirect()
             ->route('design.show', $design)
-            ->with('status', 'Thanks — your review is live.');
+            ->with('status', __('flash_review_posted'));
     }
 
     public function destroy(Design $design, DesignReview $review): RedirectResponse
@@ -49,6 +49,6 @@ class DesignReviewController extends Controller
 
         return redirect()
             ->route('design.show', $design)
-            ->with('status', 'Review removed.');
+            ->with('status', __('flash_review_removed'));
     }
 }

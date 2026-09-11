@@ -1,8 +1,8 @@
-@extends('layouts.app', ['title' => $designer->user?->name ?? 'Designer'])
+@extends('layouts.app', ['title' => $designer->user?->name ?? __('designer')])
 
 @section('content')
     @php
-        $name = $designer->user?->name ?? 'Unknown designer';
+        $name = $designer->user?->name ?? __('unknown_designer');
         $email = trim(strtolower((string) $designer->user?->email));
         $gravatarUrl = $email
             ? 'https://www.gravatar.com/avatar/'.md5($email).'?d=identicon&s=256'
@@ -11,8 +11,8 @@
 
     <section class="max-w-7xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Designers' => route('browse.designers'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_designers') => route('browse.designers'),
             $name => route('designer.show', $designer),
         ]" />
 
@@ -27,12 +27,11 @@
                 <h1 class="heading-1 mb-2 flex flex-wrap items-center gap-3">
                     <span>{{ $name }}</span>
                     @if ($designer->is_verified)
-                        <span class="badge badge-coral font-display uppercase text-xs tracking-wider">Verified</span>
+                        <span class="badge badge-coral font-display uppercase text-xs tracking-wider">{{ __('designer_verified') }}</span>
                     @endif
                 </h1>
                 <p class="font-mono text-xs uppercase tracking-wider text-ink-700">
-                    {{ $designer->published_designs_count }} published
-                    / {{ $designer->designs_count }} total designs
+                    {{ __('designer_designs_summary', ['published' => $designer->published_designs_count, 'total' => $designer->designs_count]) }}
                 </p>
                 @if ($designer->bio)
                     <p class="font-mono text-sm mt-4 whitespace-pre-line">{{ $designer->bio }}</p>
@@ -40,11 +39,11 @@
             </div>
         </header>
 
-        <h2 class="heading-2 mb-6">Published designs</h2>
+        <h2 class="heading-2 mb-6">{{ __('designer_published_designs') }}</h2>
 
         @if ($designs->isEmpty())
             <div class="card-featured text-center">
-                <p class="font-mono">No published designs yet.</p>
+                <p class="font-mono">{{ __('designer_no_designs_yet') }}</p>
             </div>
         @else
             <div class="designer-designs-grid">

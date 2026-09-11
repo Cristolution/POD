@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="bg-sand-100">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+      dir="{{ app()->isLocale('ar') ? 'rtl' : 'ltr' }}"
+      class="bg-sand-100">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -49,11 +51,11 @@
                     <a href="{{ route('account.dashboard') }}" class="nav-link">{{ auth()->user()->name }}</a>
                     <form method="POST" action="{{ route('web.logout') }}">
                         @csrf
-                        <button type="submit" class="btn btn-secondary text-xs">Logout</button>
+                        <button type="submit" class="btn btn-secondary text-xs">{{ __('nav_logout') }}</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="nav-link">Login</a>
-                    <a href="{{ route('register') }}" class="btn">Register</a>
+                    <a href="{{ route('login') }}" class="nav-link">{{ __('nav_login') }}</a>
+                    <a href="{{ route('register') }}" class="btn">{{ __('nav_register') }}</a>
                 @endauth
             </div>
         </div>

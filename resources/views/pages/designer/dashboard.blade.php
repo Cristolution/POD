@@ -1,9 +1,9 @@
-@extends('layouts.app', ['title' => 'Designer dashboard'])
+@extends('layouts.app', ['title' => __('designer_dashboard_title')])
 
 @section('content')
     @php
         $user = $profile->user;
-        $name = $user?->name ?? 'Unknown';
+        $name = $user?->name ?? __('unknown');
         $email = trim(strtolower((string) $user?->email));
         $gravatarUrl = $email
             ? 'https://www.gravatar.com/avatar/'.md5($email).'?d=identicon&s=128'
@@ -12,8 +12,8 @@
 
     <section class="max-w-6xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Designer' => route('designer.dashboard'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_designer') => route('designer.dashboard'),
         ]" />
 
         @if (session('status'))
@@ -24,18 +24,18 @@
 
         @unless ($profile->is_verified)
             <div class="card mb-6 border-coral-500 bg-sand-50">
-                <p class="font-display uppercase text-coral-500 text-sm">Pending admin review</p>
+                <p class="font-display uppercase text-coral-500 text-sm">{{ __('pending_review_heading') }}</p>
                 <p class="font-mono text-xs text-ink-700 mt-2">
-                    Your designer account is pending admin verification. You can keep using the platform, but admins will review your profile before publicly verifying it.
+                    {{ __('pending_review_body') }}
                 </p>
             </div>
         @endunless
 
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-            <h1 class="heading-1">Designer<span class="text-coral-500">.</span></h1>
+            <h1 class="heading-1">{{ __('breadcrumb_designer') }}<span class="text-coral-500">.</span></h1>
             <div class="flex flex-wrap items-center gap-3">
-                <a href="{{ route('designer.designs.create') }}" class="btn-coral">+ Create design</a>
-                <a href="{{ route('designer.edit') }}" class="btn btn-secondary">Edit profile</a>
+                <a href="{{ route('designer.designs.create') }}" class="btn-coral">{{ __('designer_create_design') }}</a>
+                <a href="{{ route('designer.edit') }}" class="btn btn-secondary">{{ __('designer_edit_profile') }}</a>
             </div>
         </div>
 
@@ -59,11 +59,11 @@
 
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div class="border-3 border-ink-800 p-4 bg-sand-100">
-                            <div class="font-mono text-xs uppercase text-ink-700">Published</div>
+                            <div class="font-mono text-xs uppercase text-ink-700">{{ __('designer_stat_published') }}</div>
                             <div class="font-display text-3xl mt-1">{{ $profile->published_designs_count }}</div>
                         </div>
                         <div class="border-3 border-ink-800 p-4 bg-sand-100">
-                            <div class="font-mono text-xs uppercase text-ink-700">All designs</div>
+                            <div class="font-mono text-xs uppercase text-ink-700">{{ __('designer_stat_all') }}</div>
                             <div class="font-display text-3xl mt-1">{{ $profile->designs_count }}</div>
                         </div>
                     </div>
@@ -71,18 +71,18 @@
 
                 {{-- Designs table --}}
                 <div class="card">
-                    <h2 class="heading-3 mb-6">Your designs</h2>
+                    <h2 class="heading-3 mb-6">{{ __('designer_your_designs') }}</h2>
 
                     @if ($designs->isEmpty())
-                        <p class="font-mono text-sm text-ink-700">No designs yet.</p>
+                        <p class="font-mono text-sm text-ink-700">{{ __('designer_no_designs_yet') }}</p>
                     @else
                         <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Status</th>
-                                    <th>Category</th>
-                                    <th class="text-right">Mappings</th>
+                                    <th>{{ __('designer_column_title') }}</th>
+                                    <th>{{ __('account_order_status') }}</th>
+                                    <th>{{ __('designer_column_category') }}</th>
+                                    <th class="text-right">{{ __('designer_column_mappings') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

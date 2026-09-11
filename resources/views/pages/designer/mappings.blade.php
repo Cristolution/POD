@@ -1,18 +1,18 @@
-@extends('layouts.app', ['title' => 'My mappings'])
+@extends('layouts.app', ['title' => __('designer_mappings_title')])
 
 @section('content')
     <section class="max-w-6xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Designer' => route('designer.dashboard'),
-            'Mappings' => route('designer.mappings'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_designer') => route('designer.dashboard'),
+            __('breadcrumb_mappings') => route('designer.mappings'),
         ]" />
 
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-            <h1 class="heading-1">Product mappings<span class="text-coral-500">.</span></h1>
+            <h1 class="heading-1">{{ __('designer_mappings_heading') }}<span class="text-coral-500">.</span></h1>
             <div class="flex flex-wrap items-center gap-3">
-                <a href="{{ route('designer.mappings.create') }}" class="btn-coral">+ New mapping</a>
-                <a href="{{ route('designer.dashboard') }}" class="btn btn-secondary">Back to dashboard</a>
+                <a href="{{ route('designer.mappings.create') }}" class="btn-coral">{{ __('designer_mappings_new') }}</a>
+                <a href="{{ route('designer.dashboard') }}" class="btn btn-secondary">{{ __('designer_back_dashboard') }}</a>
             </div>
         </div>
 
@@ -23,20 +23,20 @@
                 @if ($mappings->isEmpty())
                     <div class="space-y-4">
                         <p class="font-mono text-sm text-ink-700">
-                            No product templates map to your designs yet.
+                            {{ __('designer_mappings_empty') }}
                         </p>
-                        <a href="{{ route('designer.mappings.create') }}" class="btn-coral inline-block">+ Create your first mapping</a>
+                        <a href="{{ route('designer.mappings.create') }}" class="btn-coral inline-block">{{ __('designer_mappings_create_first') }}</a>
                     </div>
                 @else
                     <div class="table-wrap"><table class="table-pod">
                         <thead>
                             <tr>
-                                <th>Design</th>
-                                <th>Product template</th>
-                                <th>Preferred printer</th>
-                                <th class="text-right">Final price</th>
-                                <th>Created</th>
-                                <th class="text-right">Actions</th>
+                                <th>{{ __('designer_column_design') }}</th>
+                                <th>{{ __('designer_column_product_template') }}</th>
+                                <th>{{ __('designer_column_preferred_printer') }}</th>
+                                <th class="text-right">{{ __('designer_column_final_price') }}</th>
+                                <th>{{ __('designer_column_created') }}</th>
+                                <th class="text-right">{{ __('designer_column_actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,14 +56,14 @@
                                     <td class="font-mono text-sm text-right">
                                         <div class="inline-flex items-center gap-2 justify-end">
                                             <a href="{{ route('designer.mappings.edit', $mapping) }}" class="text-coral-500 hover:underline">
-                                                Edit
+                                                {{ __('designer_action_edit') }}
                                             </a>
                                             <form method="POST" action="{{ route('designer.mappings.destroy', $mapping) }}" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-coral-500 hover:underline"
-                                                        onclick="return confirm('Delete this mapping? This cannot be undone if it has no order items.');">
-                                                    Delete
+                                                        onclick="return confirm('{{ __('designer_confirm_delete_mapping') }}');">
+                                                    {{ __('designer_action_delete') }}
                                                 </button>
                                             </form>
                                         </div>

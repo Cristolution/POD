@@ -33,6 +33,6 @@ class NotificationController extends Controller
     {
         $request->user()->notifications()->findOrFail($notification)->delete();
 
-        return back()->with('status', 'Notification removed.');
+        return back()->with('status', __('flash_notification_removed'));
     }
 }

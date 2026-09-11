@@ -1,14 +1,14 @@
-@extends('layouts.app', ['title' => 'Edit designer profile'])
+@extends('layouts.app', ['title' => __('designer_edit_profile_title')])
 
 @section('content')
     <section class="max-w-6xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Designer' => route('designer.dashboard'),
-            'Edit' => route('designer.edit'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_designer') => route('designer.dashboard'),
+            __('breadcrumb_edit') => route('designer.edit'),
         ]" />
 
-        <h1 class="heading-1 mb-8">Edit profile<span class="text-coral-500">.</span></h1>
+        <h1 class="heading-1 mb-8">{{ __('designer_edit_heading') }}<span class="text-coral-500">.</span></h1>
 
         @if (session('status'))
             <div class="card mb-6 border-coral-500">
@@ -18,9 +18,9 @@
 
         @unless ($profile->is_verified)
             <div class="card mb-6 border-coral-500 bg-sand-50">
-                <p class="font-display uppercase text-coral-500 text-sm">Pending admin review</p>
+                <p class="font-display uppercase text-coral-500 text-sm">{{ __('pending_review_heading') }}</p>
                 <p class="font-mono text-xs text-ink-700 mt-2">
-                    Your designer account is pending admin verification. You can keep using the platform, but admins will review your profile before publicly verifying it.
+                    {{ __('pending_review_body') }}
                 </p>
             </div>
         @endunless
@@ -33,15 +33,15 @@
                 @method('PATCH')
 
                 <div>
-                    <label class="label" for="bio">Bio</label>
+                    <label class="label" for="bio">{{ __('designer_bio_label') }}</label>
                     <textarea id="bio" name="bio" rows="6" class="input"
-                              placeholder="Tell customers about your design style and background.">{{ old('bio', $profile->bio) }}</textarea>
+                              placeholder="{{ __('designer_bio_placeholder') }}">{{ old('bio', $profile->bio) }}</textarea>
                     @error('bio') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="flex items-center gap-3 pt-2">
-                    <button type="submit" class="btn-coral">Save profile</button>
-                    <a href="{{ route('designer.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn-coral">{{ __('designer_save_profile') }}</button>
+                    <a href="{{ route('designer.dashboard') }}" class="btn btn-secondary">{{ __('cancel') }}</a>
                 </div>
             </form>
         </div>

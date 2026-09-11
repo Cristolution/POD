@@ -72,7 +72,7 @@ class DesignerMappingController extends Controller
 
         return redirect()
             ->route('designer.mappings')
-            ->with('status', 'Mapping created.');
+            ->with('status', __('flash_mapping_created'));
     }
 
     /**
@@ -104,7 +104,7 @@ class DesignerMappingController extends Controller
 
         return redirect()
             ->route('designer.mappings')
-            ->with('status', 'Mapping updated.');
+            ->with('status', __('flash_mapping_updated'));
     }
 
     /**
@@ -126,6 +126,6 @@ class DesignerMappingController extends Controller
 
         return redirect()
             ->route('designer.mappings')
-            ->with('status', 'Mapping deleted.');
+            ->with('status', __('flash_mapping_deleted'));
     }
 }

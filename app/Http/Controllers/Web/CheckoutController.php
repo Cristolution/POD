@@ -33,7 +33,7 @@ class CheckoutController extends Controller
             ->get();
 
         if ($items->isEmpty()) {
-            return redirect()->route('cart.show')->with('status', 'Your cart is empty.');
+            return redirect()->route('cart.show')->with('status', __('flash_cart_empty'));
         }
 
         return view('pages.checkout.show', [
@@ -64,6 +64,6 @@ class CheckoutController extends Controller
             paymentMethod: $data['payment_method'],
         );
 
-        return redirect()->route('orders.confirmation', $order)->with('status', 'Order placed successfully.');
+        return redirect()->route('orders.confirmation', $order)->with('status', __('flash_order_placed'));
     }
 }

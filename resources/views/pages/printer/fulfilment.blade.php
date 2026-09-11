@@ -1,9 +1,9 @@
-@extends('layouts.app', ['title' => 'Fulfilment queue'])
+@extends('layouts.app', ['title' => __('printer_fulfilment_title')])
 
 @section('content')
     @php
         $user = $profile->user;
-        $name = $user?->name ?? 'Unknown';
+        $name = $user?->name ?? __('unknown');
         $email = trim(strtolower((string) $user?->email));
         $gravatarUrl = $email
             ? 'https://www.gravatar.com/avatar/'.md5($email).'?d=identicon&s=128'
@@ -19,9 +19,9 @@
 
     <section class="max-w-7xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Printer' => route('printer.dashboard'),
-            'Fulfilment' => route('printer.fulfilment'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_printer') => route('printer.dashboard'),
+            __('breadcrumb_fulfilment') => route('printer.fulfilment'),
         ]" />
 
         @if (session('status'))
@@ -31,37 +31,37 @@
         @endif
 
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-            <h1 class="heading-1">Fulfilment queue<span class="text-coral-500">.</span></h1>
-            <a href="{{ route('printer.dashboard') }}" class="btn btn-secondary">Back to dashboard</a>
+            <h1 class="heading-1">{{ __('printer_fulfilment_heading') }}<span class="text-coral-500">.</span></h1>
+            <a href="{{ route('printer.dashboard') }}" class="btn btn-secondary">{{ __('printer_back_dashboard') }}</a>
         </div>
 
         <div class="grid md:grid-cols-[240px_1fr] gap-8">
             <x-layout.dashboard-sidebar :links="[
-                'Dashboard' => route('printer.dashboard'),
-                'Fulfilment' => route('printer.fulfilment'),
-                'Edit profile' => route('printer.edit'),
+                __('printer_sidebar_dashboard') => route('printer.dashboard'),
+                __('breadcrumb_fulfilment') => route('printer.fulfilment'),
+                __('printer_sidebar_edit_profile') => route('printer.edit'),
             ]" :active="request()->url()" />
 
             <div class="space-y-8">
                 @if ($items->isEmpty())
                     <div class="card">
-                        <p class="font-mono">No order items assigned to you yet. New work will appear here as customers order your templates.</p>
+                        <p class="font-mono">{{ __('printer_fulfilment_empty') }}</p>
                     </div>
                 @else
                     <div class="card">
                         <p class="font-mono text-sm text-ink-700 mb-4">
-                            Advance each item through the production stages. Customer is notified at each transition.
+                            {{ __('printer_fulfilment_intro') }}
                         </p>
                         <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
-                                    <th>Order</th>
-                                    <th>Product</th>
-                                    <th>Variant</th>
-                                    <th class="text-right">Qty</th>
-                                    <th class="text-right">Unit</th>
-                                    <th>Status</th>
-                                    <th class="text-right">Action</th>
+                                    <th>{{ __('account_order_number') }}</th>
+                                    <th>{{ __('printer_fulfilment_column_product') }}</th>
+                                    <th>{{ __('printer_fulfilment_column_variant') }}</th>
+                                    <th class="text-right">{{ __('printer_fulfilment_column_qty') }}</th>
+                                    <th class="text-right">{{ __('printer_fulfilment_column_unit') }}</th>
+                                    <th>{{ __('account_order_status') }}</th>
+                                    <th class="text-right">{{ __('printer_fulfilment_column_action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -106,7 +106,7 @@
                                                     </button>
                                                 </form>
                                             @else
-                                                <span class="text-ink-700 text-xs">— done —</span>
+                                                <span class="text-ink-700 text-xs">{{ __('printer_fulfilment_done') }}</span>
                                             @endif
                                         </td>
                                     </tr>

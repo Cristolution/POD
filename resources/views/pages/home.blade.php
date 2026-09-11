@@ -9,23 +9,21 @@
             <div class="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-10 items-center">
                 <div>
                     <div class="font-mono uppercase tracking-widest text-xs text-ink-700 mb-6">
-                        Independent designers · Independent fulfillment · One platform
+                        {{ __('home_hero_tagline') }}
                     </div>
 
                     <h1 class="font-display text-5xl sm:text-6xl md:text-8xl uppercase leading-[0.95] tracking-tight break-words">
-                        Print<br>
-                        anything<span class="text-coral-500">.</span>
+                        {{ __('home_hero_title') }}<br>
+                        {{ __('home_hero_title_line2') }}<span class="text-coral-500">.</span>
                     </h1>
 
                     <p class="mt-6 font-body text-xl max-w-2xl text-ink-800">
-                        Original artwork from independent designers, printed and shipped
-                        by independent print shops. No inventory, no upfront costs — just
-                        pick a design and we'll handle the rest.
+                        {{ __('home_hero_body') }}
                     </p>
 
                     <div class="mt-8">
                         <a href="{{ route('browse.designs') }}" class="btn btn-coral text-base px-8 py-4">
-                            Browse designs
+                            {{ __('home_hero_cta') }}
                         </a>
                     </div>
                 </div>
@@ -43,15 +41,15 @@
                 <div class="mt-10 grid grid-cols-3 gap-6 max-w-3xl border-t-3 border-ink-800 pt-6">
                     <div>
                         <div class="font-display text-3xl text-coral-500">{{ $designCount }}</div>
-                        <div class="font-mono text-xs uppercase tracking-wider mt-1">Designs live</div>
+                        <div class="font-mono text-xs uppercase tracking-wider mt-1">{{ __('home_stats_designs') }}</div>
                     </div>
                     <div>
                         <div class="font-display text-3xl text-coral-500">{{ $designerCount }}</div>
-                        <div class="font-mono text-xs uppercase tracking-wider mt-1">Designers</div>
+                        <div class="font-mono text-xs uppercase tracking-wider mt-1">{{ __('home_stats_designers') }}</div>
                     </div>
                     <div>
                         <div class="font-display text-3xl text-coral-500">{{ $printerCount }}</div>
-                        <div class="font-mono text-xs uppercase tracking-wider mt-1">Print shops</div>
+                        <div class="font-mono text-xs uppercase tracking-wider mt-1">{{ __('home_stats_print_shops') }}</div>
                     </div>
                 </div>
             @endif
@@ -66,10 +64,10 @@
             <div class="flex items-end justify-between mb-10 border-b-3 border-ink-800 pb-4">
                 <div>
                     <div class="font-mono uppercase tracking-widest text-xs text-coral-500 mb-2">// 01</div>
-                    <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">Featured designs</h2>
+                    <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">{{ __('home_featured_heading') }}</h2>
                 </div>
                 <a href="{{ route('browse.designs') }}" class="nav-link hidden md:inline-flex items-center gap-2">
-                    See all
+                    {{ __('home_see_all') }}
                     <span aria-hidden="true">→</span>
                 </a>
             </div>
@@ -81,7 +79,7 @@
             </div>
 
             <div class="mt-8 md:hidden text-center">
-                <a href="{{ route('browse.designs') }}" class="nav-link">See all designs →</a>
+                <a href="{{ route('browse.designs') }}" class="nav-link">{{ __('home_see_all_designs') }}</a>
             </div>
         </section>
     @endif
@@ -95,10 +93,10 @@
                 <div class="flex items-end justify-between mb-10 border-b-3 border-ink-800 pb-4">
                     <div>
                         <div class="font-mono uppercase tracking-widest text-xs text-coral-500 mb-2">// 02</div>
-                        <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">Browse by category</h2>
+                        <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">{{ __('home_categories_heading') }}</h2>
                     </div>
                     <a href="{{ route('browse.categories') }}" class="nav-link hidden md:inline-flex items-center gap-2">
-                        All categories
+                        {{ __('home_all_categories') }}
                         <span aria-hidden="true">→</span>
                     </a>
                 </div>
@@ -118,34 +116,31 @@
     <section class="max-w-7xl mx-auto px-6 py-20">
         <div class="mb-12 border-b-3 border-ink-800 pb-4">
             <div class="font-mono uppercase tracking-widest text-xs text-coral-500 mb-2">// 03</div>
-            <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">How it works</h2>
+            <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">{{ __('home_how_heading') }}</h2>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="card-featured">
-                <div class="font-mono text-coral-500 text-sm mb-3">STEP 01</div>
-                <h3 class="heading-3 mb-3">Browse</h3>
+                <div class="font-mono text-coral-500 text-sm mb-3">{{ __('home_step_01') }}</div>
+                <h3 class="heading-3 mb-3">{{ __('home_step_01_heading') }}</h3>
                 <p class="font-body text-ink-700">
-                    Scroll hundreds of original designs across dozens of categories.
-                    Filter by style, color, or product.
+                    {{ __('home_step_01_body') }}
                 </p>
             </div>
 
             <div class="card-featured">
-                <div class="font-mono text-coral-500 text-sm mb-3">STEP 02</div>
-                <h3 class="heading-3 mb-3">Pick a print</h3>
+                <div class="font-mono text-coral-500 text-sm mb-3">{{ __('home_step_02') }}</div>
+                <h3 class="heading-3 mb-3">{{ __('home_step_02_heading') }}</h3>
                 <p class="font-body text-ink-700">
-                    Choose a design, pick your product — tee, hoodie, mug, poster —
-                    and we'll mock it up for you in seconds.
+                    {{ __('home_step_02_body') }}
                 </p>
             </div>
 
             <div class="card-featured">
-                <div class="font-mono text-coral-500 text-sm mb-3">STEP 03</div>
-                <h3 class="heading-3 mb-3">We ship it</h3>
+                <div class="font-mono text-coral-500 text-sm mb-3">{{ __('home_step_03') }}</div>
+                <h3 class="heading-3 mb-3">{{ __('home_step_03_heading') }}</h3>
                 <p class="font-body text-ink-700">
-                    An independent print shop near you produces the order and ships
-                    it directly. No warehouse, no markup.
+                    {{ __('home_step_03_body') }}
                 </p>
             </div>
         </div>
@@ -160,10 +155,10 @@
                 <div class="flex items-end justify-between mb-10 border-b-3 border-ink-800 pb-4">
                     <div>
                         <div class="font-mono uppercase tracking-widest text-xs text-coral-500 mb-2">// 04</div>
-                        <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">Meet the designers</h2>
+                        <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">{{ __('home_designers_heading') }}</h2>
                     </div>
                     <a href="{{ route('browse.designers') }}" class="nav-link hidden md:inline-flex items-center gap-2">
-                        All designers
+                        {{ __('home_all_designers') }}
                         <span aria-hidden="true">→</span>
                     </a>
                 </div>
@@ -177,10 +172,10 @@
                 <div class="mt-10 border-3 border-ink-800 bg-sand-100 p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                         <div class="font-mono uppercase tracking-widest text-xs text-coral-500 mb-2">// JOIN</div>
-                        <h3 class="font-display text-3xl md:text-4xl uppercase tracking-wider">Are you a designer?</h3>
+                        <h3 class="font-display text-3xl md:text-4xl uppercase tracking-wider">{{ __('home_become_designer_heading') }}</h3>
                     </div>
                     <a href="{{ route('register') }}" class="btn btn-coral text-base px-8 py-4 whitespace-nowrap">
-                        Become a designer <span aria-hidden="true">→</span>
+                        {{ __('home_become_designer_cta') }} <span aria-hidden="true">→</span>
                     </a>
                 </div>
             </div>
@@ -193,39 +188,39 @@
     <section class="max-w-7xl mx-auto px-6 py-20">
         <div class="mb-12 border-b-3 border-ink-800 pb-4">
             <div class="font-mono uppercase tracking-widest text-xs text-coral-500 mb-2">// 05</div>
-            <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">Why POD</h2>
+            <h2 class="font-display text-4xl md:text-5xl uppercase tracking-wider">{{ __('home_why_heading') }}</h2>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="card">
                 <div class="font-display text-3xl text-coral-500 mb-3">01</div>
-                <h3 class="heading-3 mb-2">Independent designers</h3>
+                <h3 class="heading-3 mb-2">{{ __('home_why_01_heading') }}</h3>
                 <p class="font-mono text-sm text-ink-700">
-                    Every design is uploaded by a real artist who sets their own price.
+                    {{ __('home_why_01_body') }}
                 </p>
             </div>
 
             <div class="card">
                 <div class="font-display text-3xl text-coral-500 mb-3">02</div>
-                <h3 class="heading-3 mb-2">Independent print shops</h3>
+                <h3 class="heading-3 mb-2">{{ __('home_why_02_heading') }}</h3>
                 <p class="font-mono text-sm text-ink-700">
-                    Local fulfillment, not a single mega-warehouse halfway across the world.
+                    {{ __('home_why_02_body') }}
                 </p>
             </div>
 
             <div class="card">
                 <div class="font-display text-3xl text-coral-500 mb-3">03</div>
-                <h3 class="heading-3 mb-2">Print on demand</h3>
+                <h3 class="heading-3 mb-2">{{ __('home_why_03_heading') }}</h3>
                 <p class="font-mono text-sm text-ink-700">
-                    Nothing is made until you order it. Zero waste, zero deadstock.
+                    {{ __('home_why_03_body') }}
                 </p>
             </div>
 
             <div class="card">
                 <div class="font-display text-3xl text-coral-500 mb-3">04</div>
-                <h3 class="heading-3 mb-2">Built for creators</h3>
+                <h3 class="heading-3 mb-2">{{ __('home_why_04_heading') }}</h3>
                 <p class="font-mono text-sm text-ink-700">
-                    Designers keep control of their work and earn on every sale.
+                    {{ __('home_why_04_body') }}
                 </p>
             </div>
         </div>
@@ -237,19 +232,19 @@
     <section class="bg-coral-500 border-y-5 border-ink-800">
         <div class="max-w-7xl mx-auto px-6 py-16 md:py-20 text-center">
             <div class="font-mono uppercase tracking-widest text-xs text-ink-900 mb-4">
-                Ready when you are
+                {{ __('home_cta_tagline') }}
             </div>
             <h2 class="font-display text-4xl sm:text-5xl md:text-7xl uppercase leading-[0.95] text-white break-words">
-                Print<br>something<span class="text-ink-800">.</span>
+                {{ __('home_cta_title') }}<br>{{ __('home_cta_title_line2') }}<span class="text-ink-800">.</span>
             </h2>
 
             <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('browse.designs') }}" class="btn text-base px-8 py-4">
-                    Browse designs
+                    {{ __('home_hero_cta') }}
                 </a>
                 <a href="{{ route('register') }}" class="btn btn-coral text-base px-8 py-4
                        bg-white text-ink-800 border-ink-800 hover:bg-sand-100 hover:border-sand-100">
-                    Become a designer
+                    {{ __('home_become_designer_cta') }}
                 </a>
             </div>
         </div>

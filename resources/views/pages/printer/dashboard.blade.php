@@ -1,9 +1,9 @@
-@extends('layouts.app', ['title' => 'Printer dashboard'])
+@extends('layouts.app', ['title' => __('printer_dashboard_title')])
 
 @section('content')
     @php
         $user = $profile->user;
-        $name = $user?->name ?? 'Unknown';
+        $name = $user?->name ?? __('unknown');
         $email = trim(strtolower((string) $user?->email));
         $gravatarUrl = $email
             ? 'https://www.gravatar.com/avatar/'.md5($email).'?d=identicon&s=128'
@@ -12,8 +12,8 @@
 
     <section class="max-w-6xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Printer' => route('printer.dashboard'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_printer') => route('printer.dashboard'),
         ]" />
 
         @if (session('status'))
@@ -23,14 +23,14 @@
         @endif
 
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-            <h1 class="heading-1">Printer<span class="text-coral-500">.</span></h1>
-            <a href="{{ route('printer.edit') }}" class="btn-coral">Edit profile</a>
+            <h1 class="heading-1">{{ __('breadcrumb_printer') }}<span class="text-coral-500">.</span></h1>
+            <a href="{{ route('printer.edit') }}" class="btn-coral">{{ __('printer_edit_profile') }}</a>
         </div>
 
         <div class="grid md:grid-cols-[240px_1fr] gap-8">
             <x-layout.dashboard-sidebar :links="[
-                'Dashboard' => route('printer.dashboard'),
-                'Edit profile' => route('printer.edit'),
+                __('printer_sidebar_dashboard') => route('printer.dashboard'),
+                __('printer_sidebar_edit_profile') => route('printer.edit'),
             ]" :active="request()->url()" />
 
             <div class="space-y-8">
@@ -50,11 +50,11 @@
 
                     <div class="grid grid-cols-2 gap-4 mt-4">
                         <div class="border-3 border-ink-800 p-4 bg-sand-100">
-                            <div class="font-mono text-xs uppercase text-ink-700">Templates</div>
+                            <div class="font-mono text-xs uppercase text-ink-700">{{ __('printer_stat_templates') }}</div>
                             <div class="font-display text-3xl mt-1">{{ $profile->product_templates_count }}</div>
                         </div>
                         <div class="border-3 border-ink-800 p-4 bg-sand-100">
-                            <div class="font-mono text-xs uppercase text-ink-700">Pending orders</div>
+                            <div class="font-mono text-xs uppercase text-ink-700">{{ __('printer_stat_pending_orders') }}</div>
                             <div class="font-display text-3xl mt-1">{{ $profile->pending_order_items_count }}</div>
                         </div>
                     </div>
@@ -62,19 +62,19 @@
 
                 {{-- Templates --}}
                 <div class="card">
-                    <h2 class="heading-3 mb-6">Your templates</h2>
+                    <h2 class="heading-3 mb-6">{{ __('printer_your_templates') }}</h2>
 
                     @if ($templates->isEmpty())
-                        <p class="font-mono text-sm text-ink-700">No templates yet.</p>
+                        <p class="font-mono text-sm text-ink-700">{{ __('printer_no_templates') }}</p>
                     @else
                         <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Type</th>
-                                    <th class="text-right">Base cost</th>
-                                    <th class="text-right">Variants</th>
-                                    <th class="text-right">Mappings</th>
+                                    <th>{{ __('printer_column_name') }}</th>
+                                    <th>{{ __('printer_column_type') }}</th>
+                                    <th class="text-right">{{ __('printer_column_base_cost') }}</th>
+                                    <th class="text-right">{{ __('printer_column_variants') }}</th>
+                                    <th class="text-right">{{ __('printer_column_mappings') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -98,19 +98,19 @@
 
                 {{-- Recent order items --}}
                 <div class="card">
-                    <h2 class="heading-3 mb-6">Recent order items</h2>
+                    <h2 class="heading-3 mb-6">{{ __('printer_recent_order_items') }}</h2>
 
                     @if ($orderItems->isEmpty())
-                        <p class="font-mono text-sm text-ink-700">No order items yet.</p>
+                        <p class="font-mono text-sm text-ink-700">{{ __('printer_no_order_items') }}</p>
                     @else
                         <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
-                                    <th>Order</th>
-                                    <th>Variant</th>
-                                    <th class="text-right">Qty</th>
-                                    <th class="text-right">Line total</th>
-                                    <th>Status</th>
+                                    <th>{{ __('account_order_number') }}</th>
+                                    <th>{{ __('printer_column_variant') }}</th>
+                                    <th class="text-right">{{ __('printer_column_qty') }}</th>
+                                    <th class="text-right">{{ __('printer_column_line_total') }}</th>
+                                    <th>{{ __('account_order_status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

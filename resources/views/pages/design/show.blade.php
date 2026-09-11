@@ -1,6 +1,6 @@
 @extends('layouts.app', ['title' => $design->title . ' — POD'])
 
-@section('description', $design->title . ' by ' . ($design->designer?->user?->name ?? 'unknown designer') . ' — POD Marketplace.')
+@section('description', $design->title . ' by ' . ($design->designer?->user?->name ?? __('unknown_designer')) . ' — POD Marketplace.')
 @section('og_title', $design->title . ' — POD Marketplace')
 @section('og_type', 'product')
 
@@ -14,11 +14,11 @@
             '@context' => 'https://schema.org',
             '@type' => 'Product',
             'name' => $design->title,
-            'description' => ($design->title) . ' by ' . ($design->designer?->user?->name ?? 'Unknown') . ' — printed on demand.',
+            'description' => ($design->title) . ' by ' . ($design->designer?->user?->name ?? __('unknown')) . ' — printed on demand.',
             'url' => route('design.show', $design),
             'image' => $primaryImage ? asset($primaryImage) : null,
             'brand' => ['@type' => 'Brand', 'name' => 'POD Marketplace'],
-            'creator' => ['@type' => 'Person', 'name' => $design->designer?->user?->name ?? 'Unknown'],
+            'creator' => ['@type' => 'Person', 'name' => $design->designer?->user?->name ?? __('unknown')],
             'offers' => $design->mappings->map(fn ($m) => [
                 '@type' => 'Offer',
                 'priceCurrency' => 'USD',
@@ -47,13 +47,13 @@
         $defaultImageUrl = $defaultMockup
             ? \Illuminate\Support\Facades\Storage::disk('public')->url($defaultMockup->file_path)
             : null;
-        $designerName = $design->designer?->user?->name ?? 'Unknown';
+        $designerName = $design->designer?->user?->name ?? __('unknown');
     @endphp
 
     <section class="max-w-7xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Designs' => route('browse.designs'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_designs') => route('browse.designs'),
             $design->title => route('design.show', $design),
         ]" />
 
@@ -68,13 +68,13 @@
                         @else
                             {{-- Scenario: design has mappings but no main mockup (shouldn't happen post-upload, but handle) --}}
                             <div class="w-full h-full bg-sand-200 flex items-center justify-center font-display uppercase">
-                                No preview
+                                {{ __('design_no_preview') }}
                             </div>
                         @endif
                     </div>
                     @if ($design->designer)
                         <p class="font-mono text-sm mt-4 text-ink-700">
-                            Designed by
+                            {{ __('design_designed_by') }}
                             <a href="{{ route('designer.show', $design->designer) }}" class="text-coral-500 hover:underline">
                                 {{ $designerName }}
                             </a>
@@ -87,7 +87,7 @@
                     @if ($design->category)
                         <span class="badge">{{ $design->category->name }}</span>
                     @else
-                        <span class="badge">Uncategorized</span>
+                        <span class="badge">{{ __('design_uncategorized') }}</span>
                     @endif
                     <h1 class="heading-1 mt-4 mb-2">{{ $design->title }}</h1>
 
@@ -121,7 +121,7 @@
                                     <div class="flex items-baseline justify-between mb-3">
                                         <h3 class="heading-3">{{ ucwords(str_replace('-', ' ', $productTemplate->type)) }}</h3>
                                         @if ($productMockups->has($productTemplate->id))
-                                            <span class="badge bg-coral-500 text-white text-xs">Custom preview</span>
+                                            <span class="badge bg-coral-500 text-white text-xs">{{ __('design_custom_preview') }}</span>
                                         @endif
                                     </div>
 
@@ -132,9 +132,9 @@
                     @else
                         {{-- SCENARIO D: design has NO mappings (designer hasn't published it on any product yet) --}}
                         <div class="card-featured">
-                            <p class="font-mono">This design is not yet available on any product.</p>
+                            <p class="font-mono">{{ __('design_not_yet_available') }}</p>
                             <p class="font-mono text-xs text-ink-700 mt-2">
-                                The designer hasn't published this artwork on a product yet. Check back later.
+                                {{ __('design_not_yet_available_hint') }}
                             </p>
                         </div>
                     @endif
@@ -144,10 +144,10 @@
             {{-- SCENARIO E: design has NO media and NO mappings (truly empty draft) --}}
             <div class="card-featured">
                 <h2 class="heading-2 mb-4">{{ $design->title }}</h2>
-                <p class="font-mono">This design doesn't have a preview yet.</p>
+                <p class="font-mono">{{ __('design_no_preview_yet') }}</p>
                 @if ($design->designer)
                     <p class="font-mono text-xs text-ink-700 mt-2">
-                        Designed by
+                        {{ __('design_designed_by') }}
                         <a href="{{ route('designer.show', $design->designer) }}" class="text-coral-500 hover:underline">
                             {{ $designerName }}
                         </a>
@@ -159,11 +159,11 @@
         {{-- REVIEWS -----------------------------------------------------------}}
         <section class="mt-16">
             <div class="flex items-baseline justify-between gap-4 mb-6">
-                <h2 class="heading-2">Reviews<span class="text-coral-500">.</span></h2>
+                <h2 class="heading-2">{{ __('design_reviews_heading') }}<span class="text-coral-500">.</span></h2>
                 @if ($design->approvedReviews->count() > 0)
                     <p class="font-mono text-sm">
                         <span class="text-coral-500 font-bold">{{ $design->averageRating() }}</span>
-                        <span class="text-ink-700">/ 5 · {{ $design->approvedReviews->count() }} {{ \Illuminate\Support\Str::plural('review', $design->approvedReviews->count()) }}</span>
+                        <span class="text-ink-700">{{ __('design_reviews_summary', ['count' => $design->approvedReviews->count()]) }}</span>
                     </p>
                 @endif
             </div>
@@ -171,14 +171,14 @@
             {{-- Existing reviews --}}
             @if ($design->approvedReviews->isEmpty())
                 <div class="card mb-6">
-                    <p class="font-mono">No reviews yet. Be the first to share what you think.</p>
+                    <p class="font-mono">{{ __('design_no_reviews') }}</p>
                 </div>
             @else
                 <div class="space-y-4 mb-6">
                     @foreach ($design->approvedReviews as $review)
                         <div class="card border-3 border-ink-800">
                             <div class="flex items-baseline justify-between gap-3 mb-2">
-                                <p class="font-display uppercase text-sm">{{ $review->customer?->name ?? 'Anonymous' }}</p>
+                                <p class="font-display uppercase text-sm">{{ $review->customer?->name ?? __('design_anonymous') }}</p>
                                 <p class="font-mono text-xs text-ink-700">{{ $review->created_at->format('Y-m-d') }}</p>
                             </div>
                             <p class="font-mono text-coral-500 mb-2" title="{{ $review->rating }}/5">{{ $review->stars() }}</p>
@@ -192,7 +192,7 @@
                                 <form method="POST" action="{{ route('design.reviews.destroy', [$design, $review]) }}" class="mt-2">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="font-mono text-xs text-coral-500 hover:underline">Remove</button>
+                                    <button type="submit" class="font-mono text-xs text-coral-500 hover:underline">{{ __('design_remove_review') }}</button>
                                 </form>
                             @endcan
                         </div>
@@ -204,47 +204,47 @@
             @auth
                 @if (auth()->user()?->isCustomer() && $design->reviewBy(auth()->user()) === null)
                     <div class="card border-5 border-coral-500">
-                        <h3 class="heading-3 mb-4">Write a review</h3>
+                        <h3 class="heading-3 mb-4">{{ __('design_write_review') }}</h3>
                         <form method="POST" action="{{ route('design.reviews.store', $design) }}" class="space-y-4">
                             @csrf
                             <div>
-                                <label class="label" for="rating">Rating</label>
+                                <label class="label" for="rating">{{ __('design_rating_label') }}</label>
                                 <select id="rating" name="rating" required class="input">
                                     @for ($i = 5; $i >= 1; $i--)
                                         <option value="{{ $i }}" @selected(old('rating', 5) == $i)>
-                                            {{ $i }} star{{ $i > 1 ? 's' : '' }}
+                                            {{ $i }} {{ __('design_star', ['count' => $i]) }}
                                         </option>
                                     @endfor
                                 </select>
                                 @error('rating') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label class="label" for="title">Headline (optional)</label>
+                                <label class="label" for="title">{{ __('design_review_headline_label') }}</label>
                                 <input id="title" name="title" type="text" maxlength="120"
                                        value="{{ old('title') }}" class="input"
-                                       placeholder="One-line summary">
+                                       placeholder="{{ __('design_review_headline_placeholder') }}">
                                 @error('title') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label class="label" for="body">Your review (optional)</label>
+                                <label class="label" for="body">{{ __('design_review_body_label') }}</label>
                                 <textarea id="body" name="body" rows="4" maxlength="2000"
                                           class="input"
-                                          placeholder="What did you like about this design?">{{ old('body') }}</textarea>
+                                          placeholder="{{ __('design_review_body_placeholder') }}">{{ old('body') }}</textarea>
                                 @error('body') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
                             </div>
-                            <button type="submit" class="btn-coral">Post review</button>
+                            <button type="submit" class="btn-coral">{{ __('design_post_review') }}</button>
                         </form>
                     </div>
                 @elseif (auth()->user()?->isCustomer() && $design->reviewBy(auth()->user()) !== null)
                     <div class="card border-3 border-ink-800">
-                        <p class="font-mono text-sm">Thanks — you've already reviewed this design.</p>
+                        <p class="font-mono text-sm">{{ __('design_already_reviewed') }}</p>
                     </div>
                 @endif
             @else
                 <div class="card border-3 border-ink-800">
                     <p class="font-mono text-sm">
-                        <a href="{{ route('login') }}" class="text-coral-500 hover:underline">Sign in</a>
-                        as a customer to write a review.
+                        <a href="{{ route('login') }}" class="text-coral-500 hover:underline">{{ __('design_sign_in_to_review') }}</a>
+                        {{ __('design_sign_in_to_review_suffix') }}
                     </p>
                 </div>
             @endauth

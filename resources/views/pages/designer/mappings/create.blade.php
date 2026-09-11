@@ -1,19 +1,19 @@
-@extends('layouts.app', ['title' => 'New mapping'])
+@extends('layouts.app', ['title' => __('designer_mapping_new_title')])
 
 @section('content')
     <section class="max-w-6xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Designer' => route('designer.dashboard'),
-            'Mappings' => route('designer.mappings'),
-            'New mapping' => route('designer.mappings.create'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_designer') => route('designer.dashboard'),
+            __('breadcrumb_mappings') => route('designer.mappings'),
+            __('designer_mapping_new_breadcrumb') => route('designer.mappings.create'),
         ]" />
 
-        <h1 class="heading-1 mb-8">New mapping<span class="text-coral-500">.</span></h1>
+        <h1 class="heading-1 mb-8">{{ __('designer_mapping_new_heading') }}<span class="text-coral-500">.</span></h1>
 
         @if ($errors->any())
             <div class="card mb-6 border-coral-500">
-                <p class="font-display uppercase text-coral-500 text-sm">Please fix the errors below</p>
+                <p class="font-display uppercase text-coral-500 text-sm">{{ __('form_errors_heading') }}</p>
                 <ul class="font-mono text-xs text-ink-700 mt-2 list-disc pl-5 space-y-1">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -29,9 +29,9 @@
                 @csrf
 
                 <div>
-                    <label class="label" for="design_id">Design</label>
+                    <label class="label" for="design_id">{{ __('designer_field_design') }}</label>
                     <select id="design_id" name="design_id" required class="input">
-                        <option value="">Select one of your designs</option>
+                        <option value="">{{ __('designer_select_design') }}</option>
                         @foreach ($designs as $design)
                             <option value="{{ $design->id }}"
                                     @selected(old('design_id', $preselectedDesignId) === $design->id)>
@@ -43,9 +43,9 @@
                 </div>
 
                 <div>
-                    <label class="label" for="product_template_id">Product template</label>
+                    <label class="label" for="product_template_id">{{ __('designer_field_product_template') }}</label>
                     <select id="product_template_id" name="product_template_id" required class="input">
-                        <option value="">Select a product template</option>
+                        <option value="">{{ __('designer_select_product_template') }}</option>
                         @foreach ($templates as $template)
                             <option value="{{ $template->id }}"
                                     data-base-cost="{{ $template->base_cost }}"
@@ -54,14 +54,14 @@
                             </option>
                         @endforeach
                     </select>
-                    <p class="font-mono text-xs text-ink-700 mt-1">Picking a template pre-fills the final price with its base cost.</p>
+                    <p class="font-mono text-xs text-ink-700 mt-1">{{ __('designer_template_helper') }}</p>
                     @error('product_template_id') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="label" for="preferred_printer_id">Preferred printer</label>
+                    <label class="label" for="preferred_printer_id">{{ __('designer_field_preferred_printer') }}</label>
                     <select id="preferred_printer_id" name="preferred_printer_id" required class="input">
-                        <option value="">Select a printer</option>
+                        <option value="">{{ __('designer_select_printer') }}</option>
                         @foreach ($printers as $printer)
                             <option value="{{ $printer->id }}"
                                     @selected(old('preferred_printer_id') === $printer->id)>
@@ -73,7 +73,7 @@
                 </div>
 
                 <div>
-                    <label class="label" for="final_price">Final price (USD)</label>
+                    <label class="label" for="final_price">{{ __('designer_field_final_price') }}</label>
                     <input id="final_price" name="final_price" type="number" step="0.01" min="0" required
                            value="{{ old('final_price') }}"
                            class="input font-mono"
@@ -82,8 +82,8 @@
                 </div>
 
                 <div class="flex items-center gap-3 pt-2">
-                    <button type="submit" class="btn-coral">Create mapping</button>
-                    <a href="{{ route('designer.mappings') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn-coral">{{ __('designer_create_mapping') }}</button>
+                    <a href="{{ route('designer.mappings') }}" class="btn btn-secondary">{{ __('cancel') }}</a>
                 </div>
             </form>
         </div>

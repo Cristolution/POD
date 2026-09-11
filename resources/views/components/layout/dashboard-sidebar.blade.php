@@ -4,7 +4,7 @@
 ])
 
 <aside class="card bg-sand-200 self-start">
-    <h2 class="font-display uppercase text-sm mb-4">Navigation</h2>
+    <h2 class="font-display uppercase text-sm mb-4">{{ __('sidebar_navigation') }}</h2>
     <nav>
         <ul class="space-y-1">
             @foreach ($links as $label => $url)

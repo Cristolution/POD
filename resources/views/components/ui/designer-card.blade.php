@@ -1,7 +1,7 @@
 @props(['designer'])
 
 @php
-    $name = $designer->user?->name ?? 'Unknown';
+    $name = $designer->user?->name ?? __('unknown');
     $email = trim(strtolower((string) $designer->user?->email));
     $gravatarUrl = $email
         ? 'https://www.gravatar.com/avatar/'.md5($email).'?d=identicon&s=128'
@@ -19,7 +19,7 @@
         </div>
         <div class="min-w-0">
             <div class="font-display uppercase tracking-wider truncate">{{ $name }}</div>
-            <div class="font-mono text-xs mt-1">{{ $designer->published_designs_count }} published designs</div>
+            <div class="font-mono text-xs mt-1">{{ $designer->published_designs_count }} {{ __('designer_card_published_designs') }}</div>
         </div>
     </div>
     @if ($designer->bio)

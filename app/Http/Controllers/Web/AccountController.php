@@ -105,7 +105,7 @@ class AccountController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('account.dashboard')->with('status', 'Profile updated.');
+        return redirect()->route('account.dashboard')->with('status', __('flash_profile_updated'));
     }
 
     public function updatePassword(Request $request): RedirectResponse
@@ -117,12 +117,12 @@ class AccountController extends Controller
         ]);
 
         if (! Hash::check($data['current_password'], $user->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            return back()->withErrors(['current_password' => __('flash_current_password_incorrect')]);
         }
 
         $user->update(['password' => $data['password']]); // hashed via cast
 
-        return redirect()->route('account.dashboard')->with('status', 'Password updated.');
+        return redirect()->route('account.dashboard')->with('status', __('flash_password_updated'));
     }
 
     public function wishlist(Request $request): View

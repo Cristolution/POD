@@ -1,15 +1,15 @@
-@extends('layouts.app', ['title' => 'Addresses'])
+@extends('layouts.app', ['title' => __('addresses_title')])
 
 @section('content')
     <section class="max-w-6xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Account' => route('account.dashboard'),
-            'Addresses' => route('account.addresses.index'),
+            __('breadcrumb_account') => route('account.dashboard'),
+            __('breadcrumb_addresses') => route('account.addresses.index'),
         ]" />
 
         <div class="flex items-center justify-between mb-8">
-            <h1 class="heading-1">Addresses<span class="text-coral-500">.</span></h1>
-            <a href="{{ route('account.addresses.create') }}" class="btn-coral">+ New address</a>
+            <h1 class="heading-1">{{ __('addresses_heading') }}<span class="text-coral-500">.</span></h1>
+            <a href="{{ route('account.addresses.create') }}" class="btn-coral">{{ __('addresses_new') }}</a>
         </div>
 
         <div class="grid md:grid-cols-[240px_1fr] gap-8">
@@ -30,16 +30,16 @@
 
                 @if ($addresses->isEmpty())
                     <div class="card-featured text-center">
-                        <p class="font-mono mb-6">You have no saved addresses yet.</p>
-                        <a href="{{ route('account.addresses.create') }}" class="btn">Add your first address</a>
+                        <p class="font-mono mb-6">{{ __('addresses_empty') }}</p>
+                        <a href="{{ route('account.addresses.create') }}" class="btn">{{ __('addresses_add_first') }}</a>
                     </div>
                 @else
                     <div class="table-wrap"><table class="table-pod">
                         <thead>
                             <tr>
-                                <th>Address</th>
-                                <th>Phone</th>
-                                <th class="text-right">Actions</th>
+                                <th>{{ __('addresses_column_address') }}</th>
+                                <th>{{ __('auth_phone') }}</th>
+                                <th class="text-right">{{ __('addresses_column_actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -57,13 +57,13 @@
                                     <td class="text-right">
                                         <div class="inline-flex gap-2">
                                             <a href="{{ route('account.addresses.edit', $address) }}"
-                                               class="btn btn-secondary text-xs">Edit</a>
+                                               class="btn btn-secondary text-xs">{{ __('addresses_edit') }}</a>
                                             <form method="POST"
                                                   action="{{ route('account.addresses.destroy', $address) }}"
-                                                  onsubmit="return confirm('Delete this address?')">
+                                                  onsubmit="return confirm('{{ __('addresses_confirm_delete') }}')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button class="btn btn-secondary text-xs">Delete</button>
+                                                <button class="btn btn-secondary text-xs">{{ __('addresses_delete') }}</button>
                                             </form>
                                         </div>
                                     </td>

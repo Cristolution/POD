@@ -26,10 +26,10 @@
     <button type="button" @click="open = true"
             class="btn w-full flex items-center justify-between gap-2 py-2">
         <span class="flex items-center gap-2">
-            <span class="font-mono text-xs uppercase tracking-widest">Refine</span>
+            <span class="font-mono text-xs uppercase tracking-widest">{{ __('facets_refine') }}</span>
             @if ($activeFilterCount > 0)
                 <span class="badge badge-coral text-[10px] py-0">
-                    {{ $activeFilterCount }} active
+                    {{ $activeFilterCount }} {{ __('facets_active') }}
                 </span>
             @endif
         </span>
@@ -49,8 +49,8 @@
          class="fixed inset-x-0 top-0 z-50 bg-sand-100 overflow-y-auto border-b-5 border-ink-800 max-h-[90vh]"
          x-cloak>
         <div class="sticky top-0 z-10 bg-ink-800 text-sand-100 px-5 py-3 flex items-center justify-between border-b-3 border-coral-500">
-            <span class="font-display uppercase tracking-wider text-sm">Refine results</span>
-            <button type="button" @click="open = false" class="font-mono text-xs uppercase tracking-widest hover:text-coral-500">Close ×</button>
+            <span class="font-display uppercase tracking-wider text-sm">{{ __('facets_refine_results') }}</span>
+            <button type="button" @click="open = false" class="font-mono text-xs uppercase tracking-widest hover:text-coral-500">{{ __('facets_close') }}</button>
         </div>
 
         <div class="p-5">
@@ -64,9 +64,9 @@
 
                 {{-- Categories --}}
                 <div>
-                    <span class="block font-mono text-[10px] uppercase tracking-widest text-ink-700 mb-2">Category</span>
+                    <span class="block font-mono text-[10px] uppercase tracking-widest text-ink-700 mb-2">{{ __('facets_category') }}</span>
                     <select name="category" class="input font-mono text-sm py-2">
-                        <option value="">All categories</option>
+                        <option value="">{{ __('facets_all_categories') }}</option>
                         @foreach ($categories as $root)
                             <option value="{{ $root->id }}" {{ ($activeCategory && $activeCategory->id === $root->id) ? 'selected' : '' }}>
                                 {{ $root->name }} ({{ $root->designs_count }})
@@ -82,17 +82,17 @@
 
                 {{-- Price --}}
                 <div>
-                    <span class="block font-mono text-[10px] uppercase tracking-widest text-ink-700 mb-2">Price (USD)</span>
+                    <span class="block font-mono text-[10px] uppercase tracking-widest text-ink-700 mb-2">{{ __('facets_price_usd') }}</span>
                     <div class="flex items-center gap-2">
                         <div class="flex-1 relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono">$</span>
-                            <input type="number" name="price_min" value="{{ $priceMin }}" min="0" step="1" placeholder="Min"
+                            <input type="number" name="price_min" value="{{ $priceMin }}" min="0" step="1" placeholder="{{ __('facets_min') }}"
                                    class="input w-full pl-7 font-mono text-sm py-2">
                         </div>
                         <span class="font-display">→</span>
                         <div class="flex-1 relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 font-mono">$</span>
-                            <input type="number" name="price_max" value="{{ $priceMax }}" min="0" step="1" placeholder="Max"
+                            <input type="number" name="price_max" value="{{ $priceMax }}" min="0" step="1" placeholder="{{ __('facets_max') }}"
                                    class="input w-full pl-7 font-mono text-sm py-2">
                         </div>
                     </div>
@@ -113,23 +113,23 @@
 
                 {{-- Designer --}}
                 <div>
-                    <span class="block font-mono text-[10px] uppercase tracking-widest text-ink-700 mb-2">Designer</span>
+                    <span class="block font-mono text-[10px] uppercase tracking-widest text-ink-700 mb-2">{{ __('facets_designer') }}</span>
                     <select name="designer[]" multiple size="6" class="input font-mono text-sm py-2 min-h-[8rem]">
                         @foreach ($designers as $designer)
                             <option value="{{ $designer->id }}" {{ in_array($designer->id, $selectedDesignerIds, true) ? 'selected' : '' }}>
-                                {{ $designer->user?->name ?? 'Unknown' }} · {{ $designer->published_designs_count }}
+                                {{ $designer->user?->name ?? __('unknown') }} · {{ $designer->published_designs_count }}
                             </option>
                         @endforeach
                     </select>
-                    <span class="block mt-1 font-mono text-[10px] uppercase tracking-widest text-ink-700">Hold ⌘/Ctrl to multi-select</span>
+                    <span class="block mt-1 font-mono text-[10px] uppercase tracking-widest text-ink-700">{{ __('facets_multi_select_hint') }}</span>
                 </div>
 
                 <div class="flex gap-2 pt-2">
-                    <button type="submit" class="btn flex-1">Apply</button>
+                    <button type="submit" class="btn flex-1">{{ __('facets_apply') }}</button>
                     @if ($hasActiveFilters)
                         <a href="{{ route('browse.designs', request()->except(['category','designer','price_min','price_max','page'])) }}"
                            class="btn bg-surface hover:bg-ink-800 hover:text-sand-100"
-                           @click="open = false">Clear</a>
+                           @click="open = false">{{ __('facets_clear') }}</a>
                     @endif
                 </div>
             </form>
@@ -155,16 +155,16 @@
         {{-- Categories as compact pill list --}}
         <div>
             <div class="flex items-baseline justify-between mb-2 pb-1 border-b-3 border-ink-800">
-                <span class="font-display uppercase tracking-wider text-xs">Categories</span>
+                <span class="font-display uppercase tracking-wider text-xs">{{ __('facets_categories_heading') }}</span>
                 @if ($activeCategory)
-                    <a href="{{ route('browse.designs', request()->except(['category','page'])) }}" class="font-mono text-[10px] uppercase tracking-widest text-coral-600 hover:text-coral-700">reset</a>
+                    <a href="{{ route('browse.designs', request()->except(['category','page'])) }}" class="font-mono text-[10px] uppercase tracking-widest text-coral-600 hover:text-coral-700">{{ __('facets_reset') }}</a>
                 @endif
             </div>
             <ul class="space-y-1 font-mono text-xs">
                 <li>
                     <a href="{{ route('browse.designs', request()->except(['category','page'])) }}"
                        class="block py-1 hover:text-coral-500 {{ ! $activeCategory ? 'text-coral-600 font-bold' : '' }}">
-                        All
+                        {{ __('facets_all') }}
                     </a>
                 </li>
                 @foreach ($categories as $root)
@@ -195,18 +195,18 @@
         {{-- Price — minimal --}}
         <div>
             <div class="flex items-baseline justify-between mb-2 pb-1 border-b-3 border-ink-800">
-                <span class="font-display uppercase tracking-wider text-xs">Price</span>
+                <span class="font-display uppercase tracking-wider text-xs">{{ __('facets_price_heading') }}</span>
             </div>
             <div class="flex items-center gap-1.5">
                 <div class="relative flex-1">
                     <span class="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-700">$</span>
-                    <input type="number" name="price_min" value="{{ $priceMin }}" min="0" step="1" placeholder="Min"
+                    <input type="number" name="price_min" value="{{ $priceMin }}" min="0" step="1" placeholder="{{ __('facets_min') }}"
                            class="input w-full pl-6 font-mono text-xs py-1.5">
                 </div>
                 <span class="font-mono text-xs">–</span>
                 <div class="relative flex-1">
                     <span class="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-700">$</span>
-                    <input type="number" name="price_max" value="{{ $priceMax }}" min="0" step="1" placeholder="Max"
+                    <input type="number" name="price_max" value="{{ $priceMax }}" min="0" step="1" placeholder="{{ __('facets_max') }}"
                            class="input w-full pl-6 font-mono text-xs py-1.5">
                 </div>
             </div>
@@ -228,26 +228,26 @@
         {{-- Designer — minimal dropdown --}}
         <div>
             <div class="flex items-baseline justify-between mb-2 pb-1 border-b-3 border-ink-800">
-                <span class="font-display uppercase tracking-wider text-xs">Designer</span>
+                <span class="font-display uppercase tracking-wider text-xs">{{ __('facets_designer_heading') }}</span>
                 @if (count($selectedDesignerIds) > 0)
-                    <a href="{{ route('browse.designs', request()->except(['designer','page'])) }}" class="font-mono text-[10px] uppercase tracking-widest text-coral-600 hover:text-coral-700">reset</a>
+                    <a href="{{ route('browse.designs', request()->except(['designer','page'])) }}" class="font-mono text-[10px] uppercase tracking-widest text-coral-600 hover:text-coral-700">{{ __('facets_reset') }}</a>
                 @endif
             </div>
             <select name="designer[]" multiple size="5" class="input font-mono text-xs py-1.5 min-h-[7rem]">
                 @foreach ($designers as $designer)
                     <option value="{{ $designer->id }}" {{ in_array($designer->id, $selectedDesignerIds, true) ? 'selected' : '' }}>
-                        {{ $designer->user?->name ?? 'Unknown' }} · {{ $designer->published_designs_count }}
+                        {{ $designer->user?->name ?? __('unknown') }} · {{ $designer->published_designs_count }}
                     </option>
                 @endforeach
             </select>
-            <button type="submit" class="btn w-full mt-2 py-1.5 text-xs">Apply designers</button>
+            <button type="submit" class="btn w-full mt-2 py-1.5 text-xs">{{ __('facets_apply_designers') }}</button>
         </div>
 
         {{-- Clear all --}}
         @if ($hasActiveFilters)
             <a href="{{ route('browse.designs', request()->except(['category','designer','price_min','price_max','page'])) }}"
                class="block text-center font-mono text-[10px] uppercase tracking-widest underline text-ink-700 hover:text-coral-500">
-                Clear all filters
+                {{ __('facets_clear_all') }}
             </a>
         @endif
     </form>

@@ -89,7 +89,7 @@ class PrinterProviderController extends Controller
 
         $profile->update($data);
 
-        return redirect()->route('printer.edit')->with('status', 'Profile updated.');
+        return redirect()->route('printer.edit')->with('status', __('flash_profile_updated'));
     }
 
     // ------------------------------------------------------------------
@@ -148,6 +148,6 @@ class PrinterProviderController extends Controller
         });
 
         return redirect()->route('printer.fulfilment')
-            ->with('status', "Item moved to '{$data['next']}'.");
+            ->with('status', __('flash_fulfilment_advanced', ['status' => $data['next']]));
     }
 }

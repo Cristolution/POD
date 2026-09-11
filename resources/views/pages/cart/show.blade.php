@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Your cart'])
+@extends('layouts.app', ['title' => __('cart_title')])
 
 @section('content')
     @php
@@ -7,16 +7,16 @@
 
     <section class="max-w-5xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Home' => route('home'),
-            'Cart' => route('cart.show'),
+            __('breadcrumb_home') => route('home'),
+            __('breadcrumb_cart') => route('cart.show'),
         ]" />
 
-        <h1 class="heading-1 mb-8">Your cart<span class="text-coral-500">.</span></h1>
+        <h1 class="heading-1 mb-8">{{ __('cart_heading') }}<span class="text-coral-500">.</span></h1>
 
         @if ($items->isEmpty())
             <div class="card-featured text-center">
-                <p class="font-mono mb-6">Your cart is empty.</p>
-                <a href="{{ route('browse.designs') }}" class="btn">Browse designs</a>
+                <p class="font-mono mb-6">{{ __('cart_empty') }}</p>
+                <a href="{{ route('browse.designs') }}" class="btn">{{ __('cart_browse_designs') }}</a>
             </div>
         @else
             <div class="space-y-4">
@@ -41,7 +41,7 @@
                                 </a>
                             @endif
                             <div class="font-mono text-sm text-ink-700 mt-1">
-                                {{ $mapping?->productTemplate?->type ? ucwords(str_replace('-', ' ', $mapping->productTemplate->type)) : 'Product' }}
+                                {{ $mapping?->productTemplate?->type ? ucwords(str_replace('-', ' ', $mapping->productTemplate->type)) : __('product') }}
                                 @if ($variantLabel)
                                     — {{ $variantLabel }}
                                 @endif
@@ -53,7 +53,7 @@
                             @method('PATCH')
                             <input type="number" name="quantity" value="{{ $item->quantity }}"
                                    min="1" max="100" class="input w-20 text-center">
-                            <button class="btn btn-secondary text-xs">Update</button>
+                            <button class="btn btn-secondary text-xs">{{ __('cart_update') }}</button>
                         </form>
                         <div class="font-display text-lg sm:w-24 sm:text-right shrink-0">
                             ${{ number_format((float) $item->lineTotal(), 2) }}
@@ -61,7 +61,7 @@
                         <form method="POST" action="{{ route('cart.items.destroy', $item) }}" class="shrink-0">
                             @csrf
                             @method('DELETE')
-                            <button class="btn btn-secondary text-xs w-full sm:w-auto">Remove</button>
+                            <button class="btn btn-secondary text-xs w-full sm:w-auto">{{ __('cart_remove') }}</button>
                         </form>
                     </div>
                 @endforeach
@@ -71,16 +71,16 @@
                 <form method="POST" action="{{ route('cart.clear') }}">
                     @csrf
                     @method('DELETE')
-                    <button class="btn btn-secondary w-full sm:w-auto">Clear cart</button>
+                    <button class="btn btn-secondary w-full sm:w-auto">{{ __('cart_clear') }}</button>
                 </form>
                 <div class="sm:text-right">
-                    <div class="font-mono text-xs uppercase tracking-wider">Total</div>
+                    <div class="font-mono text-xs uppercase tracking-wider">{{ __('total') }}</div>
                     <div class="font-display text-3xl sm:text-4xl break-all">${{ number_format((float) $grandTotal, 2) }}</div>
                 </div>
             </div>
 
             <div class="mt-8 text-center sm:text-right">
-                <a href="{{ route('checkout.show') }}" class="btn btn-coral text-lg w-full sm:w-auto">Proceed to checkout →</a>
+                <a href="{{ route('checkout.show') }}" class="btn btn-coral text-lg w-full sm:w-auto">{{ __('cart_proceed_checkout') }}</a>
             </div>
         @endif
     </section>

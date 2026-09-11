@@ -1,13 +1,13 @@
-@extends('layouts.app', ['title' => 'Notifications'])
+@extends('layouts.app', ['title' => __('notifications_title')])
 
 @section('content')
     <section class="max-w-6xl mx-auto px-6 py-12">
         <x-layout.breadcrumbs :items="[
-            'Account' => route('account.dashboard'),
-            'Notifications' => route('account.notifications'),
+            __('breadcrumb_account') => route('account.dashboard'),
+            __('breadcrumb_notifications') => route('account.notifications'),
         ]" />
 
-        <h1 class="heading-1 mb-8">Notifications<span class="text-coral-500">.</span></h1>
+        <h1 class="heading-1 mb-8">{{ __('notifications_heading') }}<span class="text-coral-500">.</span></h1>
 
         <div class="grid md:grid-cols-[240px_1fr] gap-8">
             <x-layout.account-sidebar />
@@ -15,7 +15,7 @@
             <div>
                 @if ($notifications->isEmpty())
                     <div class="card-featured text-center">
-                        <p class="font-mono">No notifications yet.</p>
+                        <p class="font-mono">{{ __('notifications_empty') }}</p>
                     </div>
                 @else
                     @if (session('status'))
@@ -31,10 +31,10 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="font-display uppercase text-sm">
-                                            {{ $data['event'] ?? 'notification' }}
+                                            {{ $data['event'] ?? __('notification_default_event') }}
                                         </span>
                                         @if (! $notification->read_at)
-                                            <span class="badge badge-coral text-xs">New</span>
+                                            <span class="badge badge-coral text-xs">{{ __('notifications_new_badge') }}</span>
                                         @endif
                                     </div>
                                     <div class="font-mono text-xs text-ink-700">
@@ -42,7 +42,7 @@
                                     </div>
                                     @if (isset($data['order_id']))
                                         <div class="font-mono text-sm mt-2">
-                                            Order:
+                                            {{ __('notification_order_label') }}
                                             <a href="{{ route('orders.confirmation', $data['order_id']) }}"
                                                class="text-coral-500 hover:underline">
                                                 {{ substr($data['order_id'], 0, 8) }}
@@ -56,14 +56,14 @@
                                         <form method="POST" action="{{ route('account.notifications.read', $notification->id) }}">
                                             @csrf
                                             @method('PATCH')
-                                            <button class="btn btn-secondary text-xs">Mark read</button>
+                                            <button class="btn btn-secondary text-xs">{{ __('notifications_mark_read') }}</button>
                                         </form>
                                     @endif
 
                                     <form method="POST" action="{{ route('account.notifications.destroy', $notification->id) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button class="btn btn-secondary text-xs">Delete</button>
+                                        <button class="btn btn-secondary text-xs">{{ __('notifications_delete') }}</button>
                                     </form>
                                 </div>
                             </li>
