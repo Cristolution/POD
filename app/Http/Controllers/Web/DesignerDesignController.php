@@ -14,6 +14,7 @@ use App\Http\Requests\Web\UpdateDesignerDesignRequest;
 use App\Models\Category;
 use App\Models\Design;
 use App\Models\Media;
+use App\Models\ProductTemplate;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,6 +44,12 @@ class DesignerDesignController extends Controller
         return view('pages.designer.designs.create', [
             'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
             'tags' => Tag::query()->orderBy('name')->get(['id', 'name']),
+            'productTypes' => ProductTemplate::query()
+                ->select('type')
+                ->distinct()
+                ->orderBy('type')
+                ->pluck('type')
+                ->all(),
         ]);
     }
 
@@ -53,14 +60,22 @@ class DesignerDesignController extends Controller
         $data = $request->validated();
         $mockup = $request->file('mockup');
         $printFile = $request->file('print_file');
-        unset($data['mockup'], $data['print_file']);
+        $productMockups = $request->file('product_mockups') ?? [];
+        unset($data['mockup'], $data['print_file'], $data['product_mockups']);
 
         $design = $store->execute($request->user(), $data);
 
-        // Two uploads — one per collection. The action is single-responsibility so
-        // we call it twice rather than extending its signature.
+        // Default mockup + print file — both required for any published design.
         $upload->execute($mockup, $design, 'mockup');
         $upload->execute($printFile, $design, 'print_file');
+
+        // Optional per-product mockups — keyed by product_template_id.
+        // Designer uploads only when they want a custom preview for that
+        // specific product type (e.g. "this design on a t-shirt"). The
+        // design page falls back to the default mockup when no override exists.
+        foreach ($productMockups as $productTemplateId => $file) {
+            $upload->execute($file, $design, 'mockup', (string) $productTemplateId);
+        }
 
         return redirect()
             ->route('designer.designs.show', $design)
@@ -91,12 +106,18 @@ class DesignerDesignController extends Controller
     {
         Gate::authorize('update', $design);
 
-        $design->load('tags');
+        $design->load(['tags', 'media.productTemplate']);
 
         return view('pages.designer.designs.edit', [
             'design' => $design,
             'categories' => Category::query()->orderBy('name')->get(['id', 'name']),
             'tags' => Tag::query()->orderBy('name')->get(['id', 'name']),
+            'productTypes' => ProductTemplate::query()
+                ->select('type')
+                ->distinct()
+                ->orderBy('type')
+                ->pluck('type')
+                ->all(),
         ]);
     }
 

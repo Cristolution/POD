@@ -65,6 +65,20 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Address::class);
     }
 
+    public function wishlist(): HasOne
+    {
+        return $this->hasOne(Wishlist::class);
+    }
+
+    /**
+     * Convenience: get or create the user's wishlist so callers don't
+     * have to remember the hasOne-then-create pattern.
+     */
+    public function getOrCreateWishlist(): Wishlist
+    {
+        return $this->wishlist()->firstOrCreate(['user_id' => $this->getKey()]);
+    }
+
     // ------------------------------------------------------------------
     // Cart / Orders
     // ------------------------------------------------------------------

@@ -99,6 +99,30 @@
                     @error('print_file') <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
+                {{-- OPTIONAL: per-product mockups --}}
+                {{-- Designer can drop a custom preview for specific product types. The
+                     storefront falls back to the default mockup when no override exists,
+                     so designers only upload the products they actually want a custom
+                     preview for. --}}
+                <div class="border-3 border-dashed border-ink-800 bg-sand-50 p-4 space-y-3">
+                    <div class="flex items-baseline justify-between gap-4">
+                        <p class="font-display uppercase text-sm">Per-product mockups <span class="font-mono normal-case text-xs text-ink-700">(optional)</span></p>
+                        <p class="font-mono text-xs text-ink-700">Drop a file only for the products you want to customise</p>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        @foreach (($productTypes ?? []) as $type)
+                            <div>
+                                <label class="label" for="product_mockup_{{ $type }}">{{ ucwords(str_replace('-', ' ', $type)) }} mockup</label>
+                                <input id="product_mockup_{{ $type }}"
+                                       name="product_mockups[{{ $type }}]"
+                                       type="file" accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                                       class="input file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-sand-200 file:font-mono file:text-ink-800">
+                                @error("product_mockups.$type") <p class="font-mono text-xs text-coral-500 mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
                 <div class="flex items-center gap-3 pt-2">
                     <button type="submit" class="btn-coral">Create design</button>
                     <a href="{{ route('designer.dashboard') }}" class="btn btn-secondary">Cancel</a>

@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default' => env('MAIL_MAILER', 'failover'),
 
     /*
     |--------------------------------------------------------------------------
@@ -87,6 +87,10 @@ return [
             ],
             'retry_after' => 60,
         ],
+
+        // Dev fallback: when MAIL_MAILER=log the failover block above tries
+        // SMTP first then log. Override MAIL_MAILER=log to skip SMTP entirely
+        // and only write to storage/logs/laravel.log.
 
         'roundrobin' => [
             'transport' => 'roundrobin',

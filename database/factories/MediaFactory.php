@@ -25,7 +25,18 @@ class MediaFactory extends Factory
 
     public function mockup(): static
     {
-        return $this->state(fn () => ['collection_name' => 'mockup']);
+        return $this->state(fn () => [
+            'collection_name' => 'mockup',
+            'product_template_id' => null,
+        ]);
+    }
+
+    public function productMockup(int|string|null $productTemplateId = null): static
+    {
+        return $this->state(fn () => [
+            'collection_name' => 'mockup',
+            'product_template_id' => $productTemplateId,
+        ]);
     }
 
     public function printFile(): static

@@ -25,6 +25,20 @@ class Design extends Model
         return ['id'];
     }
 
+    /**
+     * Force-delete cascade: when a Design row is permanently removed, its
+     * DesignProductMapping rows must go with it. SQLite silently ignores
+     * the `cascadeOnDelete()` FK declared in the migration (it requires
+     * inline `REFERENCES` in the CREATE TABLE), so we explicitly cascade
+     * at the Eloquent layer. MySQL/Postgres honor the FK as a safety net.
+     */
+    protected static function booted(): void
+    {
+        static::forceDeleting(function (Design $design): void {
+            $design->mappings()->get()->each(static fn ($mapping) => $mapping->forceDelete());
+        });
+    }
+
     // ------------------------------------------------------------------
     // Relationships
     // ------------------------------------------------------------------
@@ -53,6 +67,23 @@ class Design extends Model
     public function publishedMappings(): HasMany
     {
         return $this->mappings()->whereHas('design', fn ($q) => $q->where('status', 'published'));
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(DesignReview::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->reviews()->approved();
+    }
+
+    public function reviewBy(User $user): ?DesignReview
+    {
+        return $this->reviews()
+            ->where('customer_id', $user->getKey())
+            ->first();
     }
 
     /**
@@ -124,5 +155,15 @@ class Design extends Model
     public function isArchived(): bool
     {
         return $this->status === 'archived';
+    }
+
+    /**
+     * Average rating across approved reviews (1–5). Null when no reviews.
+     */
+    public function averageRating(): ?float
+    {
+        $avg = $this->approvedReviews()->avg('rating');
+
+        return $avg === null ? null : round((float) $avg, 1);
     }
 }

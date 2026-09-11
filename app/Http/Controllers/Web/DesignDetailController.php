@@ -24,15 +24,37 @@ class DesignDetailController extends Controller
             404
         );
 
-        $design->load(['designer.user', 'category', 'tags', 'media']);
+        $design->load([
+            'designer.user',
+            'category',
+            'tags',
+            'media.productTemplate',
+            'approvedReviews.customer' => fn ($q) => $q->select(['id', 'name']),
+        ]);
 
         $mappings = $design->mappings()
             ->with(['productTemplate.activeVariants'])
             ->get();
 
+        // Index of "design on product" mockups keyed by product_template_id so
+        // each product card can look up its dedicated preview in O(1).
+        $productMockups = $design->media
+            ->where('collection_name', 'mockup')
+            ->whereNotNull('product_template_id')
+            ->keyBy('product_template_id');
+
+        // Default mockup — used in the hero area and as fallback when a
+        // product card has no per-product override.
+        $defaultMockup = $design->media
+            ->where('collection_name', 'mockup')
+            ->whereNull('product_template_id')
+            ->first();
+
         return view('pages.design.show', [
             'design' => $design,
             'mappings' => $mappings,
+            'productMockups' => $productMockups,
+            'defaultMockup' => $defaultMockup,
         ]);
     }
 }

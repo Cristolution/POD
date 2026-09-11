@@ -124,4 +124,19 @@ class AccountController extends Controller
 
         return redirect()->route('account.dashboard')->with('status', 'Password updated.');
     }
+
+    public function wishlist(Request $request): View
+    {
+        $user = $request->user();
+        $wishlist = $user->wishlist()->firstOrCreate(['user_id' => $user->id]);
+
+        $items = $wishlist->designs()
+            ->with(['media', 'designer.user', 'mappings.productTemplate'])
+            ->get();
+
+        return view('pages.account.wishlist', [
+            'wishlist' => $wishlist,
+            'items' => $items,
+        ]);
+    }
 }
