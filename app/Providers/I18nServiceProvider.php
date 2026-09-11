@@ -12,6 +12,14 @@ namespace App\Providers {
             //
         }
 
+        /**
+         * Register the `localize()` global helper.
+         *
+         * Note: existing `route()` calls in Blade continue to work, but
+         * they will NOT automatically prepend the locale. Replace
+         * `route('foo')` with `App\Support\LocalizedUrl::route('foo')`
+         * for new code. (Phase B will do a project-wide find/replace.)
+         */
         public function boot(): void
         {
             $this->registerLocalizeHelper();
