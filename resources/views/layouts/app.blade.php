@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? config('app.name') }}</title>
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     {{-- SEO basics — every page sets @stack('seo') to override these. --}}
     <meta name="description" content="@yield('description', 'POD marketplace connecting independent designers with independent print shops.')">
     <meta name="robots" content="@yield('robots', 'index, follow')">
@@ -48,8 +50,6 @@
     <meta name="twitter:card" content="summary_large_image">
 
     @stack('head')
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen flex flex-col">
     <x-layout.header />
