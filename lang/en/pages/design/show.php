@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title_suffix' => ' — POD',
+    'og_title_suffix' => ' — POD Marketplace',
+    'og_description_suffix' => ' by :name — POD Marketplace.',
+    'jsonld_description_suffix' => ' by :name — printed on demand.',
+    'unknown_designer' => 'unknown designer',
+    'unknown_creator' => 'Unknown',
+    'breadcrumb_designs' => 'Designs',
+    'no_preview' => 'No preview',
+    'designed_by' => 'Designed by',
+    'uncategorized' => 'Uncategorized',
+    'custom_preview_badge' => 'Custom preview',
+    'no_products_yet' => 'This design is not yet available on any product.',
+    'no_products_hint' => "The designer hasn't published this artwork on a product yet. Check back later.",
+    'no_preview_yet' => "This design doesn't have a preview yet.",
+    'reviews_heading' => 'Reviews',
+    'reviews_summary' => ':rating / 5 · :count review|:count reviews',
+    'no_reviews' => 'No reviews yet. Be the first to share what you think.',
+    'anonymous' => 'Anonymous',
+    'remove' => 'Remove',
+    'write_a_review' => 'Write a review',
+    'rating' => 'Rating',
+    'rating_star' => ':n star',
+    'rating_stars' => ':n stars',
+    'headline_optional' => 'Headline (optional)',
+    'headline_placeholder' => 'One-line summary',
+    'body_optional' => 'Your review (optional)',
+    'body_placeholder' => 'What did you like about this design?',
+    'post_review' => 'Post review',
+    'already_reviewed' => "Thanks — you've already reviewed this design.",
+    'sign_in_to_review_prefix' => 'Sign in',
+    'sign_in_to_review_suffix' => 'as a customer to write a review.',
+];

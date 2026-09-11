@@ -1,0 +1,56 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'label' => 'Product template',
+    'plural' => 'Product templates',
+    'navigation_group' => 'Catalog',
+
+    'sections' => [
+        'ownership_type' => 'Ownership & type',
+        'pricing' => 'Pricing',
+        'specs' => 'Specs (key-value)',
+        'specs_description' => 'Free-form product specifications stored as JSON.',
+        'identity' => 'Identity',
+        'identity_description' => 'Product type and template UUID.',
+        'printer' => 'Printer',
+        'printer_description' => 'Fulfiller who produces this template.',
+        'pricing_section' => 'Pricing',
+        'pricing_section_description' => 'Base price before any variant adjustments.',
+        'specs_section' => 'Specs',
+        'specs_section_description' => 'Structural / production specifications (JSON).',
+        'usage' => 'Usage',
+        'usage_description' => 'How many variants and designs are linked to this template.',
+        'lifecycle' => 'Lifecycle',
+        'lifecycle_description' => 'Timestamps for creation, last edit, and soft-deletion.',
+    ],
+
+    'fields' => [
+        'printer_provider' => 'Printer provider',
+        'type' => 'Type',
+        'type_helper' => 'Free text — printer-managed (e.g. "mug", "tshirt").',
+        'type_unspecified' => '— unspecified —',
+        'base_cost' => 'Base cost',
+        'base_cost_helper' => 'Free text — printer-managed.',
+        'specs_property' => 'Property',
+        'specs_value' => 'Value',
+        'specs_add' => 'Add spec',
+        'id' => 'Template ID',
+        'company' => 'Company',
+        'company_placeholder' => '— no printer assigned —',
+        'owner' => 'Owner',
+        'not_priced' => '— not priced —',
+        'no_specs' => '— no specs recorded —',
+        'specs_separator' => ': ',
+        'variants_total' => 'Total variants',
+        'variants_total_format' => ':count variants',
+        'variants_active' => 'Active variants',
+        'variants_active_format' => ':count active',
+        'mappings_total' => 'Design mappings',
+        'mappings_total_format' => ':count mappings',
+        'created_at' => 'Created',
+        'updated_at' => 'Last updated',
+        'deleted_at' => 'Deleted at',
+    ],
+];
