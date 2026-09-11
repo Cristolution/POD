@@ -2,34 +2,57 @@
 
 namespace Tests\Feature;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Tests\TestCase;
 
 class LocaleFilesTest extends TestCase
 {
     /**
-     * Every lang/en/ PHP file must return a valid array when included.
+     * Single flat lang/en.php must return a valid, non-empty array.
      */
-    public function test_every_en_file_returns_a_valid_array(): void
+    public function test_en_file_is_valid_php(): void
     {
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator(base_path('lang/en'))
-        );
+        $values = require base_path('lang/en.php');
 
-        $files = [];
-        foreach ($iterator as $file) {
-            if ($file->isFile() && $file->getExtension() === 'php') {
-                $files[] = $file->getPathname();
-            }
-        }
+        $this->assertIsArray($values);
+        $this->assertNotEmpty($values);
+    }
 
-        $this->assertNotEmpty($files, 'No lang/en/*.php files were found.');
+    /**
+     * Single flat lang/ar.php must return a valid, non-empty array.
+     */
+    public function test_ar_file_is_valid_php(): void
+    {
+        $values = require base_path('lang/ar.php');
 
-        foreach ($files as $file) {
-            $values = require $file;
+        $this->assertIsArray($values);
+        $this->assertNotEmpty($values);
+    }
 
-            $this->assertIsArray($values, "File {$file} did not return an array");
-        }
+    /**
+     * Single flat lang/tr.php must return a valid, non-empty array.
+     */
+    public function test_tr_file_is_valid_php(): void
+    {
+        $values = require base_path('lang/tr.php');
+
+        $this->assertIsArray($values);
+        $this->assertNotEmpty($values);
+    }
+
+    /**
+     * Every key present in en.php must also exist in ar.php and tr.php
+     * so the placeholder locales stay in sync until Tasks 4/5 translate them.
+     */
+    public function test_every_en_key_exists_in_ar_and_tr(): void
+    {
+        $en = require base_path('lang/en.php');
+        $ar = require base_path('lang/ar.php');
+        $tr = require base_path('lang/tr.php');
+
+        $missingAr = array_diff(array_keys($en), array_keys($ar));
+        $missingTr = array_diff(array_keys($en), array_keys($tr));
+
+        $this->assertEmpty($missingAr, 'Missing keys in ar: '.implode(', ', $missingAr));
+        $this->assertEmpty($missingTr, 'Missing keys in tr: '.implode(', ', $missingTr));
     }
 }
