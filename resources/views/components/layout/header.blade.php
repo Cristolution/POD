@@ -49,6 +49,8 @@
         class="md:hidden border-t-3 border-ink-800 bg-sand-100"
     >
         <div class="px-6 py-4 flex flex-col gap-3">
+            <x-ui.language-switcher />
+
             <a href="{{ route('cart.show') }}" class="nav-link inline-flex items-center gap-2" x-data="{ count: {{ (int) ($cartCount ?? 0) }} }">
                 Cart
                 <span x-show="count > 0" x-text="count" class="badge-coral text-xs"></span>

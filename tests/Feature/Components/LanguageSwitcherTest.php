@@ -59,4 +59,24 @@ class LanguageSwitcherTest extends TestCase
         // The ar link's href should point at /ar/cart (same page, Arabic locale).
         $this->assertStringContainsString(url('/ar/cart'), $rendered);
     }
+
+    public function test_uses_localized_url_for_active_locale(): void
+    {
+        app()->setLocale('ar');
+
+        $rendered = view('components.ui.language-switcher')->render();
+
+        // The active (ar) link should use LocalizedUrl::route() — i.e. point
+        // at the same page in the current locale (/ar/cart), NOT a no-op
+        // cross-locale rewrite. Non-active links still go through localize().
+        $this->assertStringContainsString(url('/ar/cart'), $rendered);
+
+        // The EN link is cross-locale here (current is ar), so it should
+        // resolve via localize() to the unprefixed /cart.
+        $this->assertStringContainsString(url('/cart'), $rendered);
+
+        // The active link must carry aria-current="true" (re-asserted here
+        // so this test fails independently if the loop splits incorrectly).
+        $this->assertMatchesRegularExpression('/aria-current="true"[^>]*>AR</', $rendered);
+    }
 }
