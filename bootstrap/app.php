@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Middleware\EnsureOwnership;
 use App\Http\Middleware\EnsureUserRole;
+use App\Http\Middleware\LocalizeRequests;
 use App\Http\Middleware\ShareCartData;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserRole::class,
             'owner' => EnsureOwnership::class,
             'share.cart' => ShareCartData::class,
+            'localize' => LocalizeRequests::class,
         ]);
 
         $middleware->statefulApi();

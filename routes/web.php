@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\DesignerDesignController;
 use App\Http\Controllers\Web\DesignerMappingController;
 use App\Http\Controllers\Web\DesignerOrderController;
 use App\Http\Controllers\Web\DesignerProfileController;
+use App\Http\Controllers\Web\DesignReviewController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LoginController;
 use App\Http\Controllers\Web\NotificationController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\Web\OrderController;
 use App\Http\Controllers\Web\PasswordResetController;
 use App\Http\Controllers\Web\PrinterProviderController;
 use App\Http\Controllers\Web\RegisterController;
+use App\Http\Controllers\Web\SitemapController;
+use App\Http\Controllers\Web\WishlistController;
 use Illuminate\Support\Facades\Route;
 use L5Swagger\Http\Controllers\SwaggerController;
 use L5Swagger\Http\Middleware\Config;
@@ -26,6 +29,20 @@ use L5Swagger\L5SwaggerFacade;
 Route::middleware(['share.cart'])->group(function (): void {
     Route::get('/', HomeController::class)->name('home');
 
+    // -- Task 1 (i18n): stub test route for the LocalizeRequests middleware. --
+    // Replaced in Task 4 when the full public route group is wrapped with the
+    // same optional locale prefix. Kept here so LocalizeRequestsTest has a
+    // route that exercises URL-prefix-driven locale resolution. Laravel 13
+    // treats {locale?} as required at routing time, so both the unprefixed
+    // and prefixed URIs are registered explicitly.
+    Route::middleware(['localize'])->group(function (): void {
+        Route::get('/about', fn () => 'locale:'.app()->getLocale())
+            ->name('test.about');
+        Route::get('/{locale}/about', fn () => 'locale:'.app()->getLocale())
+            ->where('locale', '(en|ar|tr)')
+            ->name('test.about.localized');
+    });
+
     // -- Task 3: browse pages -------------------------------------------
     Route::get('/browse/designs', [BrowseController::class, 'designs'])->name('browse.designs');
     Route::get('/browse/categories', [BrowseController::class, 'categories'])->name('browse.categories');
@@ -33,6 +50,18 @@ Route::middleware(['share.cart'])->group(function (): void {
 
     // -- Task 4: real design detail page ---------------------------------
     Route::get('/designs/{design}', [DesignDetailController::class, 'show'])->name('design.show');
+
+    // -- Reviews on a design (customer submits, owner/admin deletes) ------
+    Route::middleware('auth')->group(function (): void {
+        Route::post('/designs/{design}/reviews', [DesignReviewController::class, 'store'])->name('design.reviews.store');
+        Route::delete('/designs/{design}/reviews/{review}', [DesignReviewController::class, 'destroy'])->name('design.reviews.destroy');
+    });
+
+    // -- Wishlist (favourite designs) — customer only, idempotent toggle ----
+    Route::middleware(['auth', 'role:customer'])->group(function (): void {
+        Route::post('/designs/{design}/wishlist', [WishlistController::class, 'store'])->name('design.wishlist.store');
+        Route::delete('/designs/{design}/wishlist', [WishlistController::class, 'destroy'])->name('design.wishlist.destroy');
+    });
 
     // -- Task 7: web auth (login / register / password reset) ------------
     // Uses Laravel's session guard ('web'), not Sanctum. The 'guest'
@@ -92,6 +121,8 @@ Route::middleware(['share.cart'])->group(function (): void {
 
         Route::get('/orders', [AccountOrderController::class, 'index'])->name('orders');
 
+        Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
+
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
         Route::patch('/notifications/{notification}', [NotificationController::class, 'markRead'])->name('notifications.read');
         Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
@@ -139,6 +170,11 @@ Route::middleware(['share.cart'])->group(function (): void {
         Route::get('/', [PrinterProviderController::class, 'dashboard'])->name('dashboard');
         Route::get('/edit', [PrinterProviderController::class, 'edit'])->name('edit');
         Route::patch('/', [PrinterProviderController::class, 'update'])->name('update');
+
+        // Fulfilment queue — printer advances each line item through
+        // received → printing → printed → handed_off.
+        Route::get('/fulfilment', [PrinterProviderController::class, 'fulfilment'])->name('fulfilment');
+        Route::patch('/fulfilment/{item}', [PrinterProviderController::class, 'advanceItem'])->name('fulfilment.advance');
     });
 
     // -- Task 10: legal pages --------------------------------------------
@@ -147,6 +183,9 @@ Route::middleware(['share.cart'])->group(function (): void {
     // text in resources/views/pages/legal/ before public launch.
     Route::view('/legal/terms', 'pages.legal.terms')->name('legal.terms');
     Route::view('/legal/privacy', 'pages.legal.privacy')->name('legal.privacy');
+
+    // -- SEO: XML sitemap for search engine crawlers ----------------------
+    Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 });
 
 // L5-Swagger documentation routes. Mounted identically in all 3 environments so
