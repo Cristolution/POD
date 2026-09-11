@@ -22,7 +22,7 @@
                         No orders yet. When customers buy products featuring your designs, they'll appear here.
                     </p>
                 @else
-                    <table class="table-pod">
+                    <div class="table-wrap"><table class="table-pod">
                         <thead>
                             <tr>
                                 <th>Order #</th>
@@ -53,7 +53,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                    </table></div>
 
                     <div class="mt-6">
                         <x-ui.pagination :paginator="$items" />

@@ -27,7 +27,23 @@
     <input type="hidden" name="design_product_mapping_id" value="{{ $mapping->id }}">
     <input type="hidden" name="product_variant_id" x-model="variantId">
 
-    <h3 class="heading-3 mb-4">{{ $mapping->productTemplate?->name ?? 'Product' }}</h3>
+    <h3 class="heading-3 mb-4">
+        @php
+            $typeLabels = [
+                'mug' => 'Mug',
+                't-shirt' => 'T-Shirt',
+                'poster' => 'Poster',
+                'hoodie' => 'Hoodie',
+                'tote bag' => 'Tote Bag',
+                'cap' => 'Cap',
+                'phone case' => 'Phone Case',
+                'sticker' => 'Sticker',
+            ];
+            $type = $mapping->productTemplate?->type;
+            $label = $typeLabels[$type] ?? ($type ? ucwords(str_replace('-', ' ', $type)) : null);
+        @endphp
+        {{ $label ?? 'Product' }}
+    </h3>
 
     @if ($variants->count() > 0)
         <label class="label">Variant</label>

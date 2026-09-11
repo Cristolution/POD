@@ -2,6 +2,7 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
 
 @theme {
   /* Sand + Coral palette */
@@ -64,7 +65,7 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3
+    @apply inline-flex items-center justify-center px-6 py-3 min-h-[44px]
            font-display uppercase tracking-wider text-sm
            bg-ink-800 text-sand-100 border-3 border-ink-800
            hover:bg-coral-500 hover:border-coral-500
@@ -79,7 +80,7 @@
   }
 
   .input {
-    @apply w-full px-4 py-3 bg-surface text-ink-800
+    @apply w-full px-4 py-3 min-h-[44px] bg-surface text-ink-800
            font-mono text-sm
            focus:outline-none focus:border-coral-500
            focus-visible:outline-2 focus-visible:outline-coral-500 focus-visible:outline-offset-2;
@@ -94,7 +95,7 @@
   }
 
   .card-featured {
-    @apply border-5 border-ink-800 bg-surface p-8;
+    @apply border-5 border-ink-800 bg-surface p-6 md:p-8;
   }
 
   .badge {
@@ -106,9 +107,15 @@
     @apply bg-coral-500 text-white border-coral-500;
   }
 
-  .heading-1 { @apply font-display text-5xl uppercase tracking-wider; }
-  .heading-2 { @apply font-display text-3xl uppercase tracking-wider; }
-  .heading-3 { @apply font-display text-xl uppercase tracking-wider; }
+  /* Responsive headings — long titles fit on phones. */
+  .heading-1 { @apply font-display text-4xl sm:text-5xl uppercase tracking-wider break-words; }
+  .heading-2 { @apply font-display text-2xl sm:text-3xl uppercase tracking-wider break-words; }
+  .heading-3 { @apply font-display text-lg sm:text-xl uppercase tracking-wider break-words; }
+
+  /* Wrap any table for horizontal scroll on narrow screens. */
+  .table-wrap {
+    @apply overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0;
+  }
 
   .nav-link {
     @apply font-display uppercase tracking-wider text-sm text-ink-800
@@ -124,4 +131,43 @@
   .table-pod th {
     @apply font-display uppercase tracking-wider text-xs bg-sand-200;
   }
+}
+
+/* Hero pixel grid container — slightly smaller than the previous 480px. */
+.hero-pixel-grid {
+  @apply relative aspect-square w-full max-w-[400px] mx-auto border-3 border-ink-800 bg-sand-100 overflow-hidden;
+}
+
+/* Browse page: 3 columns at lg+, 2 at md, 1 at mobile. */
+.browse-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+}
+
+/* Design card image area: shorter than the previous 4/5 aspect. */
+.design-card-image {
+  @apply relative aspect-[3/4] bg-sand-200 overflow-hidden border-b-3 border-ink-800;
+}
+
+/* Home page featured designs row: 4 cards on lg+, 2 on sm, 1 on mobile. */
+.featured-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6;
+}
+
+/* Designer profile page: 4 design cards per row at lg+. */
+.designer-designs-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6;
+}
+
+/* Hero pixel grid — visible traveling wave. Each bar rises and falls
+   on a 2.4s loop; per-cell animation-delay (set inline) makes the crest
+   travel outward from the Alpine-driven wave origin. */
+@keyframes heroPixelWave {
+  0%   { transform: scaleY(calc(var(--base) + 0.30)); }
+  25%  { transform: scaleY(calc(var(--base) - 0.15)); }
+  50%  { transform: scaleY(calc(var(--base) + 0.30)); }
+  75%  { transform: scaleY(calc(var(--base) - 0.15)); }
+  100% { transform: scaleY(calc(var(--base) + 0.30)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-cx] > span { animation: none !important; }
 }

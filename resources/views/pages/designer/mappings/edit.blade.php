@@ -38,7 +38,7 @@
                             </a>
                         </dd>
                         <dt class="text-ink-700">Product template</dt>
-                        <dd>{{ $mapping->productTemplate?->name ?? '—' }} <span class="text-ink-700">({{ $mapping->productTemplate?->type ?? '—' }})</span></dd>
+                        <dd>{{ $mapping->productTemplate?->type ?? '—' }}</dd>
                         <dt class="text-ink-700">Created</dt>
                         <dd>{{ $mapping->created_at?->format('Y-m-d') ?? '—' }}</dd>
                     </dl>

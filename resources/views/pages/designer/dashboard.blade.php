@@ -76,7 +76,7 @@
                     @if ($designs->isEmpty())
                         <p class="font-mono text-sm text-ink-700">No designs yet.</p>
                     @else
-                        <table class="table-pod">
+                        <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
                                     <th>Title</th>
@@ -108,7 +108,7 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                        </table></div>
                     @endif
                 </div>
             </div>

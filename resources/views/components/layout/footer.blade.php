@@ -1,4 +1,4 @@
-<footer class="bg-ink-800 text-sand-100 border-t-5 border-coral-500 mt-24">
+<footer class="bg-ink-800 text-sand-100 border-t-5 border-ink-800 mt-0">
     <div class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
             <div class="font-display text-2xl uppercase tracking-wider mb-4">POD<span class="text-coral-500">/</span></div>

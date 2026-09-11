@@ -5,29 +5,32 @@
          HERO
          ================================================================ --}}
     <section class="border-b-5 border-ink-800 bg-sand-100">
-        <div class="max-w-7xl mx-auto px-6 py-20 md:py-28">
-            <div class="font-mono uppercase tracking-widest text-xs text-ink-700 mb-6">
-                Independent designers · Independent fulfillment · One platform
-            </div>
+        <div class="max-w-7xl mx-auto px-6 py-12 md:py-16">
+            <div class="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-10 items-center">
+                <div>
+                    <div class="font-mono uppercase tracking-widest text-xs text-ink-700 mb-6">
+                        Independent designers · Independent fulfillment · One platform
+                    </div>
 
-            <h1 class="font-display text-6xl md:text-8xl uppercase leading-[0.95] tracking-tight">
-                Print<br>
-                anything<span class="text-coral-500">.</span>
-            </h1>
+                    <h1 class="font-display text-5xl sm:text-6xl md:text-8xl uppercase leading-[0.95] tracking-tight break-words">
+                        Print<br>
+                        anything<span class="text-coral-500">.</span>
+                    </h1>
 
-            <p class="mt-8 font-body text-xl max-w-2xl text-ink-800">
-                Original artwork from independent designers, printed and shipped
-                by independent print shops. No inventory, no upfront costs — just
-                pick a design and we'll handle the rest.
-            </p>
+                    <p class="mt-6 font-body text-xl max-w-2xl text-ink-800">
+                        Original artwork from independent designers, printed and shipped
+                        by independent print shops. No inventory, no upfront costs — just
+                        pick a design and we'll handle the rest.
+                    </p>
 
-            <div class="mt-10 flex flex-col sm:flex-row gap-4">
-                <a href="{{ route('browse.designs') }}" class="btn btn-coral text-base px-8 py-4">
-                    Browse designs
-                </a>
-                <a href="{{ route('register') }}" class="btn btn-secondary text-base px-8 py-4">
-                    Become a designer
-                </a>
+                    <div class="mt-8">
+                        <a href="{{ route('browse.designs') }}" class="btn btn-coral text-base px-8 py-4">
+                            Browse designs
+                        </a>
+                    </div>
+                </div>
+
+                <x-ui.hero-pixel-grid />
             </div>
 
             @php
@@ -37,7 +40,7 @@
             @endphp
 
             @if ($designCount > 0 || $designerCount > 0)
-                <div class="mt-12 grid grid-cols-3 gap-6 max-w-3xl border-t-3 border-ink-800 pt-6">
+                <div class="mt-10 grid grid-cols-3 gap-6 max-w-3xl border-t-3 border-ink-800 pt-6">
                     <div>
                         <div class="font-display text-3xl text-coral-500">{{ $designCount }}</div>
                         <div class="font-mono text-xs uppercase tracking-wider mt-1">Designs live</div>
@@ -71,7 +74,7 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="featured-grid">
                 @foreach ($featuredDesigns as $design)
                     <x-ui.design-card :design="$design" />
                 @endforeach
@@ -170,6 +173,16 @@
                         <x-ui.designer-card :designer="$designer" />
                     @endforeach
                 </div>
+
+                <div class="mt-10 border-3 border-ink-800 bg-sand-100 p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="font-mono uppercase tracking-widest text-xs text-coral-500 mb-2">// JOIN</div>
+                        <h3 class="font-display text-3xl md:text-4xl uppercase tracking-wider">Are you a designer?</h3>
+                    </div>
+                    <a href="{{ route('register') }}" class="btn btn-coral text-base px-8 py-4 whitespace-nowrap">
+                        Become a designer <span aria-hidden="true">→</span>
+                    </a>
+                </div>
             </div>
         </section>
     @endif
@@ -226,7 +239,7 @@
             <div class="font-mono uppercase tracking-widest text-xs text-ink-900 mb-4">
                 Ready when you are
             </div>
-            <h2 class="font-display text-5xl md:text-7xl uppercase leading-[0.95] text-white">
+            <h2 class="font-display text-4xl sm:text-5xl md:text-7xl uppercase leading-[0.95] text-white break-words">
                 Print<br>something<span class="text-ink-800">.</span>
             </h2>
 

@@ -77,7 +77,7 @@
                             {{ $design?->title ?? 'Design' }}
                         </div>
                         <div class="font-mono text-xs text-ink-700">
-                            {{ $mapping?->productTemplate?->name ?? 'Product' }}
+                            {{ $mapping?->productTemplate?->type ? ucwords(str_replace('-', ' ', $mapping->productTemplate->type)) : 'Product' }}
                             @if ($variantLabel) — {{ $variantLabel }} @endif
                         </div>
                         <div class="font-mono text-xs text-ink-700">Quantity: {{ $item->quantity }}</div>

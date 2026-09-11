@@ -28,7 +28,7 @@
                         $imageUrl = $media ? Storage::disk('public')->url($media->file_path) : null;
                         $variantLabel = $item->productVariant?->label();
                     @endphp
-                    <div class="card flex items-center gap-6">
+                    <div class="card flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                         <div class="w-24 h-24 bg-sand-200 border-3 border-ink-800 overflow-hidden flex-shrink-0">
                             @if ($imageUrl)
                                 <img src="{{ $imageUrl }}" alt="" class="w-full h-full object-cover">
@@ -41,46 +41,46 @@
                                 </a>
                             @endif
                             <div class="font-mono text-sm text-ink-700 mt-1">
-                                {{ $mapping?->productTemplate?->name ?? 'Product' }}
+                                {{ $mapping?->productTemplate?->type ? ucwords(str_replace('-', ' ', $mapping->productTemplate->type)) : 'Product' }}
                                 @if ($variantLabel)
                                     — {{ $variantLabel }}
                                 @endif
                             </div>
                         </div>
                         <form method="POST" action="{{ route('cart.items.update', $item) }}"
-                              class="flex items-center gap-2">
+                              class="flex items-center gap-2 shrink-0">
                             @csrf
                             @method('PATCH')
                             <input type="number" name="quantity" value="{{ $item->quantity }}"
                                    min="1" max="100" class="input w-20 text-center">
                             <button class="btn btn-secondary text-xs">Update</button>
                         </form>
-                        <div class="font-display text-lg w-24 text-right">
+                        <div class="font-display text-lg sm:w-24 sm:text-right shrink-0">
                             ${{ number_format((float) $item->lineTotal(), 2) }}
                         </div>
-                        <form method="POST" action="{{ route('cart.items.destroy', $item) }}">
+                        <form method="POST" action="{{ route('cart.items.destroy', $item) }}" class="shrink-0">
                             @csrf
                             @method('DELETE')
-                            <button class="btn btn-secondary text-xs">Remove</button>
+                            <button class="btn btn-secondary text-xs w-full sm:w-auto">Remove</button>
                         </form>
                     </div>
                 @endforeach
             </div>
 
-            <div class="mt-8 border-t-5 border-ink-800 pt-6 flex items-center justify-between">
+            <div class="mt-8 border-t-5 border-ink-800 pt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <form method="POST" action="{{ route('cart.clear') }}">
                     @csrf
                     @method('DELETE')
-                    <button class="btn btn-secondary">Clear cart</button>
+                    <button class="btn btn-secondary w-full sm:w-auto">Clear cart</button>
                 </form>
-                <div class="text-right">
+                <div class="sm:text-right">
                     <div class="font-mono text-xs uppercase tracking-wider">Total</div>
-                    <div class="font-display text-4xl">${{ number_format((float) $grandTotal, 2) }}</div>
+                    <div class="font-display text-3xl sm:text-4xl break-all">${{ number_format((float) $grandTotal, 2) }}</div>
                 </div>
             </div>
 
-            <div class="mt-8 text-right">
-                <a href="{{ route('checkout.show') }}" class="btn-coral text-lg">Proceed to checkout →</a>
+            <div class="mt-8 text-center sm:text-right">
+                <a href="{{ route('checkout.show') }}" class="btn btn-coral text-lg w-full sm:w-auto">Proceed to checkout →</a>
             </div>
         @endif
     </section>

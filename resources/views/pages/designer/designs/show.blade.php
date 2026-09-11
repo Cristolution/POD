@@ -83,7 +83,7 @@
                             No product templates map to this design yet.
                         </p>
                     @else
-                        <table class="table-pod">
+                        <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
                                     <th>Product template</th>
@@ -95,7 +95,7 @@
                             <tbody>
                                 @foreach ($design->mappings as $mapping)
                                     <tr>
-                                        <td class="font-mono text-sm">{{ $mapping->productTemplate?->name ?? '—' }}</td>
+                                        <td class="font-mono text-sm">{{ $mapping->productTemplate?->type ?? '—' }}</td>
                                         <td class="font-mono text-sm">{{ $mapping->preferredPrinter?->user?->name ?? '—' }}</td>
                                         <td class="font-mono text-sm text-right">
                                             ${{ number_format((float) $mapping->final_price, 2) }}
@@ -118,7 +118,7 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                        </table></div>
                     @endif
                 </div>
 
@@ -128,7 +128,7 @@
                     @if ($recentOrderItems->isEmpty())
                         <p class="font-mono text-xs text-ink-700">No orders yet for this design.</p>
                     @else
-                        <table class="table-pod">
+                        <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
                                     <th>Order #</th>
@@ -144,7 +144,7 @@
                                 @foreach ($recentOrderItems as $item)
                                     <tr>
                                         <td class="font-mono text-sm">{{ Str::limit($item->order_id, 8, '') }}</td>
-                                        <td class="font-mono text-sm">{{ $item->productVariant?->name ?? '—' }}</td>
+                                        <td class="font-mono text-sm">{{ $item->productVariant?->label() ?? '—' }}</td>
                                         <td class="font-mono text-sm">{{ $item->printerProvider?->user?->name ?? '—' }}</td>
                                         <td class="font-mono text-sm text-right">{{ $item->quantity }}</td>
                                         <td class="font-mono text-sm text-right">
@@ -155,7 +155,7 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                        </table></div>
                     @endif
                 </div>
             </div>

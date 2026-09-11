@@ -50,7 +50,7 @@
                             <option value="{{ $template->id }}"
                                     data-base-cost="{{ $template->base_cost }}"
                                     @selected(old('product_template_id') === $template->id)>
-                                {{ $template->name }} ({{ $template->type }})
+                                {{ $template->type }}
                             </option>
                         @endforeach
                     </select>

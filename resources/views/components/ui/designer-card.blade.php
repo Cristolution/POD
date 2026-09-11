@@ -9,7 +9,7 @@
 @endphp
 
 <a href="{{ route('designer.show', $designer) }}"
-   class="card hover:border-coral-500 transition-colors block">
+   class="card hover:border-coral-500  p-3 transition-colors block">
     <div class="flex items-center gap-4 mb-3">
         <div class="w-16 h-16 bg-sand-200 border-3 border-ink-800 overflow-hidden flex-shrink-0">
             @if ($gravatarUrl)

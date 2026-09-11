@@ -47,7 +47,7 @@
                 <p class="font-mono">No published designs yet.</p>
             </div>
         @else
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="designer-designs-grid">
                 @foreach ($designs as $design)
                     <x-ui.design-card :design="$design" />
                 @endforeach

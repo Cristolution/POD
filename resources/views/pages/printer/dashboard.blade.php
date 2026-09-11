@@ -67,7 +67,7 @@
                     @if ($templates->isEmpty())
                         <p class="font-mono text-sm text-ink-700">No templates yet.</p>
                     @else
-                        <table class="table-pod">
+                        <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
                                     <th>Name</th>
@@ -92,7 +92,7 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                        </table></div>
                     @endif
                 </div>
 
@@ -103,7 +103,7 @@
                     @if ($orderItems->isEmpty())
                         <p class="font-mono text-sm text-ink-700">No order items yet.</p>
                     @else
-                        <table class="table-pod">
+                        <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
                                     <th>Order</th>
@@ -139,7 +139,7 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                        </table></div>
                     @endif
                 </div>
             </div>

@@ -28,7 +28,7 @@
                         <a href="{{ route('designer.mappings.create') }}" class="btn-coral inline-block">+ Create your first mapping</a>
                     </div>
                 @else
-                    <table class="table-pod">
+                    <div class="table-wrap"><table class="table-pod">
                         <thead>
                             <tr>
                                 <th>Design</th>
@@ -47,7 +47,7 @@
                                             {{ $mapping->design?->title ?? '—' }}
                                         </a>
                                     </td>
-                                    <td class="font-mono text-sm">{{ $mapping->productTemplate?->name ?? '—' }}</td>
+                                    <td class="font-mono text-sm">{{ $mapping->productTemplate?->type ?? '—' }}</td>
                                     <td class="font-mono text-sm">{{ $mapping->preferredPrinter?->user?->name ?? '—' }}</td>
                                     <td class="font-mono text-sm text-right">
                                         ${{ number_format((float) $mapping->final_price, 2) }}
@@ -71,7 +71,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                    </table></div>
 
                     <div class="mt-6">
                         <x-ui.pagination :paginator="$mappings" />

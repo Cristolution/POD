@@ -19,7 +19,7 @@
                         <a href="{{ route('browse.designs') }}" class="btn">Browse designs</a>
                     </div>
                 @else
-                    <table class="table-pod">
+                    <div class="table-wrap"><table class="table-pod">
                         <thead>
                             <tr>
                                 <th>Order #</th>
@@ -59,7 +59,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                    </table></div>
 
                     <div class="mt-6">
                         {{ $orders->links() }}

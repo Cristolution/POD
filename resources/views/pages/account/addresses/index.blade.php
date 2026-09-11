@@ -34,7 +34,7 @@
                         <a href="{{ route('account.addresses.create') }}" class="btn">Add your first address</a>
                     </div>
                 @else
-                    <table class="table-pod">
+                    <div class="table-wrap"><table class="table-pod">
                         <thead>
                             <tr>
                                 <th>Address</th>
@@ -70,7 +70,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                    </table></div>
                 @endif
             </div>
         </div>

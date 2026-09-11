@@ -97,7 +97,7 @@
                     @if ($recentOrders->isEmpty())
                         <p class="font-mono text-sm text-ink-700">No orders yet.</p>
                     @else
-                        <table class="table-pod">
+                        <div class="table-wrap"><table class="table-pod">
                             <thead>
                                 <tr>
                                     <th>Order #</th>
@@ -127,7 +127,7 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                        </table>
+                        </table></div>
                     @endif
                 </div>
             </div>
