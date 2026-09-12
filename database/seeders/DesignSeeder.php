@@ -95,16 +95,22 @@ class DesignSeeder extends Seeder
                     'file_path' => "designs/pod{$podNumber}/base.jpg",
                 ]);
 
-                // Map this design to one template PER product type it supports.
-                // Each mapping gets a per-product mockup keyed by product_template_id
-                // so the detail page shows the correct mockup per material.
-                foreach (self::PRODUCT_MOCKUPS as $type => $suffixes) {
+                // Map this design to a random subset (4-6) of the supported
+                // product types. Each design shows multiple materials on its
+                // detail page, but not every design supports every type.
+                $types = array_keys(self::PRODUCT_MOCKUPS);
+                shuffle($types);  // vary which types each design gets
+                $typesCount = fake()->numberBetween(4, 6);
+                $designTypes = array_slice($types, 0, $typesCount);
+
+                foreach ($designTypes as $type) {
                     $template = $templatesByType[$type] ?? null;
                     if ($template === null) {
-                        continue; // type not seeded
+                        continue;
                     }
 
-                    // Deterministic but varied suffix per design (round-robin).
+                    $suffixes = self::PRODUCT_MOCKUPS[$type];
+                    // Deterministic but varied suffix per design.
                     $suffix = $suffixes[$index % count($suffixes)];
 
                     DesignProductMapping::factory()->create([

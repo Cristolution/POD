@@ -34,6 +34,8 @@
                 :active-designers="$activeDesigners"
                 :price-min="$priceMin"
                 :price-max="$priceMax"
+                :product-types="$productTypes"
+                :active-product-type="$activeProductType"
             />
 
             {{-- Main column — 100% mobile, 80% desktop --}}
