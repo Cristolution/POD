@@ -69,28 +69,24 @@ class DesignSeeder extends Seeder
                     $allTags->random(fake()->numberBetween(2, 4))->pluck('id')->toArray()
                 );
 
-                // Default mockup — black mug from this pod's directory.
+                // Default mockup — base artwork from this pod's directory.
+                // Created FIRST so `$design->media->first()` (used by the
+                // browse card) and `$defaultMockup` (used by the detail
+                // hero) both resolve to the base image, not a per-product
+                // mockup like a mug or hoodie.
                 Media::factory()->create([
                     'model_type' => Design::class,
                     'model_id' => $design->id,
                     'collection_name' => 'mockup',
-                    'file_path' => "designs/pod{$podNumber}/black_mug.jpg",
+                    'file_path' => "designs/pod{$podNumber}/base.jpg",
                 ]);
 
-                // Alternate mockup — grey hoodie variant from the same pod.
-                Media::factory()->create([
-                    'model_type' => Design::class,
-                    'model_id' => $design->id,
-                    'collection_name' => 'mockup',
-                    'file_path' => "designs/pod{$podNumber}/grey_hoodie.jpg",
-                ]);
-
-                // Print file — high-res print source (reuse mug shot).
+                // Print file — high-res print source (reuse base shot).
                 Media::factory()->create([
                     'model_type' => Design::class,
                     'model_id' => $design->id,
                     'collection_name' => 'print_file',
-                    'file_path' => "designs/pod{$podNumber}/black_mug.jpg",
+                    'file_path' => "designs/pod{$podNumber}/base.jpg",
                 ]);
 
                 // Map this design to 1-2 product templates, preferred_printer = the template's owner
