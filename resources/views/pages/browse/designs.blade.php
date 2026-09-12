@@ -28,9 +28,7 @@
 
             {{-- Sidebar / mobile drawer --}}
             <x-ui.facets
-                :categories="$categories"
                 :designers="$designers"
-                :active-category="$activeCategory"
                 :active-designers="$activeDesigners"
                 :price-min="$priceMin"
                 :price-max="$priceMax"
@@ -72,9 +70,6 @@
                 {{-- Refine-by chips row --}}
                 @php
                     $chips = [];
-                    if ($activeCategory) {
-                        $chips[] = ['label' => $activeCategory->name, 'param' => 'category'];
-                    }
                     foreach ($activeDesigners as $d) {
                         $chips[] = ['label' => $d->user?->name ?? __('unknown'), 'param' => 'designer[]', 'value' => $d->id];
                     }
@@ -83,6 +78,9 @@
                     }
                     if ($priceMax) {
                         $chips[] = ['label' => 'to $'.rtrim(rtrim(number_format((float) $priceMax, 2), '0'), '.'), 'param' => 'price_max'];
+                    }
+                    if ($activeProductType) {
+                        $chips[] = ['label' => ucwords($activeProductType), 'param' => 'product_type'];
                     }
                 @endphp
                 @if (count($chips) > 0)
@@ -96,7 +94,7 @@
                                 <span class="bg-ink-800 text-sand-100 w-4 h-4 flex items-center justify-center text-xs leading-none group-hover:bg-coral-700">×</span>
                             </a>
                         @endforeach
-                        <a href="{{ route('browse.designs', request()->except(['category','designer','price_min','price_max','page'])) }}"
+                        <a href="{{ route('browse.designs', request()->except(['designer','product_type','price_min','price_max','page'])) }}"
                            class="ms-auto font-mono text-[10px] uppercase tracking-widest underline text-ink-700 hover:text-coral-500 shrink-0">
                             {{ __('browse_clear_all') }}
                         </a>

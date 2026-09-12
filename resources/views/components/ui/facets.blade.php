@@ -1,7 +1,5 @@
 @props([
-    'categories',
     'designers',
-    'activeCategory',
     'activeDesigners',
     'priceMin',
     'priceMax',
@@ -11,13 +9,11 @@
 
 @php
     $selectedDesignerIds = collect($activeDesigners ?? [])->pluck('id')->all();
-    $hasActiveFilters = ($activeCategory ?? false)
-        || $selectedDesignerIds !== []
+    $hasActiveFilters = $selectedDesignerIds !== []
         || ($priceMin !== null && $priceMin > 0)
         || ($priceMax !== null && $priceMax > 0)
         || ($activeProductType !== null && $activeProductType !== '');
-    $activeFilterCount = ($activeCategory ? 1 : 0)
-        + count($selectedDesignerIds)
+    $activeFilterCount = count($selectedDesignerIds)
         + ($priceMin ? 1 : 0)
         + ($priceMax ? 1 : 0)
         + ($activeProductType ? 1 : 0);
@@ -66,23 +62,20 @@
                     <input type="hidden" name="sort" value="{{ request('sort') }}">
                 @endif
 
-                {{-- Categories --}}
-                <div>
-                    <span class="block font-mono text-[10px] uppercase tracking-widest text-ink-700 mb-2">{{ __('facets_category') }}</span>
-                    <select name="category" class="input font-mono text-sm py-2">
-                        <option value="">{{ __('facets_all_categories') }}</option>
-                        @foreach ($categories as $root)
-                            <option value="{{ $root->id }}" {{ ($activeCategory && $activeCategory->id === $root->id) ? 'selected' : '' }}>
-                                {{ $root->name }} ({{ $root->designs_count }})
-                            </option>
-                            @foreach ($root->children as $child)
-                                <option value="{{ $child->id }}" {{ ($activeCategory && $activeCategory->id === $child->id) ? 'selected' : '' }}>
-                                    &nbsp;&nbsp;{{ $child->name }}
+                {{-- Product type (mobile) — was previously "Categories" --}}
+                @if (count($productTypes ?? []) > 0)
+                    <div>
+                        <span class="block font-mono text-[10px] uppercase tracking-widest text-ink-700 mb-2">{{ __('facets_product_type_heading') }}</span>
+                        <select name="product_type" class="input font-mono text-sm py-2">
+                            <option value="">{{ __('facets_all_products') }}</option>
+                            @foreach ($productTypes as $type => $count)
+                                <option value="{{ $type }}" {{ $activeProductType === $type ? 'selected' : '' }}>
+                                    {{ ucwords($type) }} ({{ $count }})
                                 </option>
                             @endforeach
-                        @endforeach
-                    </select>
-                </div>
+                        </select>
+                    </div>
+                @endif
 
                 {{-- Price --}}
                 <div>
@@ -131,7 +124,7 @@
                 <div class="flex gap-2 pt-2">
                     <button type="submit" class="btn flex-1">{{ __('facets_apply') }}</button>
                     @if ($hasActiveFilters)
-                        <a href="{{ route('browse.designs', request()->except(['category','designer','price_min','price_max','page'])) }}"
+                        <a href="{{ route('browse.designs', request()->except(['designer','product_type','price_min','price_max','page'])) }}"
                            class="btn bg-surface hover:bg-ink-800 hover:text-sand-100"
                            @click="open = false">{{ __('facets_clear') }}</a>
                     @endif
@@ -155,46 +148,6 @@
         @if (request('tag'))
             <input type="hidden" name="tag" value="{{ request('tag') }}">
         @endif
-
-        {{-- Categories as compact pill list --}}
-        <div>
-            <div class="flex items-baseline justify-between mb-2 pb-1 border-b-3 border-ink-800">
-                <span class="font-display uppercase tracking-wider text-xs">{{ __('facets_categories_heading') }}</span>
-                @if ($activeCategory)
-                    <a href="{{ route('browse.designs', request()->except(['category','page'])) }}" class="font-mono text-[10px] uppercase tracking-widest text-coral-600 hover:text-coral-700">{{ __('facets_reset') }}</a>
-                @endif
-            </div>
-            <ul class="space-y-1 font-mono text-xs">
-                <li>
-                    <a href="{{ route('browse.designs', request()->except(['category','page'])) }}"
-                       class="block py-1 hover:text-coral-500 {{ ! $activeCategory ? 'text-coral-600 font-bold' : '' }}">
-                        {{ __('facets_all') }}
-                    </a>
-                </li>
-                @foreach ($categories as $root)
-                    @php $isActiveRoot = $activeCategory && $activeCategory->id === $root->id; @endphp
-                    <li>
-                        <a href="{{ route('browse.designs', array_merge(request()->except(['page','category']), ['category' => $root->id])) }}"
-                           class="flex items-center justify-between py-1 hover:text-coral-500 {{ $isActiveRoot ? 'text-coral-600 font-bold' : '' }}">
-                            <span>{{ $root->name }}</span>
-                            <span class="text-[10px] opacity-60">{{ $root->designs_count }}</span>
-                        </a>
-                        @if ($root->children->isNotEmpty() && $isActiveRoot)
-                            <ul class="ps-3 mt-1 space-y-1 border-s-3 border-ink-800 ms-1">
-                                @foreach ($root->children as $child)
-                                    <li>
-                                        <a href="{{ route('browse.designs', array_merge(request()->except(['page','category']), ['category' => $child->id])) }}"
-                                           class="block py-1 text-[11px] hover:text-coral-500 {{ ($activeCategory && $activeCategory->id === $child->id) ? 'text-coral-600 font-bold' : '' }}">
-                                            {{ $child->name }}
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </li>
-                @endforeach
-            </ul>
-        </div>
 
         {{-- Price — minimal --}}
         <div>
@@ -269,7 +222,7 @@
 
         {{-- Clear all --}}
         @if ($hasActiveFilters)
-            <a href="{{ route('browse.designs', request()->except(['category','designer','product_type','price_min','price_max','page'])) }}"
+            <a href="{{ route('browse.designs', request()->except(['designer','product_type','price_min','price_max','page'])) }}"
                class="block text-center font-mono text-[10px] uppercase tracking-widest underline text-ink-700 hover:text-coral-500">
                 {{ __('facets_clear_all') }}
             </a>
