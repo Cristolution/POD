@@ -14,19 +14,24 @@ use Illuminate\Database\Seeder;
 class DesignSeeder extends Seeder
 {
     /**
-     * Real seed PNGs committed alongside the SVG sources (gitignored at runtime).
-     * Each design in this seeder picks one of these as its primary mockup,
-     * plus 1-2 additional mockups and a print file. File paths are stored as
-     * `designs/.png` so they resolve via the public storage symlink
-     * (i.e. http://app.test/storage/designs/.png).
+     * Pod numbers correspond to user-made design mockup folders under
+     * `storage/app/public/designs/pod{N}/`. Each design picks its primary
+     * mockup from its pod's directory so every design gets a unique image.
      */
-    private const SEED_IMAGES = [
-        'sunset-mountains.png',
-        'minimal-wolf.png',
-        'cosmic-cat.png',
-        'botanical-line.png',
-        'geometric-bear.png',
-        'retro-sunset.png',
+    private const POD_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+
+    /**
+     * Maps product type → filename suffix used in each pod{N}/ directory.
+     * Lets the seeder pick a realistic product-specific mockup when one is
+     * available (e.g. mug design → pod1/black_mug.jpg).
+     */
+    private const PRODUCT_MOCKUPS = [
+        'mug' => 'black_mug',
+        'hoodie' => 'black_hoodie',
+        'tote bag' => 'black_tote_bag',
+        'cap' => 'black_cap',
+        'phone case' => 'white_iphone_phone_case',
+        'sticker' => 'circle_white_sticker',
     ];
 
     public function run(): void
@@ -35,18 +40,20 @@ class DesignSeeder extends Seeder
             'Sunset Mountains', 'Minimal Wolf', 'Cyber Tokyo', 'Botanical Line',
             'Cosmic Cat', 'Vintage Camera', 'Geometric Bear', 'Retro Sunset',
             'Neon Skull', 'Pastel Clouds', 'Abstract Wave', 'Typography Quote',
+            'Mystic Forest', 'Pixel City', 'Ocean Wave', 'Desert Bloom',
+            'Neon Cityscape', 'Vintage Vinyl',
         ];
 
         $allTags = Tag::all();
         $subCategories = Category::whereNotNull('parent_id')->get();
+        $podCount = count(self::POD_NUMBERS);
 
-        // Cycle through the 6 real images so titles share/cascade files evenly.
-        $imageCount = count(self::SEED_IMAGES);
-
-        DesignerProfile::all()->each(function (DesignerProfile $designer) use ($designTitles, $allTags, $subCategories, $imageCount): void {
-            foreach (array_slice($designTitles, 0, 4) as $index => $title) {
-                // Primary mockup for this design — deterministic per (designer, index).
-                $primaryImage = self::SEED_IMAGES[($index + abs((int) crc32($designer->id))) % $imageCount];
+        DesignerProfile::all()->each(function (DesignerProfile $designer) use ($designTitles, $allTags, $subCategories, $podCount): void {
+            // 6 designs per designer × 3 designers = 18 designs total
+            foreach (array_slice($designTitles, 0, 6) as $index => $title) {
+                // Deterministic pod assignment per (designer, index) so we
+                // cycle through 6 of the 18 pods across the designers.
+                $podNumber = self::POD_NUMBERS[$index % $podCount];
 
                 /** @var Design $design */
                 $design = Design::factory()
@@ -62,25 +69,28 @@ class DesignSeeder extends Seeder
                     $allTags->random(fake()->numberBetween(2, 4))->pluck('id')->toArray()
                 );
 
-                // Media: primary mockup + one alternate mockup + one print file.
-                // file_path uses the public disk so it resolves via /storage/{path}.
+                // Default mockup — black mug from this pod's directory.
                 Media::factory()->create([
                     'model_type' => Design::class,
                     'model_id' => $design->id,
                     'collection_name' => 'mockup',
-                    'file_path' => 'designs/'.$primaryImage,
+                    'file_path' => "designs/pod{$podNumber}/black_mug.jpg",
                 ]);
+
+                // Alternate mockup — grey hoodie variant from the same pod.
                 Media::factory()->create([
                     'model_type' => Design::class,
                     'model_id' => $design->id,
                     'collection_name' => 'mockup',
-                    'file_path' => 'designs/'.self::SEED_IMAGES[($index + 1) % $imageCount],
+                    'file_path' => "designs/pod{$podNumber}/grey_hoodie.jpg",
                 ]);
+
+                // Print file — high-res print source (reuse mug shot).
                 Media::factory()->create([
                     'model_type' => Design::class,
                     'model_id' => $design->id,
                     'collection_name' => 'print_file',
-                    'file_path' => 'designs/'.$primaryImage,
+                    'file_path' => "designs/pod{$podNumber}/black_mug.jpg",
                 ]);
 
                 // Map this design to 1-2 product templates, preferred_printer = the template's owner
@@ -89,11 +99,22 @@ class DesignSeeder extends Seeder
                     ->get();
 
                 foreach ($templates as $template) {
+                    $mockupSuffix = self::PRODUCT_MOCKUPS[$template->type] ?? 'black_mug';
+
                     DesignProductMapping::factory()->create([
                         'design_id' => $design->id,
                         'product_template_id' => $template->id,
                         'preferred_printer_id' => $template->printer_provider_id,
                         'final_price' => fake()->randomFloat(2, 15, 80),
+                    ]);
+
+                    // Per-product mockup override using the matching product type.
+                    Media::factory()->create([
+                        'model_type' => Design::class,
+                        'model_id' => $design->id,
+                        'collection_name' => 'mockup',
+                        'product_template_id' => $template->id,
+                        'file_path' => "designs/pod{$podNumber}/{$mockupSuffix}.jpg",
                     ]);
                 }
             }

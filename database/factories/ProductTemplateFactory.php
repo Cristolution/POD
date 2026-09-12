@@ -15,7 +15,7 @@ class ProductTemplateFactory extends Factory
 
     public function definition(): array
     {
-        $types = ['mug', 't-shirt', 'poster', 'hoodie', 'tote bag', 'cap', 'phone case', 'sticker'];
+        $types = ['mug', 'hoodie', 'tote bag', 'cap', 'phone case', 'sticker'];
 
         return [
             'printer_provider_id' => PrinterProviderProfile::factory(),
