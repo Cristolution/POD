@@ -20,6 +20,19 @@ class LocalizeRequests
 
     public function handle(Request $request, Closure $next): Response
     {
+        // Explicit locale switcher click (e.g. ?set_locale=en from the EN
+        // button). Honors the value and writes the cookie so the choice
+        // persists across subsequent requests — including ones without a
+        // locale prefix in the URL (e.g. clicking EN on /ar/cart lands on /,
+        // and the cookie must carry "en" so subsequent visits don't
+        // re-activate the old locale).
+        $switched = $request->query('set_locale');
+        if ($switched !== null && in_array($switched, self::SUPPORTED_LOCALES, true)) {
+            app()->setLocale($switched);
+            Cookie::queue(self::COOKIE_NAME, $switched, self::COOKIE_TTL_MINUTES);
+            return $next($request);
+        }
+
         $locale = $this->resolveLocale($request);
 
         app()->setLocale($locale);

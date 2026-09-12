@@ -27,6 +27,11 @@
     $href = $isCurrent
         ? \App\Support\LocalizedUrl::route($currentRouteName, $sameLocaleParameters)
         : localize($code);
+    // Append ?set_locale=<code> so the middleware honours the click
+    // and writes the cookie. Without this, clicking EN on an Arabic page
+    // would go to the unprefixed URL but leave the cookie at "ar", so
+    // subsequent requests would still render Arabic.
+    $href .= (str_contains($href, '?') ? '&' : '?') . 'set_locale=' . urlencode($code);
 @endphp
 <a href="{{ $href }}"@class(['border-2 px-2 py-0.5', $isCurrent ? 'border-black bg-black text-white' : 'border-black hover:bg-black hover:text-white']) hreflang="{{ $code }}" lang="{{ $code }}" dir="{{ $code === 'ar' ? 'rtl' : 'ltr' }}" aria-current="{{ $isCurrent ? 'true' : 'false' }}">{{ $label }}</a>
 @endforeach
