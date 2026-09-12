@@ -114,9 +114,15 @@ class BrowseController extends Controller
                 ->limit(24)
                 ->get(),
             'productTypes' => \App\Models\ProductTemplate::query()
+                ->whereHas('designProductMappings')  // only types with active designs
                 ->distinct()
                 ->orderBy('type')
-                ->pluck('type'),
+                ->withCount(['designProductMappings as designs_count' => fn ($q) =>
+                    $q->whereHas('design', fn ($d) => $d->where('status', 'published')->whereNull('deleted_at'))
+                ])
+                ->get()
+                ->mapWithKeys(fn ($t) => [$t->type => $t->designs_count])
+                ->sortKeys(),
             'activeCategory' => $categoryId ? Category::find($categoryId) : null,
             'activeDesigners' => $designerIds
                 ? DesignerProfile::with('user')->whereIn('id', $designerIds)->get()

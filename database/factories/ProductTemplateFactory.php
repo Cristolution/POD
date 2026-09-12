@@ -15,7 +15,25 @@ class ProductTemplateFactory extends Factory
 
     public function definition(): array
     {
-        $types = ['mug', 'hoodie', 'tote bag', 'cap', 'phone case', 'sticker', 'water bottle'];
+        // Product types derived from the user-made mockup assets at
+        // C:/Users/Crist/Desktop/enhanced mockup data assets/pod{N}/.
+        // Each pod{N}_<suffix>.jpg exists, so each suffix becomes a type.
+        // No mouse pad / laptop sleeves / greeting cards — those aren't in the assets.
+        $types = [
+            'cap',
+            'hoodie',
+            'mug',
+            'tote bag',
+            't-shirt',
+            'canvas',
+            'sticker',
+            'poster',
+            'long sleeve',
+            'bottle',
+            'phone case',
+            'notebook',
+            'thermos',
+        ];
 
         return [
             'printer_provider_id' => PrinterProviderProfile::factory(),

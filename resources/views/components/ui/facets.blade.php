@@ -258,9 +258,9 @@
                 </div>
                 <select name="product_type" class="input font-mono text-xs py-1.5">
                     <option value="">{{ __('facets_all_products') }}</option>
-                    @foreach ($productTypes as $type)
+                    @foreach ($productTypes as $type => $count)
                         <option value="{{ $type }}" {{ $activeProductType === $type ? 'selected' : '' }}>
-                            {{ ucwords($type) }}
+                            {{ ucwords($type) }} ({{ $count }})
                         </option>
                     @endforeach
                 </select>
