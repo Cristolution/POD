@@ -114,7 +114,6 @@ class BrowseController extends Controller
                 ->limit(24)
                 ->get(),
             'productTypes' => \App\Models\ProductTemplate::query()
-                ->whereHas('mappings')
                 ->distinct()
                 ->orderBy('type')
                 ->pluck('type'),
