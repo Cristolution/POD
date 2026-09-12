@@ -5,6 +5,8 @@
     'activeDesigners',
     'priceMin',
     'priceMax',
+    'productTypes' => [],
+    'activeProductType' => null,
 ])
 
 @php
@@ -12,11 +14,13 @@
     $hasActiveFilters = ($activeCategory ?? false)
         || $selectedDesignerIds !== []
         || ($priceMin !== null && $priceMin > 0)
-        || ($priceMax !== null && $priceMax > 0);
+        || ($priceMax !== null && $priceMax > 0)
+        || ($activeProductType !== null && $activeProductType !== '');
     $activeFilterCount = ($activeCategory ? 1 : 0)
         + count($selectedDesignerIds)
         + ($priceMin ? 1 : 0)
-        + ($priceMax ? 1 : 0);
+        + ($priceMax ? 1 : 0)
+        + ($activeProductType ? 1 : 0);
 @endphp
 
 {{-- ============================================================
@@ -243,9 +247,29 @@
             <button type="submit" class="btn w-full mt-2 py-1.5 text-xs">{{ __('facets_apply_designers') }}</button>
         </div>
 
+        {{-- Product type — dropdown (single select) --}}
+        @if (count($productTypes ?? []) > 0)
+            <div>
+                <div class="flex items-baseline justify-between mb-2 pb-1 border-b-3 border-ink-800">
+                    <span class="font-display uppercase tracking-wider text-xs">{{ __('facets_product_type_heading') }}</span>
+                    @if ($activeProductType)
+                        <a href="{{ route('browse.designs', request()->except(['product_type','page'])) }}" class="font-mono text-[10px] uppercase tracking-widest text-coral-600 hover:text-coral-700">{{ __('facets_reset') }}</a>
+                    @endif
+                </div>
+                <select name="product_type" class="input font-mono text-xs py-1.5">
+                    <option value="">{{ __('facets_all_products') }}</option>
+                    @foreach ($productTypes as $type)
+                        <option value="{{ $type }}" {{ $activeProductType === $type ? 'selected' : '' }}>
+                            {{ ucwords($type) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+
         {{-- Clear all --}}
         @if ($hasActiveFilters)
-            <a href="{{ route('browse.designs', request()->except(['category','designer','price_min','price_max','page'])) }}"
+            <a href="{{ route('browse.designs', request()->except(['category','designer','product_type','price_min','price_max','page'])) }}"
                class="block text-center font-mono text-[10px] uppercase tracking-widest underline text-ink-700 hover:text-coral-500">
                 {{ __('facets_clear_all') }}
             </a>

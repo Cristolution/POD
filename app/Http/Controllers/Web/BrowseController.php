@@ -78,6 +78,14 @@ class BrowseController extends Controller
             });
         }
 
+        // Product type filter — only show designs that have been mapped to at
+        // least one product template of the requested type (e.g. "water bottle",
+        // "mug", "hoodie"). Empty string / null means no filter.
+        $productType = $request->string('product_type')->value();
+        if ($productType !== '' && $productType !== null) {
+            $query->whereHas('mappings.productTemplate', fn (Builder $q) => $q->where('type', $productType));
+        }
+
         $sort = $request->string('sort')->value();
         if (! array_key_exists($sort, self::SORT_OPTIONS)) {
             $sort = 'newest';
@@ -105,12 +113,18 @@ class BrowseController extends Controller
                 ->orderBy('id')
                 ->limit(24)
                 ->get(),
+            'productTypes' => \App\Models\ProductTemplate::query()
+                ->whereHas('mappings')
+                ->distinct()
+                ->orderBy('type')
+                ->pluck('type'),
             'activeCategory' => $categoryId ? Category::find($categoryId) : null,
             'activeDesigners' => $designerIds
                 ? DesignerProfile::with('user')->whereIn('id', $designerIds)->get()
                 : collect(),
             'priceMin' => $priceMin ?: null,
             'priceMax' => $priceMax ?: null,
+            'activeProductType' => $productType !== '' && $productType !== null ? $productType : null,
             'sort' => $sort,
             'sortOptions' => self::SORT_OPTIONS,
         ]);
