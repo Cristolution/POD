@@ -62,4 +62,29 @@ class Category extends Model
 
         return array_reverse($ids);
     }
+
+    /**
+     * IDs of this category plus all descendant categories (BFS), so the
+     * caller can run a single `whereIn('category_id', ...)` against the
+     * `designs` table to count or fetch every design in this branch.
+     *
+     * @return array<int, string>
+     */
+    public function descendantIds(): array
+    {
+        $ids = [$this->id];
+        $frontier = [$this->id];
+
+        while ($frontier !== []) {
+            $children = self::query()
+                ->whereIn('parent_id', $frontier)
+                ->pluck('id')
+                ->all();
+
+            $frontier = $children;
+            $ids = array_merge($ids, $children);
+        }
+
+        return array_values(array_unique($ids));
+    }
 }

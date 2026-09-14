@@ -31,11 +31,34 @@ class HomeController extends Controller
             // browse/categories page. Counts use the same `published` filter
             // the browse page does, so the homepage never advertises an
             // empty category.
+            //
+            // The count is recursive — it counts every published design in
+            // this category AND its descendants — so the badge matches
+            // what the user actually sees when they click through (the
+            // browse page also expands parent filters to include
+            // descendants). A naïve `designs_count` here would understate
+            // every category whose children hold the actual designs.
             'categories' => Category::query()
-                ->withCount(['designs' => fn ($q) => $q->where('status', 'published')->whereNull('deleted_at')])
+                ->with('children.children.children.children') // deep eager-load for descendantIds()
                 ->whereNull('parent_id')
                 ->orderBy('name')
-                ->get(),
+                ->get()
+                ->map(function (Category $category) {
+                    $descendantIds = $category->descendantIds();
+                    $count = Design::query()
+                        ->whereIn('category_id', $descendantIds)
+                        ->where('status', 'published')
+                        ->whereNull('deleted_at')
+                        ->count();
+
+                    // Splat a synthetic attribute so the Blade view can
+                    // read it without knowing about the lookup.
+                    $category->setAttribute('total_designs_count', $count);
+
+                    return $category;
+                })
+                ->filter(fn (Category $c) => $c->getAttribute('total_designs_count') > 0)
+                ->values(),
 
             // Designers ranked by how much published work they actually have
             // — no point surfacing an empty portfolio on the homepage.
