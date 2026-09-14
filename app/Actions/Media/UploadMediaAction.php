@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Actions\Media;
 
+use App\Models\Design;
+use App\Models\DesignProductMapping;
 use App\Models\Media;
+use App\Models\ProductTemplate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 
@@ -47,6 +50,34 @@ class UploadMediaAction
             'product_template_id' => $productTemplateId,
             'file_path' => $path,
         ]);
+
+        // INTEGRITY INVARIANT: a per-product mockup on a Design must always
+        // have a corresponding DesignProductMapping(design_id, product_template_id).
+        // Otherwise the storefront shows a per-product preview the customer
+        // can't actually order — a "ghost" mockup. We lazily firstOrCreate the
+        // mapping here so the invariant holds whenever a per-product mockup lands.
+        if (
+            $collectionName === 'mockup'
+            && $productTemplateId !== null
+            && $owner instanceof Design
+        ) {
+            $template = ProductTemplate::find($productTemplateId);
+            if ($template !== null) {
+                DesignProductMapping::firstOrCreate(
+                    [
+                        'design_id' => $owner->getKey(),
+                        'product_template_id' => $productTemplateId,
+                    ],
+                    [
+                        'preferred_printer_id' => $template->printer_provider_id,
+                        // Don't set final_price if a designer-priced mapping
+                        // already exists — let that win. firstOrCreate only
+                        // populates the values dict when creating.
+                        'final_price' => $template->base_cost * 2.5,
+                    ],
+                );
+            }
+        }
 
         return $media->refresh();
     }
