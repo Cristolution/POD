@@ -97,7 +97,7 @@
          design page) + a heart cell for the wishlist toggle. The heart
          lives inside a form so its own POST/DELETE submits without
          being hijacked by the surrounding link. --}}
-    <div class="grid grid-cols-[1fr_1fr_auto] border-t-3 border-ink-800 font-mono text-xs uppercase tracking-widest mt-auto">
+    <div class="grid grid-cols-3 border-t-3 border-ink-800 font-mono text-xs uppercase tracking-widest mt-auto">
         <a href="{{ route('design.show', $design) }}" class="px-2 py-1.5 border-e-3 border-ink-800 text-center block">
             <span class="font-display text-sm">{{ $design->mappings_count }}</span>
             <span class="block text-[9px] opacity-70">{{ \Illuminate\Support\Str::plural('product', $design->mappings_count) }}</span>
