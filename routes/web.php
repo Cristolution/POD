@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\AddressController;
 use App\Http\Controllers\Web\BrowseController;
 use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CheckoutController;
+use App\Http\Controllers\Web\ConfirmDeleteMeController;
 use App\Http\Controllers\Web\DesignDetailController;
 use App\Http\Controllers\Web\DesignerDesignController;
 use App\Http\Controllers\Web\DesignerMappingController;
@@ -302,6 +303,24 @@ Route::middleware(['share.cart', 'localize'])->group(function (): void {
     Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
     Route::get('/{locale}/sitemap.xml', SitemapController::class)->where('locale', '(en|ar|tr)')->name('sitemap.localized');
 });
+
+// ---------------------------------------------------------------------
+// Account-deletion confirmation — signed URL, accessible to anyone
+// holding a valid (non-expired) link. NOT auth-gated because the user
+// is expected to be logged out by the time they click the email link.
+// ---------------------------------------------------------------------
+Route::get('/me/delete/confirm/{id}', ConfirmDeleteMeController::class)
+    ->name('me.delete.confirm')
+    ->middleware('signed');
+
+// ---------------------------------------------------------------------
+// Account-deleted landing page — public, shown after a successful
+// confirmation.
+// ---------------------------------------------------------------------
+Route::view('/account-deleted', 'pages.account-deleted')->name('account.deleted');
+Route::view('/{locale}/account-deleted', 'pages.account-deleted')
+    ->where('locale', '(en|ar|tr)')
+    ->name('account.deleted.localized');
 
 // =============================================================================
 // L5-Swagger documentation routes. Mounted identically in all 3 environments so

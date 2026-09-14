@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Actions\User\DeleteMeAction;
+use App\Actions\User\RequestDeleteMeAction;
 use App\Actions\User\UpdateMeAction;
 use App\Actions\User\UpdatePasswordAction;
 use App\Http\Requests\User\UpdateMeRequest;
@@ -17,7 +17,7 @@ class MeController extends Controller
     public function __construct(
         private readonly UpdateMeAction $updateMe,
         private readonly UpdatePasswordAction $updatePassword,
-        private readonly DeleteMeAction $deleteMe,
+        private readonly RequestDeleteMeAction $requestDeleteMe,
     ) {}
 
     public function show(): JsonResponse
@@ -49,8 +49,14 @@ class MeController extends Controller
 
     public function destroy(): JsonResponse
     {
-        $this->deleteMe->execute(auth()->user());
+        $user = auth()->user();
 
-        return response()->json(null, 204);
+        if ($user->trashed()) {
+            return response()->json(null, 410);
+        }
+
+        $this->requestDeleteMe->execute($user);
+
+        return response()->json(null, 202);
     }
 }

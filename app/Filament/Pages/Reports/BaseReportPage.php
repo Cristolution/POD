@@ -51,6 +51,28 @@ abstract class BaseReportPage extends Page
         ];
     }
 
+    /**
+     * Whenever the user changes the date inputs (`wire:model.live="data.from"`
+     * etc.), push the new values down to every chart widget so they can
+     * recompute their data on the next render.
+     *
+     * Without this, the chart child widgets stay frozen at mount-time
+     * props — so the table below correctly shows the new filter but the
+     * chart above keeps showing the original 30-day range even after
+     * clicking Refresh.
+     */
+    public function updatedData(): void
+    {
+        foreach ($this->chartWidgets() as $widgetClass) {
+            // Livewire's dispatch fires to all listeners on the page; the
+            // chart widgets subscribe via onFilterChanged() and update.
+            $this->dispatch('chart-filter-changed',
+                from: $this->data['from'] ?? null,
+                to: $this->data['to'] ?? null,
+            );
+        }
+    }
+
     public function exportCsv()
     {
         /** @var Report $report */
@@ -94,6 +116,12 @@ abstract class BaseReportPage extends Page
             ->map(fn ($row): array => (array) $row)
             ->values()
             ->all();
+
+        \Log::debug('BaseReportPage::getViewData', [
+            'class' => static::class,
+            'data' => $this->data,
+            'rows_count' => count($normalised),
+        ]);
 
         return [
             'rows' => $normalised,

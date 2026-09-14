@@ -42,14 +42,14 @@ class RevenueByDayChart extends ChartWidget
 
     public function getData(): array
     {
-        // Fall back to the same 30-day default the report uses so the chart
-        // still renders on first mount before any input is touched.
-        $from = $this->from ?? now()->subDays(29)->toDateString();
-        $to = $this->to ?? now()->toDateString();
+        // Pull filter from the request payload (Livewire round-trip)
+        // because in this Livewire 3 setup the chart child's $from/$to
+        // props don't actually update on subsequent re-renders.
+        [$from, $to] = $this->resolveFilter();
 
         $rows = app(RevenueByDayReport::class)->run(new Request([
-            'from' => $from,
-            'to' => $to,
+            'from' => $from ?? now()->subDays(29)->toDateString(),
+            'to' => $to ?? now()->toDateString(),
         ]));
 
         return [

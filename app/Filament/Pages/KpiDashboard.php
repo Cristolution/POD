@@ -40,8 +40,8 @@ class KpiDashboard extends Dashboard
     protected function getFooterWidgets(): array
     {
         return [
-            RevenueChart::class,
             RecentOrdersTable::class,
+            RevenueChart::class,
         ];
     }
 

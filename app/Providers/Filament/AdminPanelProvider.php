@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Approvals\ApprovalsHub;
+use App\Filament\Pages\Approvals\DesignerVerificationsPage;
+use App\Filament\Pages\Approvals\PendingOrdersPage;
+use App\Filament\Pages\Approvals\PendingPaymentsPage;
 use App\Filament\Pages\KpiDashboard;
 use App\Http\Middleware\EnsureAdmin;
 use Filament\Http\Middleware\Authenticate;
@@ -49,6 +53,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make('Catalog')->icon('heroicon-o-squares-2x2'),
                 NavigationGroup::make('Operations')->icon('heroicon-o-shopping-bag'),
+                NavigationGroup::make('Approvals')->icon('heroicon-o-check-badge'),
                 NavigationGroup::make('Reports')->icon('heroicon-o-chart-bar'),
                 NavigationGroup::make('System')->icon('heroicon-o-cog-6-tooth'),
             ])
@@ -56,6 +61,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 KpiDashboard::class,
+                ApprovalsHub::class,
+                PendingPaymentsPage::class,
+                PendingOrdersPage::class,
+                DesignerVerificationsPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
